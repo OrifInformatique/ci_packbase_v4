@@ -58,9 +58,7 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [CodeIgniter](https://www.codeigniter.com/) - PHP framework
-* [CodeIgniter modular extensions HMVC](https://github.com/OrifInformatique/HMVC) - HMVC for CodeIgniter
-* [CodeIgniter base model](https://github.com/OrifInformatique/codeigniter-base-model) - Generic model
+* [CodeIgniter 4](https://www.codeigniter.com/) - PHP framework
 * [Bootstrap](https://getbootstrap.com/) - To simplify views design
 
 ## Contributing
@@ -86,4 +84,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * Hat tip to anyone whose code was used
 * Inspiration
 * etc
-
