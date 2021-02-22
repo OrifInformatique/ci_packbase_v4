@@ -28,7 +28,8 @@ class BaseController extends Controller
 	 * @var array
 	 */
 	protected $helpers = [];
-
+	/** add access level BaseController like in v3*/
+    protected $access_level = "*";
 	/**
 	 * Constructor.
 	 *
@@ -38,6 +39,11 @@ class BaseController extends Controller
 	 */
 	public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
 	{
+	    if (!$this->check_permission()){
+            //throw new \Exception();
+        }
+
+
 		// Do Not Edit This Line
 		parent::initController($request, $response, $logger);
 
@@ -46,6 +52,50 @@ class BaseController extends Controller
 		//--------------------------------------------------------------------
 		// E.g.: $this->session = \Config\Services::session();
 	}
+    /**
+     * Check if user access level matches the required access level.
+     * Required level can be the controller's default level or a custom
+     * specified level.
+     *
+     * @param  $required_level : minimum level required to get permission
+     * @return bool : true if user level is equal or higher than required level,
+     *                false else
+     */
+    protected function check_permission($required_level = NULL)
+    {
+        if (!isset($_SESSION['logged_in'])) {
+            // Tests can accidentally delete $_SESSION,
+            // this makes sure it always exists.
+            $_SESSION['logged_in'] = FALSE;
+        }
+        if (is_null($required_level)) {
+            $required_level = $this->access_level;
+        }
+
+        if ($required_level == "*") {
+            // page is accessible for all users
+            return true;
+        }
+        else {
+            // check if user is logged in
+            // if not, redirect to login page
+            if ($_SESSION['logged_in'] != true) {
+                redirect("user/auth/login");
+            }
+            // check if page is accessible for all logged in users
+            elseif ($required_level == "@") {
+                return true;
+            }
+            // check access level
+            elseif ($required_level <= $_SESSION['user_access']) {
+                return true;
+            }
+            // no permission
+            else {
+                return false;
+            }
+        }
+    }
 
 	/**
     * Display one or multiple view(s), adding header, footer and
@@ -79,4 +129,5 @@ class BaseController extends Controller
         // Display common footer
         echo view('Common\footer');
     }
+
 }
