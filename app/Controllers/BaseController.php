@@ -63,37 +63,12 @@ class BaseController extends Controller
      */
     protected function check_permission($required_level = NULL)
     {
-        if (!isset($_SESSION['logged_in'])) {
-            // Tests can accidentally delete $_SESSION,
-            // this makes sure it always exists.
-            $_SESSION['logged_in'] = FALSE;
-        }
-        if (is_null($required_level)) {
-            $required_level = $this->access_level;
-        }
-
         if ($required_level == "*") {
             // page is accessible for all users
             return true;
         }
         else {
-            // check if user is logged in
-            // if not, redirect to login page
-            if ($_SESSION['logged_in'] != true) {
-                redirect("user/auth/login");
-            }
-            // check if page is accessible for all logged in users
-            elseif ($required_level == "@") {
-                return true;
-            }
-            // check access level
-            elseif ($required_level <= $_SESSION['user_access']) {
-                return true;
-            }
-            // no permission
-            else {
-                return false;
-            }
+
         }
     }
 
