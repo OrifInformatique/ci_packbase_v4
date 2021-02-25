@@ -1,7 +1,7 @@
 <?php
-$routes->group('user',function($routes){
-    $routes->add('admin','\User\Controllers\Admin');
-});
+$routes->get("admin","\User\Controllers\Admin");
+$routes->group("user/auth",function($routes){
+    $routes->add("login","\User\Controllers\Auth::login");
 
-
+})
 ?>
