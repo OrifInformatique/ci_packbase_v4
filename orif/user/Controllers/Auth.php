@@ -12,12 +12,16 @@ class Auth extends \App\Controllers\BaseController {
     /**
      * Constructor
      */
+    private $validation=null;
+    private $session=null;
     public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
     {
         //load for helper
         helper('form');
+        $this->session=\Config\Services::session();
+
         //load the validation service to validate the form
-        $validation=\Config\Services::validation();
+        $this->validation=\Config\Services::validation();
         $this->access_level = '*';
         parent::initController($request, $response, $logger);
 
@@ -35,6 +39,7 @@ class Auth extends \App\Controllers\BaseController {
     {
         // If user already logged
         if(!(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)) {
+
             // Store the redirection URL in a session variable
             // in codeigniter 4 $this->input is remplaced by $this->request->getVar()
             if (!is_null($this->request->getVar('after_login_redirect'))) {
@@ -50,34 +55,52 @@ class Auth extends \App\Controllers\BaseController {
 
             // Check if the form has been submitted, else just display the form
             if (!is_null($this->request->getVar('btn_login'))) {
+
                 // Define fields validation rules
-                $validation_rules = array(
+                //this is only available in codeigniter3
+                /*$validation_rules = array(
                     array(
                         'field' => 'username',
                         'label' => 'lang:field_username',
                         'rules' => 'trim|required|'
-                                 . 'min_length['.config("\User\Config\User_config")->username_min_length.']|'
-                                 . 'max_length['.config("\User\Config\User_config")->username_max_length.']'
+                            . 'min_length['.$this->config->item('username_min_length').']|'
+                            . 'max_length['.$this->config->item('username_max_length').']'
                     ),
                     array(
                         'field' => 'password',
                         'label' => 'lang:field_password',
                         'rules' => 'trim|required|'
-                                 . 'min_length['.config("\User\Config\User_config")->password_min_length.']|'
-                                 . 'max_length['.config("\User\Config\User_config")->password_max_length.']'
+                            . 'min_length['.$this->config->item('password_min_length').']|'
+                            . 'max_length['.$this->config->item('password_max_length').']'
                     )
                 );
+                */
+                $validation_rules=[
+                    'username'=>[
+                    'label' => 'My_user_lang.field_username',
+                    'rules' => 'trim|required|'
+                        . 'min_length['.config("\User\Config\User_config")->username_min_length.']|'
+                        . 'max_length['.config("\User\Config\User_config")->username_max_length.']'],
+                    'password'=>[
+                        'label' => 'My_user_lang.field_password',
+                        'rules' => 'trim|required|'
+                            . 'min_length['.config("\User\Config\User_config")->password_min_length.']|'
+                            . 'max_length['.config("\User\Config\User_config")->password_max_length.']'
+                    ]
+                    ];
                 //set validation rules in codeigniter 4
-                $validation->setRules($validation_rules);
+                $this->validation->setRules($validation_rules);
                 //$this->form_validation->set_rules($validation_rules);
-
                 // Check fields validation rules
-                if ($validation->run() == true) {
+
+                if ($this->validation->withRequest($this->request)->run() == true) {
+                    echo "<script>alert('salut')</script>";
+
                     $input = $this->request->getVar('username');
                     $password = $this->request->getvar('password');
-                    $ismail = $this->user_model->check_password_email($input, $password);
+                    //$ismail = $this->user_model->check_password_email($input, $password);
 
-                    if ($ismail || $this->user_model->check_password_name($input, $password)) {
+                    /*if ($ismail || $this->user_model->check_password_name($input, $password)) {
                         // Login success
                         $user = NULL;
                         // User is either logging in through an email or an username
@@ -103,6 +126,8 @@ class Auth extends \App\Controllers\BaseController {
                         // Login failed
                         $this->session->set_flashdata('message-danger', lang('msg_err_invalid_password'));
                     }
+                    */
+                    $this->session->setFlashdata('message-danger', lang('My_user_lang.msg_err_invalid_password'));
                 }
             }
 
