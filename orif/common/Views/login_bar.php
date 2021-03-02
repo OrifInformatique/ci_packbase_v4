@@ -11,7 +11,7 @@
         <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) { ?>
           
           <!-- ADMIN ACCESS ONLY -->
-          <?php if ($_SESSION['user_access'] >= $config->item('access_lvl_admin')) { ?>
+          <?php if ($_SESSION['user_access'] >= config('\User\Config\User_config')->access_lvl_admin) { ?>
               <a href="<?php echo base_url("user/admin/list_user"); ?>" ><?php echo lang('common_lang.btn_admin'); ?></a><br />
           <?php } ?>
           <!-- END OF ADMIN ACCESS -->
