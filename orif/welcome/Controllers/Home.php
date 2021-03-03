@@ -18,7 +18,6 @@ class Home extends BaseController
                             'inventory_nb' => 'No d\'inventaire',
                             'buying_date' => 'date d\'achat',
                             'warranty_duration' => 'durée de garantie'];
-
         $data['items'] = [
             ['id' => '1', 'name' => 'Item 1', 'inventory_nb' => 'ITM0001', 'buying_date' => '01.01.2020', 'warranty_duration' => '12 months'],
             ['id' => '2', 'name' => 'Item 2', 'inventory_nb' => 'ITM0002', 'buying_date' => '01.02.2020', 'warranty_duration' => '12 months'],
@@ -28,6 +27,11 @@ class Home extends BaseController
             ['id' => '6', 'name' => 'Item 6', 'inventory_nb' => 'ITM0006', 'buying_date' => '01.06.2020', 'warranty_duration' => '12 months'],
             ['id' => '7', 'name' => 'Item 7', 'inventory_nb' => 'ITM0007', 'buying_date' => '01.07.2020', 'warranty_duration' => '12 months'],
         ];
+        
+        $data['url_detail'] = "items_list/detail/";
+        $data['url_update'] = "items_list/update/";
+        $data['url_delete'] = "items_list/delete/";
+        $data['url_create'] = "items_list/create/";
 
 		$this->display_view(['Common\Views\items_list','Welcome\welcome_message'], $data);
 	}
