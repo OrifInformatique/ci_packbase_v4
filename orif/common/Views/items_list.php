@@ -3,6 +3,14 @@
     if (!isset($primary_key_field)) {
         $primary_key_field = "id";
     }
+    // If no label for create button is sent as parameter, use default label
+    if (!isset($btn_create_label)) {
+        $btn_create_label = lang('common_lang.btn_create');
+    }
+    // If no label for "with deleted" field is sent as parameter, use default label
+    if (!isset($field_with_deleted_label)) {
+        $field_with_deleted_label = lang('common_lang.field_with_deleted');
+    }
 ?>
 
 <div class="items_list container">
@@ -12,11 +20,11 @@
         <div class="col-sm-5 text-left">
             <!-- Display the "create" button if url_create is defined -->
             <?php if(isset($url_create)) { ?>
-                <a class="btn btn-primary" href="<?= site_url(esc($url_create)) ?>">Ajouter un élément</a>
+                <a class="btn btn-primary" href="<?= site_url(esc($url_create)) ?>"><?= esc($btn_create_label) ?></a>
             <?php } ?>
         </div>
         <div class="col-sm-7 text-right">
-            <label class="btn btn-default form-check-label" for="toggle_deleted">Afficher les éléments supprimés</label>
+            <label class="btn btn-default form-check-label" for="toggle_deleted"><?= esc($field_with_deleted_label) ?></label>
             <input type="checkbox" name="toggle_deleted" value=""  id="toggle_deleted" />
         </div>
     </div>

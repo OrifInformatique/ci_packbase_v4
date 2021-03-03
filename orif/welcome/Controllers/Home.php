@@ -14,6 +14,7 @@ class Home extends BaseController
          * @todo TEST DATASET, TO BE REMOVED
          */
 		$data['list_title'] = "Test de la vue items_list";
+
         $data['columns'] = ['name' => 'Nom',
                             'inventory_nb' => 'No d\'inventaire',
                             'buying_date' => 'date d\'achat',
@@ -27,7 +28,10 @@ class Home extends BaseController
             ['id' => '6', 'name' => 'Item 6', 'inventory_nb' => 'ITM0006', 'buying_date' => '01.06.2020', 'warranty_duration' => '12 months'],
             ['id' => '7', 'name' => 'Item 7', 'inventory_nb' => 'ITM0007', 'buying_date' => '01.07.2020', 'warranty_duration' => '12 months'],
         ];
-        
+
+        $data['primary_key_field']  = 'id';
+        $data['btn_create_label']   = 'Ajouter un objet';
+        $data['field_with_deleted_label'] = 'Inclure les objets supprimés';
         $data['url_detail'] = "items_list/detail/";
         $data['url_update'] = "items_list/update/";
         $data['url_delete'] = "items_list/delete/";
