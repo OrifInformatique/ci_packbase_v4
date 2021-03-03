@@ -13,7 +13,7 @@ class Home extends BaseController
 		/**
          * @todo TEST DATASET, TO BE REMOVED
          */
-		$data['list_title'] = "Test du module ListAuto";
+		$data['list_title'] = "Test de la vue items_list";
 
         $data['items'] = [
             ['id' => '1', 'name' => 'Item 1', 'inventory_nb' => 'ITM0001', 'buying_date' => '01.01.2020', 'warranty_duration' => '12'],
@@ -25,6 +25,6 @@ class Home extends BaseController
             ['id' => '7', 'name' => 'Item 7', 'inventory_nb' => 'ITM0007', 'buying_date' => '01.07.2020', 'warranty_duration' => '12'],
         ];
 
-		$this->display_view(['ListAuto\Views\list','Welcome\welcome_message'], $data);
+		$this->display_view(['Common\Views\items_list','Welcome\welcome_message'], $data);
 	}
 }
