@@ -1,4 +1,60 @@
 <?php
+   /** @author      Orif, section informatique
+     * @link        https://github.com/OrifInformatique
+     * @copyright   Copyright (c), Orif (https://www.orif.ch)
+     * @version     1.0
+     * 
+     * Generic view to display items list in a bootstrap table, optionally with links
+     * for creating, reading details, updating or deleting.
+     * Another option can be set to display a "with deleted" checkbox. This refers to
+     * the "soft deleted" items.
+     * 
+     * @param list_title : String displayed on the top of the list.
+     * @param items :      Array of items to display, each item being a subarray with multiple properties.
+     * @param columns :    Array of columns to display in the list.
+     *                     Key is the name of the corresponding items property in items subarrays.
+     *                     Value is the header to display for each column.
+     * @param primary_key_field :
+     *                     String containing the name of the primary key of the items.
+     *                     Used to construct the links to details/update/delete controllers.
+     *                     If not set, "id" is used by default.
+     * @param btn_create_label :
+     *                     Label for the "create" button. If not set, default label is used.
+     * @param field_with_deleted_label :
+     *                     Label for the "with deleted" checkbox. If not set, default label is used.
+     * @param url_detail : Link to the controller method wich displays item's details.
+     *                     If not set, no "detail" link will be displayed.
+     * @param url_update : Link to the controller method wich displays a form to update the item.
+     *                     If not set, no "update" link will be displayed.
+     * @param url_delete : Link to the controller method wich deletes the item.
+     *                     If not set, no "delete" link will be displayed.
+     * @param url_create : Link to the controller method wich displays a form to create a new item.
+     *                     If not set, no "create" button will be displayed.
+     * 
+     * EXAMPLE TO CALL THIS VIEW FROM ANY CONTROLLER :
+     *   $data['list_title'] = "Test items_list view";
+     *   
+     *   $data['columns'] = ['name' => 'Name',
+     *                       'inventory_nb' => 'Inventory nb',
+     *                       'buying_date' => 'Buying date',
+     *                       'warranty_duration' => 'Warranty duration'];
+     *   $data['items'] = [
+     *       ['id' => '1', 'name' => 'Item 1', 'inventory_nb' => 'ITM0001', 'buying_date' => '01/01/2020', 'warranty_duration' => '12 months'],
+     *       ['id' => '2', 'name' => 'Item 2', 'inventory_nb' => 'ITM0002', 'buying_date' => '01/02/2020', 'warranty_duration' => '12 months'],
+     *       ['id' => '3', 'name' => 'Item 3', 'inventory_nb' => 'ITM0003', 'buying_date' => '01/03/2020', 'warranty_duration' => '12 months']
+     *   ];
+     *
+     *   $data['primary_key_field']  = 'id';
+     *   $data['btn_create_label']   = 'Add an item';
+     *   $data['field_with_deleted_label'] = 'Include deleted items';
+     *   $data['url_detail'] = "items_list/detail/";
+     *   $data['url_update'] = "items_list/update/";
+     *   $data['url_delete'] = "items_list/delete/";
+     *   $data['url_create'] = "items_list/create/";
+     *
+	 *	 $this->display_view('Common\Views\items_list', $data);
+     */
+
     // If no primary key field name is sent as parameter, suppose it is "id"
     if (!isset($primary_key_field)) {
         $primary_key_field = "id";
