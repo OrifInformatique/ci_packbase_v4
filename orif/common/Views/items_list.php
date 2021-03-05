@@ -60,10 +60,12 @@
 ?>
 
 <div class="items_list container">
-    <?= isset($list_title) ? '<h3>'.esc($list_title).'</h3>' : '' ?>
-
     <div class="row mb-2">
-        <div class="col-12 text-left">
+        <div class="col-sm-8 text-left">
+            <!-- Display list title if defined defined -->
+            <?= isset($list_title) ? '<h3>'.esc($list_title).'</h3>' : '' ?>
+        </div>
+        <div class="col-sm-4 text-right">
             <!-- Display the "create" button if url_create is defined -->
             <?php if(isset($url_create)) { ?>
                 <a class="btn btn-primary" href="<?= site_url(esc($url_create)) ?>"><?= esc($btn_create_label) ?></a>
