@@ -1,13 +1,10 @@
 <?php
-   /** @author      Orif, section informatique
+   /** @author      Orif, section informatique (ViDi)
      * @link        https://github.com/OrifInformatique
      * @copyright   Copyright (c), Orif (https://www.orif.ch)
-     * @version     1.0
      * 
      * Generic view to display items list in a bootstrap table, optionally with links
-     * for creating, reading details, updating or deleting.
-     * Another option can be set to display a "with deleted" checkbox. This refers to
-     * the "soft deleted" items.
+     * for creating, reading details, updating or deleting items.
      * 
      * @param list_title : String displayed on the top of the list.
      * @param items :      Array of items to display, each item being a subarray with multiple properties.
@@ -20,8 +17,6 @@
      *                     If not set, "id" is used by default.
      * @param btn_create_label :
      *                     Label for the "create" button. If not set, default label is used.
-     * @param field_with_deleted_label :
-     *                     Label for the "with deleted" checkbox. If not set, default label is used.
      * @param url_detail : Link to the controller method wich displays item's details.
      *                     If not set, no "detail" link will be displayed.
      * @param url_update : Link to the controller method wich displays a form to update the item.
@@ -46,7 +41,6 @@
      *
      *   $data['primary_key_field']  = 'id';
      *   $data['btn_create_label']   = 'Add an item';
-     *   $data['field_with_deleted_label'] = 'Include deleted items';
      *   $data['url_detail'] = "items_list/detail/";
      *   $data['url_update'] = "items_list/update/";
      *   $data['url_delete'] = "items_list/delete/";
@@ -61,11 +55,7 @@
     }
     // If no label for create button is sent as parameter, use default label
     if (!isset($btn_create_label)) {
-        $btn_create_label = lang('common_lang.btn_create');
-    }
-    // If no label for "with deleted" field is sent as parameter, use default label
-    if (!isset($field_with_deleted_label)) {
-        $field_with_deleted_label = lang('common_lang.field_with_deleted');
+        $btn_create_label = lang('common_lang.btn_add');
     }
 ?>
 
@@ -73,15 +63,11 @@
     <?= isset($list_title) ? '<h3>'.esc($list_title).'</h3>' : '' ?>
 
     <div class="row mb-2">
-        <div class="col-sm-5 text-left">
+        <div class="col-12 text-left">
             <!-- Display the "create" button if url_create is defined -->
             <?php if(isset($url_create)) { ?>
                 <a class="btn btn-primary" href="<?= site_url(esc($url_create)) ?>"><?= esc($btn_create_label) ?></a>
             <?php } ?>
-        </div>
-        <div class="col-sm-7 text-right">
-            <label class="btn btn-default form-check-label" for="toggle_deleted"><?= esc($field_with_deleted_label) ?></label>
-            <input type="checkbox" name="toggle_deleted" value=""  id="toggle_deleted" />
         </div>
     </div>
 

@@ -31,7 +31,6 @@ class Home extends BaseController
 
         $data['primary_key_field']  = 'id';
         $data['btn_create_label']   = 'Ajouter un objet';
-        $data['field_with_deleted_label'] = 'Inclure les objets supprimés';
         $data['url_detail'] = "items_list/detail/";
         $data['url_update'] = "items_list/update/";
         $data['url_delete'] = "items_list/delete/";
