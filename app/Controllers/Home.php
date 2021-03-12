@@ -8,7 +8,6 @@ use Psr\Log\LoggerInterface;
 
 class Home extends BaseController
 {
-    private $session=null;
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         parent::initController($request, $response, $logger);
