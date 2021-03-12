@@ -13,17 +13,13 @@ class Auth extends \App\Controllers\BaseController {
     /**
      * Constructor
      */
-    private $validation=null;
-    private $session=null;
     public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
     {
         //load for helper
         helper('form');
-        $this->session=\Config\Services::session();
 
         //load the validation service to validate the form
-        $this->validation=\Config\Services::validation();
-        $this->access_level = '*';
+
         parent::initController($request, $response, $logger);
 
     }
@@ -95,11 +91,10 @@ class Auth extends \App\Controllers\BaseController {
                 // Check fields validation rules
 
                 if ($this->validation->withRequest($this->request)->run() == true) {
-                    $user_model=new models\User_model();
                     $input = $this->request->getVar('username');
                     $password = $this->request->getvar('password');
-                    $ismail = $user_model->check_password_email($input, $password);
-                    if ($ismail || $user_model->check_password_name($input, $password)) {
+                    $ismail = $this->user_model->check_password_email($input, $password);
+                    if ($ismail || $this->user_model->check_password_name($input, $password)) {
                         // Login success
                         $user = NULL;
                         // User is either logging in through an email or an username
@@ -107,17 +102,17 @@ class Auth extends \App\Controllers\BaseController {
                         if ($ismail) {
                             //$user = $user_model->with('user_type')
                             //                         ->get_by('email', $input);
-                            $user = $user_model->getWhere(['email'=>$input])->getRow();
+                            $user = $this->user_model->getWhere(['email'=>$input])->getRow();
                         } else {
                             //$user = $user_model->with('user_type')
                             //                         ->get_by('username', $input);
-                            $user = $user_model->getWhere(['username'=>$input])->getRow();
+                            $user = $this->user_model->getWhere(['username'=>$input])->getRow();
                         }
 
                         // Set session variables
                         $_SESSION['user_id'] = (int)$user->id;
                         $_SESSION['username'] = (string)$user->username;
-                        $_SESSION['user_access'] = (int)$user_model->get_access_level($user);
+                        $_SESSION['user_access'] = (int)$this->user_model->get_access_level($user);
                         $_SESSION['logged_in'] = (bool)true;
 
                         // Send the user to the redirection URL
@@ -199,12 +194,11 @@ class Auth extends \App\Controllers\BaseController {
                     $new_password = $this->request->getVar('new_password');
                     $confirm_password = $this->request->getVar('confirm_password');
 
-                    $user_model=new models\User_model();
-                    $user_model->update($_SESSION['user_id'],
+                    $this->user_model=new models\User_model();
+                    $this->user_model->update($_SESSION['user_id'],
                             array("password" => password_hash($new_password, config("\User\Config\User_config")->password_hash_algorithm)));
 
                     // Send the user back to the site's root
-                    echo "echococo";
                     return redirect()->to(base_url());
                 }
             }
