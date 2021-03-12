@@ -1,17 +1,14 @@
 <?php
+/**
+ * BaseController
+ *
+ * @author      Orif (ViDi)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch) 
+ */
 
 namespace App\Controllers;
-
 use CodeIgniter\Controller;
-use CodeIgniter\HTTP\RequestInterface;
-use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Model;
-use CodeIgniter\Session\Session;
-use CodeIgniter\Validation\Validation;
-use Psr\Log\LoggerInterface;
-use User\Controllers\Auth;
-use User\Models\User_model;
-use User\Models\User_type_model;
 
 /**
  * Class BaseController
@@ -22,6 +19,8 @@ use User\Models\User_type_model;
  *     class Home extends BaseController
  *
  * For security be sure to declare any new methods as protected or private.
+ * 
+ * @package CodeIgniter
  */
 
 class BaseController extends Controller
@@ -34,35 +33,83 @@ class BaseController extends Controller
      * @var array
      */
     protected $helpers = [];
-    /** add access level BaseController like in v3*/
-    protected $access_level = "*";
-    protected Validation $validation;
-    protected Session $session;
-    protected Model $user_model;
-    protected Model $user_type_model;
+
     /**
-     * Constructor.
-     *
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
-     * @param LoggerInterface   $logger
+     * Limit the accessibility to the entire controller.
+     * Modify this value in constructor of child controllers, before calling parent::initController.
+     * 
+     * '*' accessible for all users
+     * '@' accessible for logged in users
+     * 
+     * Other possible values are defined in User\Config\UserConfig
+     * For example : $access_level = config('User\Config\UserConfig')->access_lvl_admin
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
-    {
+    protected $access_level = "*";
+    
+	/**
+	 * Constructor.
+	 */
+	public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
+	{
+		// Do Not Edit This Line
+		parent::initController($request, $response, $logger);
 
-
-
-        // Do Not Edit This Line
-        parent::initController($request, $response, $logger);
-        //--------------------------------------------------------------------
-        // Preload any models, libraries, etc, here.
-        //--------------------------------------------------------------------
-        // E.g.: $this->session = \Config\Services::session();
+		//--------------------------------------------------------------------
+		// Preload any models, libraries, etc, here.
+		//--------------------------------------------------------------------
+		// E.g.:
+		// $this->session = \Config\Services::session();
         $this->session = \Config\Services::session();
-        $this->validation=\Config\Services::validation();
-        $this->user_model=new User_model();
-        $this->user_type_model=new User_type_model();
 
+        // Check permission on construct
+        if (!$this->check_permission()) {
+            var_dump("échec");
+            //show_error(lang('msg_err_access_denied_message'), 403, lang('msg_err_access_denied_header'));
+        }
+    }
+
+    /**
+    * Check if user access level matches the required access level.
+    * Required level can be the controller's default level or a custom
+    * specified level.
+    *
+    * @param  $required_level : minimum level required to get permission
+    * @return bool : true if user level is equal or higher than required level,
+    *                false else
+    */
+    protected function check_permission($required_level = NULL)
+    {
+        if (!isset($_SESSION['logged_in'])) {
+            // Tests can accidentally delete $_SESSION,
+            // this makes sure it always exists.
+            $_SESSION['logged_in'] = FALSE;
+        }
+        if (is_null($required_level)) {
+            $required_level = $this->access_level;
+        }
+
+        if ($required_level == "*") {
+            // page is accessible for all users
+            return true;
+        }
+        else {
+            // check if user is logged in, if not access is not allowed
+            if ($_SESSION['logged_in'] != true) {
+                return false;
+            }
+            // check if page is accessible for all logged in users
+            elseif ($required_level == "@") {
+                return true;
+            }
+            // check access level
+            elseif ($required_level <= $_SESSION['user_access']) {
+                return true;
+            }
+            // no permission
+            else {
+                return false;
+            }
+        }
     }
 
     /**
@@ -97,5 +144,4 @@ class BaseController extends Controller
         // Display common footer
         echo view('Common\footer');
     }
-
 }

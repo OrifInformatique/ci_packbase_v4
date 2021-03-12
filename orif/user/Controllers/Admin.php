@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * User Administration
+ *
+ * @author      Orif (ViDi)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
 namespace User\Controllers;
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\RequestInterface;
@@ -8,9 +14,12 @@ use Psr\Log\LoggerInterface;
 
 class Admin extends BaseController
 {
-    protected $access_level;
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
+        // Controller's accessibility is restricted for administrators only
+        $this->access_level = config('User\Config\UserConfig')->access_lvl_admin;
+        
+        // Do Not Edit This Line
         parent::initController($request,$response,$logger);
     }
 

@@ -5,27 +5,29 @@
  * @author      Orif (ViDi)
  * @link        https://github.com/OrifInformatique
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
- * @version     2.0
  */
 namespace User\Controllers;
 use \User\Models as models;
+
 class Auth extends \App\Controllers\BaseController {
+
     /**
      * Constructor
      */
     public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
     {
-        //load for helper
+        // Do Not Edit This Line
+        parent::initController($request, $response, $logger);
+        
+        // Load form helper
         helper('form');
 
-        //load the validation service to validate the form
+        // Load the validation service to validate the form
+        $this->validation = \Config\Services::validation();
 
-        parent::initController($request, $response, $logger);
-
+        // Accessibility for all users to let visitors have access to authentication
+        $this->access_level = "*";
     }
-
-//        $this->load->library('form_validation')->model('user_model');
-
 
     /**
      * Login user and create session variables
@@ -76,13 +78,13 @@ class Auth extends \App\Controllers\BaseController {
                     'username'=>[
                     'label' => 'My_user_lang.field_username',
                     'rules' => 'trim|required|'
-                        . 'min_length['.config("\User\Config\User_config")->username_min_length.']|'
-                        . 'max_length['.config("\User\Config\User_config")->username_max_length.']'],
+                        . 'min_length['.config("\User\Config\UserConfig")->username_min_length.']|'
+                        . 'max_length['.config("\User\Config\UserConfig")->username_max_length.']'],
                     'password'=>[
                         'label' => 'My_user_lang.field_password',
                         'rules' => 'trim|required|'
-                            . 'min_length['.config("\User\Config\User_config")->password_min_length.']|'
-                            . 'max_length['.config("\User\Config\User_config")->password_max_length.']'
+                            . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
+                            . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'
                     ]
                     ];
                 //set validation rules in codeigniter 4
@@ -167,22 +169,22 @@ class Auth extends \App\Controllers\BaseController {
                     'old_password'=>[
                         'label' => 'My_user_lang.field_old_password',
                         'rules' => 'trim|required|'
-                            . 'min_length['.config("\User\Config\User_config")->password_min_length.']|'
-                            . 'max_length['.config("\User\Config\User_config")->password_max_length.']|'
+                            . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
+                            . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']|'
                             . 'old_password_check['.$username.']',
                         'errors' => ['old_password_check' => lang('MY_user_lang.msg_err_invalid_old_password')]
                     ],
                     'new_password'=>[
                         'label' =>'My_user_lang.field_new_password',
                         'rules' =>'trim|required|'
-                            . 'min_length['.config("\User\Config\User_config")->password_min_length.']|'
-                            . 'max_length['.config("\User\Config\User_config")->password_max_length.']'
+                            . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
+                            . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'
                     ],
                     'confirm_password'=>[
                         'label' =>'My_user_lang.field_password_confirm',
                         'rules' =>'trim|required|'
-                            . 'min_length['.config("\User\Config\User_config")->password_min_length.']|'
-                            . 'max_length['.config("\User\Config\User_config")->password_max_length.']|'
+                            . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
+                            . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']|'
                             . 'matches[new_password]'
                     ]
                 ];
@@ -196,7 +198,7 @@ class Auth extends \App\Controllers\BaseController {
 
                     $this->user_model=new models\User_model();
                     $this->user_model->update($_SESSION['user_id'],
-                            array("password" => password_hash($new_password, config("\User\Config\User_config")->password_hash_algorithm)));
+                            array("password" => password_hash($new_password, config("\User\Config\UserConfig")->password_hash_algorithm)));
 
                     // Send the user back to the site's root
                     return redirect()->to(base_url());
