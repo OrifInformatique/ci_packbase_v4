@@ -46,8 +46,8 @@
                 </div>
                 <div class="form-group">
                     <div class="col-md-12 text-right">
-                        <a id="btn_cancel" class="btn btn-default" href="<?= base_url(); ?>"><?= lang('My_user_lang.btn_cancel'); ?></a>
-                        <input id="btn_change_password" name="btn_change_password" type="submit" class="btn btn-primary" value="<?= lang('My_user_lang.btn_save'); ?>" />
+                        <a id="btn_cancel" class="btn btn-default" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
+                        <input id="btn_change_password" name="btn_change_password" type="submit" class="btn btn-primary" value="<?= lang('common_lang.btn_save'); ?>" />
                     </div>
                 </div>
             </fieldset>

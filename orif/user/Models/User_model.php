@@ -7,7 +7,6 @@ use CodeIgniter\Validation\ValidationInterface;
 class User_model extends \CodeIgniter\Model{
     protected $table='user';
     protected $primaryKey='id';
-    protected $protectFields=['id'];
     protected $allowedFields=['archive','created_date','email','firstname','is_active','lastname','password','username','user_type_id'];
     protected $useSoftDeletes=true;
     protected $deletedField="archive";
@@ -28,10 +27,10 @@ class User_model extends \CodeIgniter\Model{
      * @return boolean true on success false otherwise
      */
     public function check_password_name($username, $password){
-        $user=$this->getwhere(["username"=>$username])->getRow();
+        $user=$this->where("username",$username)->first();
         //If a user is found we can verify his password because if his archive is not empty, he is not in the array
         if (!is_null($user)){
-            return password_verify($password,$user->password);
+            return password_verify($password,$user['password']);
         }
         else{
             return false;
@@ -50,9 +49,9 @@ class User_model extends \CodeIgniter\Model{
         if (!filter_var($email,FILTER_VALIDATE_EMAIL)){
             return false;
         }
-        $user = $this->getWhere(['email'=>$email])->getRow();
+        $user = $this->where('email',$email)->first();
         if (!is_null($user)){
-            return password_verify($password,$user->password);
+            return password_verify($password,$user['password']);
         }
         else{
             return false;
