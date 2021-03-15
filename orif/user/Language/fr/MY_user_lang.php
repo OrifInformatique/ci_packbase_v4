@@ -26,6 +26,7 @@ return[
 'btn_cancel'                     => 'Annuler',
 'btn_save'                       => 'Enregistrer',
 'btn_hard_delete'                => 'Supprimer cet utilisateur',
+'btn_disable'                    => 'Désactiver cet utilisateur',
 // Fields labels
 'field_username'                 => 'Identifiant',
 'field_password'                 => 'Mot de passe',
