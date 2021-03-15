@@ -29,7 +29,7 @@ $validation=\Config\Services::validation();
     ?>
 
         <!-- ERROR MESSAGES -->
-        <?= $validation->listErrors(); ?>
+        <?= $validation->listErrors('user_error_list'); ?>
 
         <!-- USER FIELDS -->
         <div class="row">
