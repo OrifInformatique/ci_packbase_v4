@@ -9,6 +9,8 @@
 
 namespace App\Controllers;
 use CodeIgniter\Controller;
+use User\Models\User_model;
+use User\Models\User_type_model;
 
 /**
  * Class BaseController
@@ -25,6 +27,8 @@ use CodeIgniter\Controller;
 
 class BaseController extends Controller
 {
+    protected $user_model;
+    protected $user_type_model;
     /**
      * An array of helpers to be loaded automatically upon
      * class instantiation. These helpers will be available
@@ -60,7 +64,8 @@ class BaseController extends Controller
 		// E.g.:
 		// $this->session = \Config\Services::session();
         $this->session = \Config\Services::session();
-
+        $this->user_model=new User_model();
+        $this->user_type_model=new User_type_model();
         // Check permission on construct
         if (!$this->check_permission()) {
             var_dump("échec");
