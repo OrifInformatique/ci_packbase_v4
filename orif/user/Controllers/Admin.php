@@ -1,11 +1,5 @@
 <?php
-/**
- * User Administration
- *
- * @author      Orif (ViDi)
- * @link        https://github.com/OrifInformatique
- * @copyright   Copyright (c), Orif (https://www.orif.ch)
- */
+
 namespace User\Controllers;
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\RequestInterface;
@@ -14,13 +8,14 @@ use Psr\Log\LoggerInterface;
 
 class Admin extends BaseController
 {
+    protected $access_level;
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Controller's accessibility is restricted for administrators only
-        $this->access_level = config('User\Config\UserConfig')->access_lvl_admin;
-        
-        // Do Not Edit This Line
         parent::initController($request,$response,$logger);
+        helper('form');
+
+        $this->validation = \Config\Services::validation();
+
     }
 
     public function index(){
@@ -55,79 +50,72 @@ class Admin extends BaseController
      */
     public function save_user($user_id = 0)
     {
+        $this->validation->reset();
         $oldName = NULL;
         $oldUsertype = NULL;
         if (count($_POST) > 0) {
-            $user_id = $this->input->post('id');
-            $oldName = $this->input->post('user_name');
+            $user_id = $this->request->getPost('id');
+            $oldName = $this->request->getPost('user_name');
             if($_SESSION['user_id'] != $user_id) {
-                $oldUsertype = $this->input->post('user_usertype');
+                $oldUsertype = $this->request->getPost('user_usertype');
             }
 
-            $this->form_validation->set_rules(
+            /*$this->validation->set_rules(
                 'id', 'id',
                 'callback_cb_not_null_user',
                 ['cb_not_null_user' => $this->lang->line('msg_err_user_not_exist')]
             );
-            $this->form_validation->set_rules('user_name', 'lang:field_user_name',
-                [
-                    'required', 'trim',
-                    'min_length['.$this->config->item('username_min_length').']',
-                    'max_length['.$this->config->item('username_max_length').']',
-                    "callback_cb_unique_user[{$user_id}]"
-                ],
-                ['cb_unique_user' => $this->lang->line('msg_err_user_not_unique')]
-            );
-            $this->form_validation->set_rules('user_usertype', 'lang:field_user_usertype',
-                ['required', 'callback_cb_not_null_user_type'],
-                ['cb_not_null_user_type' => $this->lang->line('msg_err_user_type_not_exist')]
-            );
-            if ($this->input->post('user_email')) {
-                $this->form_validation->set_rules('user_email', 'lang:field_email', [
-                    'required', 'valid_email',
-                    'max_length['.$this->config->item('email_max_length').']'
-                ]);
+            */
+            $validationRules=['id'        =>['label'=>'Id','rules'=>'cb_not_null_user'],
+                              'user_name' =>['label'=>lang('MY_user_lang.field_username'),'rules'=>'required|trim|'.
+                              'min_length['.config('\User\Config\UserConfig')->username_min_length.']|'.
+                              'max_length['.config('\User\Config\UserConfig')->username_max_length.']|'.
+                              'cb_unique_user['.$user_id.']'],
+                              'user_usertype'=>['label'=>lang('My_user_lang.field_user_usertype'),'rules'=>'required|cb_not_null_user_type']];
+            $validationErrors=['id'=>['cb_not_null_user' => lang('My_user_lang.msg_err_user_not_exist')],
+                'user_name'=>['cb_unique_user' => lang('My_user_lang.msg_err_user_not_unique')],
+                'user_usertype'=>['cb_not_null_user_type' => lang('My_user_lang.msg_err_user_type_not_exist')]];
+            if ($this->request->getPost('user_email')) {
+            $validationRules['user_email']=['label'=>lang('MY_user_lang.field_email'),'rules'=>'required|valid_email|max_length['.config("\User\Config\UserConfig")->email_max_length.']'];
             }
-
-            if ($user_id == 0) {
-                $this->form_validation->set_rules('user_password', lang('field_password'), [
-                    'required', 'trim',
-                    'min_length['.$this->config->item('password_min_length').']',
-                    'max_length['.$this->config->item('password_max_length').']'
-                ]);
-                $this->form_validation->set_rules('user_password_again', $this->lang->line('field_password_confirm'), [
-                    'required', 'trim', 'matches[user_password]',
-                    'min_length['.$this->config->item('password_min_length').']',
-                    'max_length['.$this->config->item('password_max_length').']'
-                ]);
+            if ($user_id==0){
+            $validationRules['user_password']=['label'=>lang('MY_user_lang.field_password'),'rules'=>'required|trim|'.
+                'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'.
+                'max_length['.config("\User\Config\UserConfig")->password_max_length.']'];
+            $validationRules['user_password_again']=['label'=>lang('MY_user_lang.field_password_confirm'),'rules'=>'required|trim|matches[user_password]|'.
+                'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'.
+                'max_length['.config("\User\Config\UserConfig")->password_max_length.']'];
             }
-
-            if ($this->form_validation->run()) {
+            $this->validation->setRules($validationRules,$validationErrors);
+            if ($this->validation->withRequest($this->request)->run()) {
                 $user = array(
-                    'fk_user_type' => $this->input->post('user_usertype'),
-                    'username' => $this->input->post('user_name'),
-                    'email' => $this->input->post('user_email') ?: NULL
+                    'fk_user_type' => intval($this->request->getPost('user_usertype')),
+                    'username' => $this->request->getPost('user_name'),
+                    'email' => $this->request->getPost('user_email') ?: NULL
                 );
                 if ($user_id > 0) {
                     $this->user_model->update($user_id, $user);
                 } else {
-                    $password = $this->input->post('user_password');
-                    $user['password'] = password_hash($password, $this->config->item('password_hash_algorithm'));
+                    $password = $this->request->getPost('user_password');
+                    $user['password'] = password_hash($password, config('\User\Config\UserConfig')->password_hash_algorithm);
                     $this->user_model->insert($user);
                 }
-                redirect('user/admin/list_user');
+                return redirect()->to('/user/admin/list_user');
             }
         }
-
+        //to make admin 1 saved 2 invited 3
+        $usertypes=$this->user_type_model->findColumn('name');
+        array_unshift($usertypes,'');
+        unset($usertypes[0]);
         $output = array(
-            'title' => $this->lang->line('title_user_'.((bool)$user_id ? 'update' : 'new')),
-            'user' => $this->user_model->with_deleted()->get($user_id),
-            'user_types' => $this->user_type_model->dropdown('name'),
+            'title' => lang('My_user_lang.title_user_'.((bool)$user_id ? 'update' : 'new')),
+            'user' => $this->user_model->withDeleted()->find($user_id),
+            'user_types' => $usertypes,
             'user_name' => $oldName,
             'user_usertype' => $oldUsertype
         );
 
-        $this->display_view('user/admin/save_user', $output);
+        $this->display_view('\User\admin\save_user', $output);
     }
 
 }
