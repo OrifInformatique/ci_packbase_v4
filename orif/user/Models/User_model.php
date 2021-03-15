@@ -7,7 +7,7 @@ use CodeIgniter\Validation\ValidationInterface;
 class User_model extends \CodeIgniter\Model{
     protected $table='user';
     protected $primaryKey='id';
-    protected $allowedFields=['archive','created_date','email','firstname','is_active','lastname','password','username','user_type_id'];
+    protected $allowedFields=['archive','created_date','email','firstname','is_active','lastname','password','username','fk_user_type'];
     protected $useSoftDeletes=true;
     protected $deletedField="archive";
     private $user_type_model=null;
