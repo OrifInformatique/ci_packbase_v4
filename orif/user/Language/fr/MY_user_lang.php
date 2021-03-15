@@ -23,7 +23,9 @@ return[
 'btn_logout'                     => 'Se déconnecter',
 'btn_change_my_password'         => 'Modifier mon mot de passe',
 'btn_back'                       => 'Retour',
-
+'btn_cancel'                     => 'Annuler',
+'btn_save'                       => 'Enregistrer',
+'btn_hard_delete'                => 'Supprimer cet utilisateur',
 // Fields labels
 'field_username'                 => 'Identifiant',
 'field_password'                 => 'Mot de passe',
@@ -36,6 +38,7 @@ return[
 'field_user_active'              => 'Activé',
 'field_deleted_users_display'    => 'Afficher les utilisateurs désactivés',
 'field_login_input'              => 'Nom d\'utilisateur ou e-mail',
+
 
 // Error messages
 'msg_err_user_not_exist'         => 'L\'utilisateur sélectionné n\'existe pas',
