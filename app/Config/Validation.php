@@ -25,7 +25,7 @@ class Validation
 		FormatRules::class,
 		FileRules::class,
 		CreditCardRules::class,
-        \User\Validation\PasswordRules::class
+        \User\Validation\CustomRules::class
 	];
 
 	/**
