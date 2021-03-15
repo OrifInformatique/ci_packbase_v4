@@ -117,5 +117,105 @@ class Admin extends BaseController
 
         $this->display_view('\User\admin\save_user', $output);
     }
+    /**
+     * Deletes or deactivate a user depending on $action
+     *
+     * @param integer $user_id = ID of the user to affect
+     * @param integer $action = Action to apply on the user:
+     *  - 0 for displaying the confirmation
+     *  - 1 for deactivating (soft delete)
+     *  - 2 for deleting (hard delete)
+     * @return void
+     */
+    public function delete_user($user_id, $action = 0)
+    {
+        $user = $this->user_model->withDeleted()->find($user_id);
+        if (is_null($user)) {
+            return redirect()->to('/user/admin/list_user');
+        }
+
+        switch($action) {
+            case 0: // Display confirmation
+                $output = array(
+                    'user' => $user,
+                    'title' => lang('title_user_delete')
+                );
+                $this->display_view('\User\admin\delete_user', $output);
+                break;
+            case 1: // Deactivate (soft delete) user
+                if ($_SESSION['user_id'] != $user['id']) {
+                    $this->user_model->delete($user_id, FALSE);
+                }
+                return redirect()->to('/user/admin/list_user');
+            case 2: // Delete user
+                if ($_SESSION['user_id'] != $user['id']) {
+                    $this->user_model->delete($user_id, TRUE);
+                }
+                return redirect()->to('/user/admin/list_user');
+            default: // Do nothing
+                return redirect()->to('/user/admin/list_user');
+        }
+    }
+    /**
+     * Reactivate a disabled user.
+     *
+     * @param integer $user_id = ID of the user to affect
+     * @return void
+     */
+    public function reactivate_user($user_id)
+    {
+        $user = $this->user_model->withDeleted()->find($user_id);
+        if (is_null($user)) {
+            return redirect()->to('/user/admin/list_user');
+        } else {
+            $this->user_model->withDeleted()->update($user_id,['archive'=>null]);
+            return redirect()->to('/user/admin/save_user/'.$user_id);
+        }
+    }
+    /**
+     * Displays a form to change a user's password
+     *
+     * @param integer $user_id = ID of the user to update
+     * @return void
+     */
+    public function password_change_user($user_id)
+    {
+        if (count($_POST) > 0) {
+            $this->validation->setRules([
+                'id'=>['label'=>'id',
+                    'rules'=>'cb_not_null_user'
+                ],
+                'user_password_new'=>['label'=>lang('MY_user_lang.field_new_password'),
+                    'rules'=>'required|trim|'.
+                'min_length['.config('\User\Config\UserConfig')->password_min_length.']|'.
+                'max_length['.config('\User\Config\UserConfig')->password_max_length.']'
+                ],
+                'user_password_again'=>['label'=>lang('MY_user_lang.field_password_confirm'),
+                    'rules'=>'required|trim|matches[user_password_new]|'.
+                        'min_length['.config('\User\Conifg\UserConfig')->password_min_length.']|'.
+                        'max_length['.config('\User\Config\UserConfig')->password_max_length.']']
+                ],['cb_not_null_user'=>lang('MY_user_lang.msg_err_user_not_exist')]);
+
+
+            if ($this->validation->withRequest($this->request)->run()) {
+                $password = $this->request->getPost('user_password_new');
+                $password = password_hash($password, config('\User\Config\UserConfig')->password_hash_algorithm);
+                $this->user_model->update($user_id, ['password' => $password]);
+                return redirect()->to('/user/admin/list_user');
+            }
+        }
+
+        $user = $this->user_model->withDeleted()->find($user_id);
+        if (is_null($user)) return redirect()->to('/user/admin/list_user');
+
+        $output = array(
+            'user' => $user,
+            'title' => lang('MY_user_lang.title_user_password_reset')
+        );
+
+        $this->display_view('\User\admin\password_change_user', $output);
+    }
+
+
 
 }
