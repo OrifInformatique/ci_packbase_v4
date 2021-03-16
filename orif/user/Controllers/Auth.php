@@ -18,7 +18,7 @@ class Auth extends \App\Controllers\BaseController {
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
-        
+        $this->user_model=new models\User_model();
         // Load form helper
         helper('form');
 
