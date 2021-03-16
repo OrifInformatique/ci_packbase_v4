@@ -5,6 +5,8 @@ use App\Controllers\BaseController;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use User\Models\User_model;
+use User\Models\User_type_model;
 
 class Admin extends BaseController
 {
@@ -13,7 +15,8 @@ class Admin extends BaseController
     {
         parent::initController($request,$response,$logger);
         helper('form');
-
+        $this->user_model=new User_model();
+        $this->user_type_model=new User_type_model();
         $this->validation = \Config\Services::validation();
 
     }
