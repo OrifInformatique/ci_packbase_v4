@@ -2,7 +2,7 @@
 /**
  * Users List View
  *
- * @author      Orif, section informatique (UlSi, ViDi)
+ * @author      Orif, section informatique (UlSi, ViDi, HeMa)
  * @link        https://github.com/OrifInformatique/gestion_questionnaires
  * @copyright   Copyright (c) Orif (http://www.orif.ch)
  */

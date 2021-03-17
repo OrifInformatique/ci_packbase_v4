@@ -1,4 +1,11 @@
 <?php
+/**
+ * 403error view
+ *
+ * @author      Orif (ViDi,HeMa)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
 http_response_code(403);
 ?>
 <style>

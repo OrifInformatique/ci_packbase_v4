@@ -2,7 +2,7 @@
 /**
  * User Authentication
  *
- * @author      Orif (ViDi)
+ * @author      Orif (ViDi,HeMa)
  * @link        https://github.com/OrifInformatique
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
@@ -210,7 +210,7 @@ class Auth extends \App\Controllers\BaseController {
             $this->display_view('\User\auth\change_password', $output);
         } else {
             // Access is not allowed
-            return redirect()->to('user/auth/login');
+            return redirect()->to('/user/auth/login');
         }
     }
 }

@@ -1,4 +1,11 @@
 <?php
+/**
+ * Routes for user module
+ *
+ * @author      Orif (ViDi,HeMa)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
 $routes->group("user/auth",function($routes){
     $routes->add("login","\User\Controllers\Auth::login");
     $routes->add("logout","\User\Controllers\Auth::logout");

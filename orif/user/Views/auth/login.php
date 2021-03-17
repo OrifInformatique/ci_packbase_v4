@@ -1,3 +1,12 @@
+<?php
+/**
+ * login view
+ *
+ * @author      Orif (ViDi,HeMa)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
+?>
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-sm-10 well">

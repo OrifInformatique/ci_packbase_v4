@@ -16,6 +16,7 @@ return[
 'title_user_delete'              => 'Supprimer un utilisateur',
 'title_user_password_reset'      => 'Réinitialiser le mot de passe',
 'title_page_login'               => 'Connexion',
+'title_administration'           => 'Administration',
 
 // Buttons
 'btn_admin'                      => 'Administration',
@@ -64,5 +65,6 @@ return[
 'user_allready_disabled'         => 'Cet utilisateur est déjà désactivé. Voulez-vous le supprimer définitivement ?',
 'user_update_usertype_himself'   => 'Vous ne pouvez pas modifier votre propre type d\'utilisateur. Cette opération doit être faite par un autre administrateur.',
 'user_delete_himself'            => 'Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.',
-'page_my_password_change'        => 'Modification de mon mot de passe'
+'page_my_password_change'        => 'Modification de mon mot de passe',
+
 ];

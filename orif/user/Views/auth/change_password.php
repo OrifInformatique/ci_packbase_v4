@@ -1,3 +1,14 @@
+<?php
+/**
+ * change_password view
+ *
+ * @author      Orif (ViDi,HeMa)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
+
+
+?>
 <div class="container">
     <div class="row">
         <div class="col-md-10 well">

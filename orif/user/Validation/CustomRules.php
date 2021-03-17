@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * Custom rules for form validation
+ *
+ * @author      Orif (ViDi,HeMa)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
 
 namespace User\Validation;
 

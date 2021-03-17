@@ -1,4 +1,11 @@
 <?php
+/**
+ * password_change_user view
+ *
+ * @author      Orif (ViDi,HeMa)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
 $validation=\Config\Services::validation();
 // Required for config values
 ?>

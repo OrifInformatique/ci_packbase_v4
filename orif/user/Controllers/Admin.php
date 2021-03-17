@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * Admin controller
+ *
+ * @author      Orif (ViDi,HeMa)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
 namespace User\Controllers;
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\RequestInterface;
@@ -40,6 +46,7 @@ class Admin extends BaseController
         }
 
         $output = array(
+            'title' => lang('MY_user_lang.title_administration'),
             'users' => $users,
             'user_types' => $this->user_type_model->findColumn('name'),
             'with_deleted' => $with_deleted
@@ -142,7 +149,7 @@ class Admin extends BaseController
             case 0: // Display confirmation
                 $output = array(
                     'user' => $user,
-                    'title' => lang('title_user_delete')
+                    'title' => lang('MY_user_lang.title_user_delete')
                 );
                 $this->display_view('\User\admin\delete_user', $output);
                 break;

@@ -1,3 +1,12 @@
+<?php
+/**
+ * Login_bar view
+ *
+ * @author      Orif (ViDi,HeMa)
+ * @link        https://github.com/OrifInformatique
+ * @copyright   Copyright (c), Orif (https://www.orif.ch)
+ */
+?>
 <div class="container" >
   <div class="row xs-center">
     <div class="col-sm-3">
