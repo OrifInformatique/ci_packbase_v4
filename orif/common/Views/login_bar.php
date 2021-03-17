@@ -2,20 +2,21 @@
 /**
  * Login_bar view
  *
- * @author      Orif (ViDi,HeMa)
+ * @author      Orif (ViDi, HeMa)
  * @link        https://github.com/OrifInformatique
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
 ?>
-<div class="container" >
+
+<div id="login-bar" class="container" >
   <div class="row xs-center">
-    <div class="col-sm-3">
-      <a href="<?php echo base_url(); ?>" ><img src="<?php echo base_url("images/logo.png"); ?>" ></a>
+    <div class="col-sm-5 col-md-3">
+      <a href="<?php echo base_url(); ?>" ><img class="img-fluid" src="<?php echo base_url("images/logo.png"); ?>" ></a>
     </div>
-    <div class="col-sm-6">
-      <a href="<?php echo base_url(); ?>" class="text-info center text-center"><h1><?php echo lang('common_lang.app_title'); ?></h1></a>
+    <div class="col-sm-7 col-md-6">
+      <h1><a href="<?php echo base_url(); ?>" class="text-dark text-decoration-none"><?php echo lang('common_lang.app_title'); ?></a></h1>
     </div>
-    <div class="col-sm-3" >
+    <div class="col-sm-12 col-md-3 text-right" >
       <div class="nav flex-column">
         <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) { ?>
           
