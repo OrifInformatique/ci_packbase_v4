@@ -4,7 +4,7 @@
       <a href="<?php echo base_url(); ?>" ><img src="<?php echo base_url("images/logo.png"); ?>" ></a>
     </div>
     <div class="col-sm-6">
-      <a href="<?php echo base_url(); ?>" class="text-info"><h1><?php echo lang('common_lang.app_title'); ?></h1></a>
+      <a href="<?php echo base_url(); ?>" class="text-info center text-center"><h1><?php echo lang('common_lang.app_title'); ?></h1></a>
     </div>
     <div class="col-sm-3" >
       <div class="nav flex-column">
