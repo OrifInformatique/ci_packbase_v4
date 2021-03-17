@@ -13,6 +13,7 @@ class Admin extends BaseController
     protected $access_level;
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
+        $this->access_level=config('\User\Config\UserConfig')->access_lvl_admin;
         parent::initController($request,$response,$logger);
         helper('form');
         $this->user_model=new User_model();
