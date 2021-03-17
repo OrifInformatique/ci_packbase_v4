@@ -206,7 +206,7 @@ class Auth extends \App\Controllers\BaseController {
             }
 
             // Display the password change form
-            $output['title'] = lang('My_user_lang.page_password_change');
+            $output['title'] = lang('My_user_lang.page_my_password_change');
             $this->display_view('\User\auth\change_password', $output);
         } else {
             // Access is not allowed
