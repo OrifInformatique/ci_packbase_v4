@@ -9,8 +9,6 @@
 
 namespace App\Controllers;
 use CodeIgniter\Controller;
-use User\Models\User_model;
-use User\Models\User_type_model;
 
 /**
  * Class BaseController
@@ -47,7 +45,7 @@ class BaseController extends Controller
      * For example : $access_level = config('User\Config\UserConfig')->access_lvl_admin
      */
     protected $access_level = "*";
-    
+
 	/**
 	 * Constructor.
 	 */
@@ -64,7 +62,9 @@ class BaseController extends Controller
         $this->session = \Config\Services::session();
         // Check permission on construct
         if (!$this->check_permission()) {
-            var_dump("échec");
+            $this->display_view('\User\errors\403error');
+            exit();
+            //throw new \Exception("some message here",403);
             //show_error(lang('msg_err_access_denied_message'), 403, lang('msg_err_access_denied_header'));
         }
     }
@@ -96,7 +96,8 @@ class BaseController extends Controller
         else {
             // check if user is logged in, if not access is not allowed
             if ($_SESSION['logged_in'] != true) {
-                return false;
+                return $this->response->redirect(base_url('user/auth/login'));
+
             }
             // check if page is accessible for all logged in users
             elseif ($required_level == "@") {
