@@ -11,7 +11,7 @@ class Home extends BaseController
 		$data['title'] = "Welcome";
 
 		/**
-         * @todo TEST DATASET, TO BE REMOVED
+         * Display a test of the generic "items_list" view (defined in common module)
          */
 		$data['list_title'] = "Test de la vue items_list";
 
