@@ -70,7 +70,7 @@ $validation=\Config\Services::validation();
             </div>
         </div>
         
-        <?php echo $user_name;if (!$update) { ?>
+        <?php if (!$update) { ?>
             <!-- PASSWORD FIELDS ONLY FOR NEW USERS -->
             <div class="row">
                 <div class="col-sm-6 form-group">
