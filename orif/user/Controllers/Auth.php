@@ -56,24 +56,6 @@ class Auth extends \App\Controllers\BaseController {
             if (!is_null($this->request->getVar('btn_login'))) {
 
                 // Define fields validation rules
-                //this is only available in codeigniter3
-                /*$validation_rules = array(
-                    array(
-                        'field' => 'username',
-                        'label' => 'lang:field_username',
-                        'rules' => 'trim|required|'
-                            . 'min_length['.$this->config->item('username_min_length').']|'
-                            . 'max_length['.$this->config->item('username_max_length').']'
-                    ),
-                    array(
-                        'field' => 'password',
-                        'label' => 'lang:field_password',
-                        'rules' => 'trim|required|'
-                            . 'min_length['.$this->config->item('password_min_length').']|'
-                            . 'max_length['.$this->config->item('password_max_length').']'
-                    )
-                );
-                */
                 $validation_rules=[
                     'username'=>[
                     'label' => 'My_user_lang.field_username',
@@ -87,11 +69,9 @@ class Auth extends \App\Controllers\BaseController {
                             . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'
                     ]
                     ];
-                //set validation rules in codeigniter 4
                 $this->validation->setRules($validation_rules);
-                //$this->form_validation->set_rules($validation_rules);
-                // Check fields validation rules
 
+                // Check fields validation rules
                 if ($this->validation->withRequest($this->request)->run() == true) {
                     $input = $this->request->getVar('username');
                     $password = $this->request->getvar('password');
@@ -102,12 +82,8 @@ class Auth extends \App\Controllers\BaseController {
                         // User is either logging in through an email or an username
                         // Even if an username is entered like an email, we're not grabbing it
                         if ($ismail) {
-                            //$user = $user_model->with('user_type')
-                            //                         ->get_by('email', $input);
                             $user = $this->user_model->getWhere(['email'=>$input])->getRow();
                         } else {
-                            //$user = $user_model->with('user_type')
-                            //                         ->get_by('username', $input);
                             $user = $this->user_model->getWhere(['username'=>$input])->getRow();
                         }
 
