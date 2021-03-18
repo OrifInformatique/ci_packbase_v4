@@ -1,6 +1,6 @@
 <?php
 /**
- * Model User_model
+ * Model User_model this represents the user table
  *
  * @author      Orif (ViDi,HeMa)
  * @link        https://github.com/OrifInformatique
@@ -63,6 +63,12 @@ class User_model extends \CodeIgniter\Model{
             return false;
         }
     }
+
+    /**
+     * return the access level of an user
+     * @param $user
+     * @return mixed
+     */
     public function get_access_level($user){
         if ($this->user_type_model==null){
             $this->user_type_model=new User_type_model();
