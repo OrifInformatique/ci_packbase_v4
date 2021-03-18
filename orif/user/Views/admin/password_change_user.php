@@ -22,7 +22,7 @@ $validation=\Config\Services::validation();
     <div class="row">
         <div class="col-12">
             <h1 class="title-section"><?= lang('MY_user_lang.title_user_password_reset'); ?></h1>
-            <h4><?= lang('MY_user_lang.user')." : ".htmlspecialchars($user['username']) ?></h4>
+            <h4><?= lang('MY_user_lang.user')." : ".esc($user['username']) ?></h4>
         </div>
     </div>
     
