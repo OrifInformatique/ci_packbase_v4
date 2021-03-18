@@ -21,10 +21,11 @@ return[
     'btn_change_my_password'         => 'Modifier mon mot de passe',
     'btn_cancel'                     => 'Annuler',
     'btn_save'                       => 'Enregistrer',
+    'btn_add'                        => 'Ajouter',
     'btn_add_m'                      => 'Nouveau',
     'btn_add_f'                      => 'Nouvelle',
 
-// Text
+// Other common texts
     'yes'                            => 'Oui',
     'no'                             => 'Non'
 ];
