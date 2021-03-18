@@ -19,17 +19,18 @@ class Admin extends BaseController
     protected $access_level;
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
+        // Set Access level to admin level
         $this->access_level=config('\User\Config\UserConfig')->access_lvl_admin;
         parent::initController($request,$response,$logger);
+        //load helper form
         helper('form');
+        //load validation service
+        $this->validation = \Config\Services::validation();
         $this->user_model=new User_model();
         $this->user_type_model=new User_type_model();
-        $this->validation = \Config\Services::validation();
 
-    }
 
-    public function index(){
-        $this->display_view("\Welcome\welcome_message",['title'=>'admin']);
+
     }
     /**
      * Displays the list of users
@@ -61,6 +62,7 @@ class Admin extends BaseController
      */
     public function save_user($user_id = 0)
     {
+        //reset validation if already in use
         $this->validation->reset();
         $oldName = NULL;
         $oldUsertype = NULL;
@@ -71,12 +73,6 @@ class Admin extends BaseController
                 $oldUsertype = $this->request->getPost('user_usertype');
             }
 
-            /*$this->validation->set_rules(
-                'id', 'id',
-                'callback_cb_not_null_user',
-                ['cb_not_null_user' => $this->lang->line('msg_err_user_not_exist')]
-            );
-            */
             $validationRules=['id'        =>['label'=>'Id','rules'=>'cb_not_null_user'],
                               'user_name' =>['label'=>lang('MY_user_lang.field_username'),'rules'=>'required|trim|'.
                               'min_length['.config('\User\Config\UserConfig')->username_min_length.']|'.
