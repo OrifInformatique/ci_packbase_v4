@@ -42,7 +42,7 @@ $validation=\Config\Services::validation();
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <?= form_label(lang('user_lang.field_user_name'), 'user_name', ['class' => 'form-label']); ?>
+                    <?= form_label(lang('user_lang.field_username'), 'user_name', ['class' => 'form-label']); ?>
                     <?= form_input('user_name', $user_name ?? $user['username'] ?? '', [
                         'maxlength' => config("\User\Config\UserConfig")->username_max_length,
                         'class' => 'form-control', 'id' => 'user_name'
@@ -57,7 +57,7 @@ $validation=\Config\Services::validation();
                 </div>
             </div>
             <div class="col-sm-6 form-group">
-                <?= form_label(lang('user_lang.field_user_usertype'), 'user_usertype', ['class' => 'form-label']); ?>
+                <?= form_label(lang('user_lang.field_usertype'), 'user_usertype', ['class' => 'form-label']); ?>
                 <?php
                     $dropdown_options = ['class' => 'form-control', 'id' => 'user_usertype'];
                     if(isset($user) && $_SESSION['user_id'] == $user['id']){
@@ -107,7 +107,7 @@ $validation=\Config\Services::validation();
                     </div>
                     <div class="col-12">
                         <a href="<?= base_url('user/admin/delete_user/'.$user['id']); ?>" class="text-danger" >
-                            <?= lang("My_user_lang.btn_hard_delete"); ?>
+                            <?= lang("My_user_lang.btn_hard_delete_user"); ?>
                         </a>
                     </div>
                 <?php } else { ?>
@@ -123,8 +123,8 @@ $validation=\Config\Services::validation();
         <!-- FORM BUTTONS -->
         <div class="row">
             <div class="col text-right">
-                <a class="btn btn-default" href="<?= base_url('user/admin/list_user'); ?>"><?= lang('user_lang.btn_cancel'); ?></a>
-                <?= form_submit('save', lang('user_lang.btn_save'), ['class' => 'btn btn-primary']); ?>
+                <a class="btn btn-default" href="<?= base_url('user/admin/list_user'); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
+                <?= form_submit('save', lang('common_lang.btn_save'), ['class' => 'btn btn-primary']); ?>
             </div>
         </div>
     <?= form_close(); ?>

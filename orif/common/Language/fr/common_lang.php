@@ -19,11 +19,12 @@ return[
     'btn_login'                      => 'Se connecter',
     'btn_logout'                     => 'Se déconnecter',
     'btn_change_my_password'         => 'Modifier mon mot de passe',
+    'btn_back'                       => 'Retour',
     'btn_cancel'                     => 'Annuler',
     'btn_save'                       => 'Enregistrer',
     'btn_add'                        => 'Ajouter',
-    'btn_add_m'                      => 'Nouveau',
-    'btn_add_f'                      => 'Nouvelle',
+    'btn_new_m'                      => 'Nouveau',
+    'btn_new_f'                      => 'Nouvelle',
 
 // Other common texts
     'yes'                            => 'Oui',

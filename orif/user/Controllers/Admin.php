@@ -78,7 +78,7 @@ class Admin extends BaseController
                               'min_length['.config('\User\Config\UserConfig')->username_min_length.']|'.
                               'max_length['.config('\User\Config\UserConfig')->username_max_length.']|'.
                               'cb_unique_user['.$user_id.']'],
-                              'user_usertype'=>['label'=>lang('user_lang.field_user_usertype'),'rules'=>'required|cb_not_null_user_type']];
+                              'user_usertype'=>['label'=>lang('user_lang.field_usertype'),'rules'=>'required|cb_not_null_user_type']];
             $validationErrors=['id'=>['cb_not_null_user' => lang('user_lang.msg_err_user_not_exist')],
                 'user_name'=>['cb_unique_user' => lang('user_lang.msg_err_user_not_unique')],
                 'user_usertype'=>['cb_not_null_user_type' => lang('user_lang.msg_err_user_type_not_exist')]];

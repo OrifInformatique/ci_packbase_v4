@@ -7,9 +7,8 @@
  * @copyright   Copyright (c), Orif (http://www.orif.ch)
  */
 
- // Page titles
 return[
-'app_title'                      => 'Application',
+// Page titles
 'title_user_list'                => 'Liste des utilisateurs',
 'title_user_update'              => 'Modifier un utilisateur',
 'title_user_new'                 => 'Ajouter un utilisateur',
@@ -26,8 +25,9 @@ return[
 'btn_back'                       => 'Retour',
 'btn_cancel'                     => 'Annuler',
 'btn_save'                       => 'Enregistrer',
-'btn_hard_delete'                => 'Supprimer cet utilisateur',
-'btn_disable'                    => 'Désactiver cet utilisateur',
+'btn_hard_delete_user'           => 'Supprimer cet utilisateur',
+'btn_disable_user'               => 'Désactiver cet utilisateur',
+
 // Fields labels
 'field_username'                 => 'Identifiant',
 'field_password'                 => 'Mot de passe',
@@ -35,12 +35,10 @@ return[
 'field_old_password'             => 'Ancien mot de passe',
 'field_new_password'             => 'Nouveau mot de passe',
 'field_password_confirm'         => 'Confirmer le mot de passe',
-'field_user_name'                => 'Nom d\'utilisateur',
-'field_user_usertype'            => 'Type d\'utilisateur',
+'field_usertype'                 => 'Type d\'utilisateur',
 'field_user_active'              => 'Activé',
 'field_deleted_users_display'    => 'Afficher les utilisateurs désactivés',
 'field_login_input'              => 'Nom d\'utilisateur ou e-mail',
-
 
 // Error messages
 'msg_err_user_not_exist'         => 'L\'utilisateur sélectionné n\'existe pas',

@@ -17,7 +17,7 @@ helper("form");
     <div class="row">
         <div class="col-sm-3 text-left">
             <a href="<?= base_url('user/admin/save_user'); ?>" class="btn btn-primary">
-                <?= lang('common_lang.btn_add_m'); ?>
+                <?= lang('common_lang.btn_new_m'); ?>
             </a>
         </div>
         <div class="col-sm-9 text-right">
@@ -33,9 +33,9 @@ helper("form");
         <table class="table table-hover">
         <thead>
             <tr>
-                <th><?= lang('user_lang.field_user_name'); ?></th>
+                <th><?= lang('user_lang.field_username'); ?></th>
                 <th><?= lang('user_lang.field_email'); ?></th>
-                <th><?= lang('user_lang.field_user_usertype'); ?></th>
+                <th><?= lang('user_lang.field_usertype'); ?></th>
                 <th><?= lang('user_lang.field_user_active'); ?></th>
                 <th></th>
             </tr>

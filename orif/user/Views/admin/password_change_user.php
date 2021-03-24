@@ -58,9 +58,9 @@ $validation=\Config\Services::validation();
     <!-- SUBMIT / CANCEL -->
     <div class="row">
         <div class="col-12 text-right">
-            <a name="cancel" class="btn btn-default" href="<?= base_url('user/admin/list_user'); ?>"><?= lang('user_lang.btn_cancel'); ?></a>
+            <a name="cancel" class="btn btn-default" href="<?= base_url('user/admin/list_user'); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
             &nbsp;
-            <?= form_submit('save', lang('user_lang.btn_save'), ['class' => 'btn btn-primary']); ?>
+            <?= form_submit('save', lang('common_lang.btn_save'), ['class' => 'btn btn-primary']); ?>
         </div>
     </div>
     <?= form_close(); ?>

@@ -22,15 +22,15 @@
                     </div>
                     <div class="text-right">
                         <a href="<?= base_url('user/admin/list_user'); ?>" class="btn btn-default">
-                            <?= lang('user_lang.btn_cancel'); ?>
+                            <?= lang('common_lang.btn_cancel'); ?>
                         </a>
                         <?php if (!$user['archive']) { ?>
                         <a href="<?= base_url(uri_string().'/1'); ?>" class="btn btn-primary">
-                            <?= lang('user_lang.btn_disable'); ?>
+                            <?= lang('user_lang.btn_disable_user'); ?>
                         </a>
                         <?php } ?>
                         <a href="<?= base_url(uri_string().'/2'); ?>" class="btn btn-danger">
-                            <?= lang('user_lang.btn_hard_delete'); ?>
+                            <?= lang('user_lang.btn_hard_delete_user'); ?>
                         </a>
                     </div>
                 <?php } else { ?>
@@ -40,7 +40,7 @@
                     </div>
                     <div class="text-right">
                         <a href="<?= base_url('user/admin/list_user'); ?>" class="btn btn-secondary">
-                            <?= lang('user_lang.btn_back'); ?>
+                            <?= lang('common_lang.btn_back'); ?>
                         </a>
                     </div>
                 <?php } ?>
