@@ -58,12 +58,12 @@ class Auth extends \App\Controllers\BaseController {
                 // Define fields validation rules
                 $validation_rules=[
                     'username'=>[
-                    'label' => 'My_user_lang.field_username',
+                    'label' => 'user_lang.field_username',
                     'rules' => 'trim|required|'
                         . 'min_length['.config("\User\Config\UserConfig")->username_min_length.']|'
                         . 'max_length['.config("\User\Config\UserConfig")->username_max_length.']'],
                     'password'=>[
-                        'label' => 'My_user_lang.field_password',
+                        'label' => 'user_lang.field_password',
                         'rules' => 'trim|required|'
                             . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
                             . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'
@@ -98,14 +98,14 @@ class Auth extends \App\Controllers\BaseController {
 
                     } else {
                         // Login failed
-                        $this->session->setFlashdata('message-danger', lang('My_user_lang.msg_err_invalid_password'));
+                        $this->session->setFlashdata('message-danger', lang('user_lang.msg_err_invalid_password'));
                     }
-                    $this->session->setFlashdata('message-danger', lang('My_user_lang.msg_err_invalid_password'));
+                    $this->session->setFlashdata('message-danger', lang('user_lang.msg_err_invalid_password'));
                 }
             }
 
             // Display login page
-            $output = array('title' => lang('MY_user_lang.title_page_login'));
+            $output = array('title' => lang('user_lang.title_page_login'));
             $this->display_view('\User\auth\login', $output);
         } else {
             return redirect()->to(base_url());
@@ -143,21 +143,21 @@ class Auth extends \App\Controllers\BaseController {
 
                 $validation_rules =[
                     'old_password'=>[
-                        'label' => 'My_user_lang.field_old_password',
+                        'label' => 'user_lang.field_old_password',
                         'rules' => 'trim|required|'
                             . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
                             . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']|'
                             . 'old_password_check['.$username.']',
-                        'errors' => ['old_password_check' => lang('MY_user_lang.msg_err_invalid_old_password')]
+                        'errors' => ['old_password_check' => lang('user_lang.msg_err_invalid_old_password')]
                     ],
                     'new_password'=>[
-                        'label' =>'My_user_lang.field_new_password',
+                        'label' =>'user_lang.field_new_password',
                         'rules' =>'trim|required|'
                             . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
                             . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'
                     ],
                     'confirm_password'=>[
-                        'label' =>'My_user_lang.field_password_confirm',
+                        'label' =>'user_lang.field_password_confirm',
                         'rules' =>'trim|required|'
                             . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
                             . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']|'
@@ -182,7 +182,7 @@ class Auth extends \App\Controllers\BaseController {
             }
 
             // Display the password change form
-            $output['title'] = lang('My_user_lang.page_my_password_change');
+            $output['title'] = lang('user_lang.page_my_password_change');
             $this->display_view('\User\auth\change_password', $output);
         } else {
             // Access is not allowed

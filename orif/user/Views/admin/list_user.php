@@ -11,7 +11,7 @@ helper("form");
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="title-section"><?= lang('My_user_lang.title_user_list'); ?></h1>
+            <h1 class="title-section"><?= lang('user_lang.title_user_list'); ?></h1>
         </div>
     </div>
     <div class="row">
@@ -22,7 +22,7 @@ helper("form");
         </div>
         <div class="col-sm-9 text-right">
             <label class="btn btn-default form-check-label" for="toggle_deleted">
-                <?= lang('My_user_lang.field_deleted_users_display'); ?>
+                <?= lang('user_lang.field_deleted_users_display'); ?>
             </label>
             <?= form_checkbox('toggle_deleted', '', $with_deleted, [
                 'id' => 'toggle_deleted'
@@ -33,10 +33,10 @@ helper("form");
         <table class="table table-hover">
         <thead>
             <tr>
-                <th><?= lang('My_user_lang.field_user_name'); ?></th>
-                <th><?= lang('My_user_lang.field_email'); ?></th>
-                <th><?= lang('My_user_lang.field_user_usertype'); ?></th>
-                <th><?= lang('My_user_lang.field_user_active'); ?></th>
+                <th><?= lang('user_lang.field_user_name'); ?></th>
+                <th><?= lang('user_lang.field_email'); ?></th>
+                <th><?= lang('user_lang.field_user_usertype'); ?></th>
+                <th><?= lang('user_lang.field_user_active'); ?></th>
                 <th></th>
             </tr>
         </thead>

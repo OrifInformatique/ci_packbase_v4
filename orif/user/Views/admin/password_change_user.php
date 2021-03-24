@@ -21,8 +21,8 @@ $validation=\Config\Services::validation();
     <!-- TITLE -->
     <div class="row">
         <div class="col-12">
-            <h1 class="title-section"><?= lang('MY_user_lang.title_user_password_reset'); ?></h1>
-            <h4><?= lang('MY_user_lang.user')." : ".esc($user['username']) ?></h4>
+            <h1 class="title-section"><?= lang('user_lang.title_user_password_reset'); ?></h1>
+            <h4><?= lang('user_lang.user')." : ".esc($user['username']) ?></h4>
         </div>
     </div>
     
@@ -37,7 +37,7 @@ $validation=\Config\Services::validation();
     <div class="row">
         <div class="col-sm-6">
             <div class="form-group">
-                <?= form_label(lang('MY_user_lang.field_new_password'), 'user_password_new', ['class' => 'form-label']); ?>
+                <?= form_label(lang('user_lang.field_new_password'), 'user_password_new', ['class' => 'form-label']); ?>
                 <?= form_password('user_password_new', '', [
                     'class' => 'form-control', 'id' => 'user_password_new',
                     'maxlength' => config('\User\Config\UserConfig')->password_max_length
@@ -46,7 +46,7 @@ $validation=\Config\Services::validation();
         </div>
         <div class="col-sm-6">
             <div class="form-group">
-                <?= form_label(lang('MY_user_lang.field_password_confirm'), 'user_password_again', ['class' => 'form-label']); ?>
+                <?= form_label(lang('user_lang.field_password_confirm'), 'user_password_again', ['class' => 'form-label']); ?>
                 <?= form_password('user_password_again', '', [
                     'class' => 'form-control', 'id' => 'user_password_new',
                     'maxlength' => config('\User\Config\UserConfig')->password_max_length
@@ -58,9 +58,9 @@ $validation=\Config\Services::validation();
     <!-- SUBMIT / CANCEL -->
     <div class="row">
         <div class="col-12 text-right">
-            <a name="cancel" class="btn btn-default" href="<?= base_url('user/admin/list_user'); ?>"><?= lang('MY_user_lang.btn_cancel'); ?></a>
+            <a name="cancel" class="btn btn-default" href="<?= base_url('user/admin/list_user'); ?>"><?= lang('user_lang.btn_cancel'); ?></a>
             &nbsp;
-            <?= form_submit('save', lang('MY_user_lang.btn_save'), ['class' => 'btn btn-primary']); ?>
+            <?= form_submit('save', lang('user_lang.btn_save'), ['class' => 'btn btn-primary']); ?>
         </div>
     </div>
     <?= form_close(); ?>

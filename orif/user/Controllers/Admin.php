@@ -47,7 +47,7 @@ class Admin extends BaseController
         }
 
         $output = array(
-            'title' => lang('MY_user_lang.title_administration'),
+            'title' => lang('user_lang.title_administration'),
             'users' => $users,
             'user_types' => $this->user_type_model->findColumn('name'),
             'with_deleted' => $with_deleted
@@ -74,22 +74,22 @@ class Admin extends BaseController
             }
 
             $validationRules=['id'        =>['label'=>'Id','rules'=>'cb_not_null_user'],
-                              'user_name' =>['label'=>lang('MY_user_lang.field_username'),'rules'=>'required|trim|'.
+                              'user_name' =>['label'=>lang('user_lang.field_username'),'rules'=>'required|trim|'.
                               'min_length['.config('\User\Config\UserConfig')->username_min_length.']|'.
                               'max_length['.config('\User\Config\UserConfig')->username_max_length.']|'.
                               'cb_unique_user['.$user_id.']'],
-                              'user_usertype'=>['label'=>lang('My_user_lang.field_user_usertype'),'rules'=>'required|cb_not_null_user_type']];
-            $validationErrors=['id'=>['cb_not_null_user' => lang('My_user_lang.msg_err_user_not_exist')],
-                'user_name'=>['cb_unique_user' => lang('My_user_lang.msg_err_user_not_unique')],
-                'user_usertype'=>['cb_not_null_user_type' => lang('My_user_lang.msg_err_user_type_not_exist')]];
+                              'user_usertype'=>['label'=>lang('user_lang.field_user_usertype'),'rules'=>'required|cb_not_null_user_type']];
+            $validationErrors=['id'=>['cb_not_null_user' => lang('user_lang.msg_err_user_not_exist')],
+                'user_name'=>['cb_unique_user' => lang('user_lang.msg_err_user_not_unique')],
+                'user_usertype'=>['cb_not_null_user_type' => lang('user_lang.msg_err_user_type_not_exist')]];
             if ($this->request->getPost('user_email')) {
-            $validationRules['user_email']=['label'=>lang('MY_user_lang.field_email'),'rules'=>'required|valid_email|max_length['.config("\User\Config\UserConfig")->email_max_length.']'];
+            $validationRules['user_email']=['label'=>lang('user_lang.field_email'),'rules'=>'required|valid_email|max_length['.config("\User\Config\UserConfig")->email_max_length.']'];
             }
             if ($user_id==0){
-            $validationRules['user_password']=['label'=>lang('MY_user_lang.field_password'),'rules'=>'required|trim|'.
+            $validationRules['user_password']=['label'=>lang('user_lang.field_password'),'rules'=>'required|trim|'.
                 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'.
                 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'];
-            $validationRules['user_password_again']=['label'=>lang('MY_user_lang.field_password_confirm'),'rules'=>'required|trim|matches[user_password]|'.
+            $validationRules['user_password_again']=['label'=>lang('user_lang.field_password_confirm'),'rules'=>'required|trim|matches[user_password]|'.
                 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'.
                 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'];
             }
@@ -115,7 +115,7 @@ class Admin extends BaseController
         array_unshift($usertypes,'');
         unset($usertypes[0]);
         $output = array(
-            'title' => lang('My_user_lang.title_user_'.((bool)$user_id ? 'update' : 'new')),
+            'title' => lang('user_lang.title_user_'.((bool)$user_id ? 'update' : 'new')),
             'user' => $this->user_model->withDeleted()->find($user_id),
             'user_types' => $usertypes,
             'user_name' => $oldName,
@@ -145,7 +145,7 @@ class Admin extends BaseController
             case 0: // Display confirmation
                 $output = array(
                     'user' => $user,
-                    'title' => lang('MY_user_lang.title_user_delete')
+                    'title' => lang('user_lang.title_user_delete')
                 );
                 $this->display_view('\User\admin\delete_user', $output);
                 break;
@@ -192,16 +192,16 @@ class Admin extends BaseController
                 'id'=>['label'=>'id',
                     'rules'=>'cb_not_null_user'
                 ],
-                'user_password_new'=>['label'=>lang('MY_user_lang.field_new_password'),
+                'user_password_new'=>['label'=>lang('user_lang.field_new_password'),
                     'rules'=>'required|trim|'.
                 'min_length['.config('\User\Config\UserConfig')->password_min_length.']|'.
                 'max_length['.config('\User\Config\UserConfig')->password_max_length.']'
                 ],
-                'user_password_again'=>['label'=>lang('MY_user_lang.field_password_confirm'),
+                'user_password_again'=>['label'=>lang('user_lang.field_password_confirm'),
                     'rules'=>'required|trim|matches[user_password_new]|'.
                         'min_length['.config('\User\Conifg\UserConfig')->password_min_length.']|'.
                         'max_length['.config('\User\Config\UserConfig')->password_max_length.']']
-                ],['cb_not_null_user'=>lang('MY_user_lang.msg_err_user_not_exist')]);
+                ],['cb_not_null_user'=>lang('user_lang.msg_err_user_not_exist')]);
 
 
             if ($this->validation->withRequest($this->request)->run()) {
@@ -217,7 +217,7 @@ class Admin extends BaseController
 
         $output = array(
             'user' => $user,
-            'title' => lang('MY_user_lang.title_user_password_reset')
+            'title' => lang('user_lang.title_user_password_reset')
         );
 
         $this->display_view('\User\admin\password_change_user', $output);

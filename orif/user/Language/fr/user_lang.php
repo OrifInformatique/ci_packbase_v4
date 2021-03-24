@@ -53,6 +53,9 @@ return[
 'msg_err_invalid_password'       => 'L\'identifiant et le mot de passe ne sont pas valides',
 'msg_err_invalid_old_password'   => 'L\'ancien mot de passe n\'est pas valide',
 
+// Error code messages
+'code_error_403'                 => '403 - Accès refusé',
+
 // Other texts
 'what_to_do'                     => 'Que souhaitez-vous faire ?',
 'user'                           => 'Utilisateur',
