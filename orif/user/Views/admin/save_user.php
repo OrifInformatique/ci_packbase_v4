@@ -20,7 +20,7 @@ $validation=\Config\Services::validation();
     <!-- INFORMATION MESSAGE IF USER IS DISABLED -->
     <?php if ($update && $user['archive']) { ?>
         <div class="col-12 alert alert-info">
-            <?= lang("My_user_lang.user_disabled_info"); ?>
+            <?= lang("user_lang.user_disabled_info"); ?>
         </div>
     <?php } ?>
     
@@ -94,7 +94,7 @@ $validation=\Config\Services::validation();
                 <!-- RESET PASSWORD FOR EXISTING USER -->
                 <div class="col-12">
                     <a href="<?= base_url('user/admin/password_change_user/'.$user['id']); ?>" >
-                        <?= lang("MY_user_lang.title_user_password_reset"); ?>
+                        <?= lang("user_lang.title_user_password_reset"); ?>
                     </a>
                 </div>
                 
@@ -102,18 +102,18 @@ $validation=\Config\Services::validation();
                 <?php if ($user['archive']) { ?>
                     <div class="col-12">
                         <a href="<?= base_url('user/admin/reactivate_user/'.$user['id']); ?>" >
-                            <?= lang("MY_user_lang.user_reactivate"); ?>
+                            <?= lang("user_lang.user_reactivate"); ?>
                         </a>
                     </div>
                     <div class="col-12">
                         <a href="<?= base_url('user/admin/delete_user/'.$user['id']); ?>" class="text-danger" >
-                            <?= lang("My_user_lang.btn_hard_delete_user"); ?>
+                            <?= lang("user_lang.btn_hard_delete_user"); ?>
                         </a>
                     </div>
                 <?php } else { ?>
                     <div class="col-12">
                         <a href="<?= base_url('user/admin/delete_user/'.$user['id']); ?>" class="text-danger" >
-                            <?= lang("My_user_lang.user_delete"); ?>
+                            <?= lang("user_lang.user_delete"); ?>
                         </a>
                     </div>
                 <?php } ?>
