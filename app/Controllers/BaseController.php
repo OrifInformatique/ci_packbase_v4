@@ -51,32 +51,39 @@ class BaseController extends Controller
     * Display one or multiple view(s), adding header, footer and
 	* any other view part wich is common to all pages.
     *
-    * @param  $view_parts : single view or array of view parts to display
-    *         $data : data array to send to the view
+    * @param  view_parts : single view or array of view parts to display
+    * @param  data : data array to send to the view parts
+	* @return complete_view : The complete view
     */
-    public function display_view($view_parts, $data = NULL)
+    public function display_view($view_parts = NULL, $data = NULL)
     {
         // If not defined in $data, set page title to empty string
         if (!isset($data['title'])) {
             $data['title'] = '';
         }
+		
+		// Initialize an empty view
+		$complete_view = "";
 
-        // Display common headers
-        echo view('Common\header', $data);
-	    echo view('Common\login_bar');
+        // Add common headers
+        $complete_view .= view('Common\header', $data);
+	    $complete_view .= view('Common\login_bar');
 
         if (is_array($view_parts)) {
-            // Display multiple view parts
+            // Add multiple view parts
             foreach ($view_parts as $view_part) {
-                echo view($view_part, $data);
+                $complete_view .= view($view_part, $data);
             }
         }
         elseif (is_string($view_parts)) {
-            // Display unique view part
-            echo view($view_parts, $data);
+            // Add unique view part
+            $complete_view .= view($view_parts, $data);
         }
 
-        // Display common footer
-        echo view('Common\footer');
+        // Add common footer
+        $complete_view .= view('Common\footer');
+		
+		// Return complete view content
+		return $complete_view;
     }
 }

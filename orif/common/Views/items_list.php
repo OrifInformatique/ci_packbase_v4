@@ -46,7 +46,7 @@
      *   $data['url_delete'] = "items_list/delete/";
      *   $data['url_create'] = "items_list/create/";
      *
-	 *	 $this->display_view('Common\Views\items_list', $data);
+	 *	 return $this->display_view('Common\Views\items_list', $data);
      */
 
     // If no primary key field name is sent as parameter, suppose it is "id"
