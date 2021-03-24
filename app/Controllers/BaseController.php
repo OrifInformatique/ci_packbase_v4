@@ -96,8 +96,8 @@ class BaseController extends Controller
         else {
             // check if user is logged in, if not access is not allowed
             if ($_SESSION['logged_in'] != true) {
+                // The usual redirect()->to() doesn't work here. Keep this kind of redirect.
                 return $this->response->redirect(base_url('user/auth/login'));
-
             }
             // check if page is accessible for all logged in users
             elseif ($required_level == "@") {
