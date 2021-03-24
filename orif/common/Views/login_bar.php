@@ -1,6 +1,10 @@
 <?php
 /**
- * Login_bar view
+ * A view containing a login bar with application logo, title
+ * and links for login/logout/change password/user administration functionnalities.
+ * The links are related with the "user" module. They depend of the user access level.
+ * 
+ * This part of page is included in all pages in the BaseController display_view method.
  *
  * @author      Orif (ViDi, HeMa)
  * @link        https://github.com/OrifInformatique
