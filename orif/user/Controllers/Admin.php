@@ -125,7 +125,7 @@ class Admin extends BaseController
             'user_usertype' => $oldUsertype
         );
 
-        $this->display_view('\User\admin\save_user', $output);
+        $this->display_view('\User\admin\form_user', $output);
     }
 
     /**
@@ -184,7 +184,7 @@ class Admin extends BaseController
             return redirect()->to('/user/admin/save_user/'.$user_id);
         }
     }
-    
+
     /**
      * Displays a form to change a user's password
      *
