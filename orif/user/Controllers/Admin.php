@@ -16,26 +16,27 @@ use User\Models\User_type_model;
 
 class Admin extends BaseController
 {
-    protected $access_level;
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Set Access level to admin level
+        // Set Access level to admin level before calling parent initiate
         $this->access_level=config('\User\Config\UserConfig')->access_lvl_admin;
         parent::initController($request,$response,$logger);
-        //load helper form
+
+        // Load required helpers
         helper('form');
-        //load validation service
+
+        // Load required services
         $this->validation = \Config\Services::validation();
-        $this->user_model=new User_model();
-        $this->user_type_model=new User_type_model();
 
-
-
+        // Load required models
+        $this->user_model = new User_model();
+        $this->user_type_model = new User_type_model();
     }
+
     /**
      * Displays the list of users
      *
-     * @param boolean $with_deleted = Display archived users or not
+     * @param boolean $with_deleted : Display archived users or not
      * @return void
      */
     public function list_user($with_deleted = FALSE)
@@ -43,7 +44,7 @@ class Admin extends BaseController
         if ($with_deleted) {
             $users = $this->user_model->withDeleted()->findAll();
         } else {
-            $users = $this->user_model->withDeleted(false)->findAll();
+            $users = $this->user_model->findAll();
         }
 
         $output = array(
@@ -54,6 +55,7 @@ class Admin extends BaseController
         );
         $this->display_view('\User\admin\list_user', $output);
     }
+
     /**
      * Adds or modify a user
      *
@@ -64,6 +66,7 @@ class Admin extends BaseController
     {
         //reset validation if already in use
         $this->validation->reset();
+        
         $oldName = NULL;
         $oldUsertype = NULL;
         if (count($_POST) > 0) {
@@ -124,8 +127,9 @@ class Admin extends BaseController
 
         $this->display_view('\User\admin\save_user', $output);
     }
+
     /**
-     * Deletes or deactivate a user depending on $action
+     * Delete or deactivate a user depending on $action
      *
      * @param integer $user_id = ID of the user to affect
      * @param integer $action = Action to apply on the user:
@@ -163,6 +167,7 @@ class Admin extends BaseController
                 return redirect()->to('/user/admin/list_user');
         }
     }
+
     /**
      * Reactivate a disabled user.
      *
@@ -179,6 +184,7 @@ class Admin extends BaseController
             return redirect()->to('/user/admin/save_user/'.$user_id);
         }
     }
+    
     /**
      * Displays a form to change a user's password
      *
