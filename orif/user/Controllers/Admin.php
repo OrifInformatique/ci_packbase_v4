@@ -16,9 +16,13 @@ use User\Models\User_type_model;
 
 class Admin extends BaseController
 {
+    /**
+     * Constructor
+     */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Set Access level to admin level before calling parent initiate
+        // Set Access level before calling parent constructor
+        // Accessibility reserved to admin users
         $this->access_level=config('\User\Config\UserConfig')->access_lvl_admin;
         parent::initController($request,$response,$logger);
 

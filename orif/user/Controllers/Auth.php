@@ -7,26 +7,32 @@
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
 namespace User\Controllers;
-use \User\Models as models;
+use App\Controllers\BaseController;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
+use User\Models\User_model;
 
-class Auth extends \App\Controllers\BaseController {
+class Auth extends BaseController {
 
     /**
      * Constructor
      */
-    public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Do Not Edit This Line
-        parent::initController($request, $response, $logger);
-        $this->user_model=new models\User_model();
-        // Load form helper
-        helper('form');
-
-        // Load the validation service to validate the form
-        $this->validation = \Config\Services::validation();
-
+        // Set Access level before calling parent constructor
         // Accessibility for all users to let visitors have access to authentication
         $this->access_level = "*";
+        parent::initController($request, $response, $logger);
+        
+        // Load required helpers
+        helper('form');
+
+        // Load required services
+        $this->validation = \Config\Services::validation();
+
+        // Load required models
+        $this->user_model = new User_model();
     }
 
     /**
@@ -40,7 +46,6 @@ class Auth extends \App\Controllers\BaseController {
         if(!(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)) {
 
             // Store the redirection URL in a session variable
-            // in codeigniter 4 $this->input is remplaced by $this->request->getVar()
             if (!is_null($this->request->getVar('after_login_redirect'))) {
                 $_SESSION['after_login_redirect'] = $this->request->getVar('after_login_redirect');
             }
@@ -172,7 +177,7 @@ class Auth extends \App\Controllers\BaseController {
                     $new_password = $this->request->getVar('new_password');
                     $confirm_password = $this->request->getVar('confirm_password');
 
-                    $this->user_model=new models\User_model();
+                    $this->user_model=new \User\Models\User_model();
                     $this->user_model->update($_SESSION['user_id'],
                             array("password" => password_hash($new_password, config("\User\Config\UserConfig")->password_hash_algorithm)));
 
