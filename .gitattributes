@@ -1,0 +1,12 @@
+# Exclude TEST files and directories from the project's releases
+/tests/ export-ignore
+/phpunit* export-ignore
+/.phpunit* export-ignore
+
+# Exclude some other files and directories from the project's releases
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/contributing.md export-ignore
+/readme.md export-ignore
+/conventions.md export-ignore
+/license.txt export-ignore
