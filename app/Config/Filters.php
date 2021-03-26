@@ -2,12 +2,10 @@
 
 namespace Config;
 
-use App\Controllers\BaseController;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Filters\CSRF;
 use CodeIgniter\Filters\DebugToolbar;
 use CodeIgniter\Filters\Honeypot;
-use User\Filters\Logfilter;
 
 class Filters extends BaseConfig
 {
