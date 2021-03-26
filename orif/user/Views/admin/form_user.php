@@ -34,9 +34,12 @@ $validation=\Config\Services::validation();
         'id' => $user['id'] ?? 0
     ]);
     ?>
-
         <!-- ERROR MESSAGES -->
-        <?= $validation->listErrors('user_error_list'); ?>
+        <?php if (! empty($validation->getErrors())) : ?>
+            <div class="alert alert-danger" role="alert">
+                <?= $validation->listErrors(); ?>
+            </div>
+        <?php endif ?>
 
         <!-- USER FIELDS -->
         <div class="row">
