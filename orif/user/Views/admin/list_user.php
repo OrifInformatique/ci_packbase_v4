@@ -45,7 +45,7 @@ helper("form");
                 <tr>
                     <td><a href="<?= base_url('user/admin/save_user/'.$user['id']); ?>"><?= esc($user['username']); ?></td>
                     <td><?= esc($user['email']); ?></td>
-                    <td><?= $user_types[$user['fk_user_type']-1]; ?></td>
+                    <td><?= $user_types[$user['fk_user_type']]; ?></td>
                     <td><?= lang($user['archive'] ? 'common_lang.no' : 'common_lang.yes'); ?></td>
                     <td><a href="<?= base_url('user/admin/delete_user/'.$user['id']); ?>" class="close">×</td>
                 </tr>

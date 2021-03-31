@@ -54,10 +54,16 @@ class Admin extends BaseController
             $users = $this->user_model->findAll();
         }
 
+        //usertiarray is an array contained all usertype name and id
+        $usertiarray=$this->db->table('user_type')->select(['id','name'],)->get()->getResultArray();
+        $usertypes=[];
+        foreach ($usertiarray as $row){
+            $usertypes[$row['id']]=$row['name'];
+        }
         $output = array(
             'title' => lang('user_lang.title_administration'),
             'users' => $users,
-            'user_types' => $this->user_type_model->findColumn('name'),
+            'user_types' => $usertypes,
             'with_deleted' => $with_deleted
         );
         $this->display_view('\User\admin\list_user', $output);
