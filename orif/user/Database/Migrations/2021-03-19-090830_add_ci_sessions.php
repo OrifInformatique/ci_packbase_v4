@@ -15,6 +15,7 @@ class AddCiSessions extends \CodeIgniter\Database\Migration
         $this->forge->addField([
             'id'=>[
                 'type'              => 'INT',
+                'constraint'        => '128',
                 'unsigned'          => true,
             ],
             'ip_address'=>[
