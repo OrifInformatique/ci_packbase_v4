@@ -11,7 +11,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <?php if($_SESSION['user_id'] != $user['id']){ ?>
+                <?php if(isset($_SESSION['user_id'])&&$_SESSION['user_id'] != $user['id']){ ?>
                     <div>
                         <h1><?= lang('user_lang.user').' "'.esc($user['username']).'"' ?></h1>
                         <h4><?= lang('user_lang.what_to_do')?></h4>

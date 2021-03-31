@@ -28,9 +28,11 @@ $validation=\Config\Services::validation();
     
     <!-- ERRORS -->
     <div class="row">
-        <div class="col-12">
-            <?= $validation->listErrors('user_error_list'); ?>
+        <?php if (! empty($validation->getErrors())) : ?>
+        <div class="col-12 alert alert-danger" role="alert">
+            <?= $validation->listErrors(); ?>
         </div>
+        <?php endif;?>
     </div>
     
     <!-- PASSWORD -->    

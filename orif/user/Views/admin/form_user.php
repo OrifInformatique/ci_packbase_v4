@@ -63,11 +63,12 @@ $validation=\Config\Services::validation();
                 <?= form_label(lang('user_lang.field_usertype'), 'user_usertype', ['class' => 'form-label']); ?>
                 <?php
                     $dropdown_options = ['class' => 'form-control', 'id' => 'user_usertype'];
-                    if(isset($user) && $_SESSION['user_id'] == $user['id']){
+                    if(isset($user) && isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id']){
                         $dropdown_options['disabled'] = 'disabled';
                         echo form_hidden('user_usertype', $user_usertype ?? $user['fk_user_type'] ?? "");
                         echo "<div class=\"alert alert-info\">".lang('user_lang.user_update_usertype_himself')."</div>";
                     }
+
                 ?>
                 <?= form_dropdown('user_usertype', $user_types, $user_usertype ?? $user['fk_user_type'] ?? NULL, $dropdown_options); ?>
             </div>
