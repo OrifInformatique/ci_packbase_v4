@@ -79,9 +79,11 @@ class Admin extends BaseController
     {
         //reset validation if already in use
         $this->validation->reset();
-
+        //oldName permet de stocker la donnée du nom d'utilisateur, pour la réafficher dane le formulaire
         $oldName = NULL;
+        //oldUsertype permet de stocker la donnée du type d'utilisateur, pour la réafficher dane le formulaire
         $oldUsertype = NULL;
+
         if (count($_POST) > 0) {
             $user_id = $this->request->getPost('id');
             $oldName = $this->request->getPost('user_name');
