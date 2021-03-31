@@ -35,6 +35,9 @@ class Admin extends BaseController
         // Load required models
         $this->user_model = new User_model();
         $this->user_type_model = new User_type_model();
+        //get db instance
+        $this->db = \CodeIgniter\Database\Config::connect();
+
     }
 
     /**
@@ -70,7 +73,7 @@ class Admin extends BaseController
     {
         //reset validation if already in use
         $this->validation->reset();
-        
+
         $oldName = NULL;
         $oldUsertype = NULL;
         if (count($_POST) > 0) {
@@ -117,10 +120,13 @@ class Admin extends BaseController
                 return redirect()->to('/user/admin/list_user');
             }
         }
-        //to make admin 1 saved 2 invited 3
-        $usertypes=$this->user_type_model->findColumn('name');
-        array_unshift($usertypes,'');
-        unset($usertypes[0]);
+
+        //usertiarray is an array contained all usertype name and id
+        $usertiarray=$this->db->table('user_type')->select(['id','name'],)->get()->getResultArray();
+        $usertypes=[];
+        foreach ($usertiarray as $row){
+            $usertypes[$row['id']]=$row['name'];
+        }
         $output = array(
             'title' => lang('user_lang.title_user_'.((bool)$user_id ? 'update' : 'new')),
             'user' => $this->user_model->withDeleted()->find($user_id),
