@@ -79,9 +79,8 @@ class Admin extends BaseController
     {
         //reset validation if already in use
         $this->validation->reset();
-        //oldName permet de stocker la donnée du nom d'utilisateur, pour la réafficher dane le formulaire
+        //store the user name and user type to display them again in the form
         $oldName = NULL;
-        //oldUsertype permet de stocker la donnée du type d'utilisateur, pour la réafficher dane le formulaire
         $oldUsertype = NULL;
 
         if (count($_POST) > 0) {
@@ -246,7 +245,4 @@ class Admin extends BaseController
 
         $this->display_view('\User\admin\password_change_user', $output);
     }
-
-
-
 }
