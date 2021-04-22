@@ -36,10 +36,5 @@ class HomeTest extends CIUnitTestCase
         $this->assertTrue(\strpos($response,'<head>')&&strpos($response,'</head>'));
         $this->assertTrue(\strpos($response,'<body>')&&strpos($response,'</body>'));
         $this->assertTrue(\strpos($response,'<html>')&&strpos($response,'</html>'));
-    } 
-    public function testUser(){
-        $client =\Config\Services::curlrequest();
-        
     }
-
 }
