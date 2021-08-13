@@ -131,6 +131,13 @@ class BaseController extends Controller
         // Display common headers
         echo view('Common\header', $data);
         echo view('Common\login_bar');
+        foreach (config('Common\Config\AdminPanelConfig')->views as $view){
+            if (strstr(current_url(),$view['pageLink'])) {
+                $data['title']=lang($view['title']);
+                echo view('\Common\menu');
+
+            }
+        }
 
         if (is_array($view_parts)) {
             // Display multiple view parts
