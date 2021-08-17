@@ -14,11 +14,10 @@ use User\Controllers\Admin;
 
 class AdminPanelConfig extends \CodeIgniter\Config\BaseConfig
 {
-    /** here come the views details for adminPanel */
+    /** Update this array to customize admin pannel tabs for your needs 
+     *  Syntax : ['label'=>'tab label','title'=>'web page title','pageLink'=>'tab link']
+    */
     public $views=[
-        /** eg... */
         ['label'=>'user_lang.title_user_list','title'=>'user_lang.title_user_list','pageLink'=>'user/admin/list_user'],
-
     ];
-
 }

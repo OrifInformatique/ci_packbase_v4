@@ -1,4 +1,4 @@
-<div class="container">
+<div id="admin-menu" class="container">
     <div class="row">
         <div class="col">
             <?php foreach (config('\Common\Config\AdminPanelConfig')->views as $view){?>
