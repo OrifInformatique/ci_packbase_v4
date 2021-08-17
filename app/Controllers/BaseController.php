@@ -135,8 +135,8 @@ class BaseController extends Controller
         echo view('Common\login_bar');
 
         // Display admin menu if appropriate
-        foreach (config('Common\Config\AdminPanelConfig')->views as $view){
-            if (strstr(current_url(),$view['pageLink'])) {
+        foreach (config('Common\Config\AdminPanelConfig')->tabs as $tab){
+            if (strstr(current_url(),$tab['pageLink'])) {
                 echo view('\Common\Adminmenu');
             }
         }
