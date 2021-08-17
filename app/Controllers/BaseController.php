@@ -134,7 +134,7 @@ class BaseController extends Controller
         foreach (config('Common\Config\AdminPanelConfig')->views as $view){
             if (strstr(current_url(),$view['pageLink'])) {
                 $data['title']=lang($view['title']);
-                echo view('\Common\Adminmenu');
+                echo view('\Common\menu');
 
             }
         }
