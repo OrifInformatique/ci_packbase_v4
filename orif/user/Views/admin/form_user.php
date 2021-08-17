@@ -7,6 +7,7 @@
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
 $update = !is_null($user);
+$validation=\Config\Services::validation();
 ?>
 <div class="container">
     <!-- TITLE -->
@@ -34,12 +35,11 @@ $update = !is_null($user);
     ]);
     ?>
         <!-- ERROR MESSAGES -->
-
-        <?php foreach($errors as $error) {?>
+        <?php if (! empty($validation->getErrors())) : ?>
             <div class="alert alert-danger" role="alert">
-                <?= $error; ?>
+                <?= $validation->listErrors(); ?>
             </div>
-        <?php } ?>
+        <?php endif ?>
 
         <!-- USER FIELDS -->
         <div class="row">
