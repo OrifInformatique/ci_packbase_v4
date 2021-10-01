@@ -9,6 +9,8 @@ It also provides a generic "items_list" view which can display any set of items 
 
 ### 4.2
 - Make administration link and administration menu configurable
+- Add new common strings in language file
+
 ### 4.1
 - Add CDN for Bootstrap icons in header view
 - Add new common strings in language file
