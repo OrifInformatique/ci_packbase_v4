@@ -136,7 +136,8 @@ class BaseController extends Controller
 
         // Display admin menu if appropriate
         foreach (config('Common\Config\AdminPanelConfig')->tabs as $tab){
-            if (strstr(current_url(),$tab['pageLink'])) {
+            if (strstr(current_url(), $tab['pageLink'])) {
+                $data['title'] = lang($tab['title']);
                 echo view('\Common\Adminmenu');
             }
         }
