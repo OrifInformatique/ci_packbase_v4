@@ -21,7 +21,6 @@ class Filters extends BaseConfig
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
-        'migration'     => \Migration\Filters\MigrationFilter::class,
     ];
 
     /**
@@ -33,7 +32,6 @@ class Filters extends BaseConfig
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
-            'migration',
         ],
         'after' => [
             'toolbar',
