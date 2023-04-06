@@ -10,7 +10,7 @@
 <body>
 <span><h3 class="col-sm-12 alert-primary section-title"><?= lang('migration_lang.initialization') ?> <?=lang('common_lang.app_title')?></h3>
     <div id="message" class="alert-danger">
-        <?=\CodeIgniter\Services::session()->get('mig_authorized')=='false'?lang('migration_lang.wrong_credentials'):null?>
+        <?=\Config\Services::session()->get('mig_authorized')=='false'?lang('migration_lang.wrong_credentials'):null?>
     </div>
     <form method="post" action="<?=base_url('migration/authenticate')?>" class="col-sm-12" enctype="multipart/form-data">
         <p><?=lang('migration_lang.migration_connexion_explanation')?></p>
