@@ -118,21 +118,6 @@ class Auth extends BaseController {
     }
 
     /**
-     * Logout and destroy session
-     *
-     * @return void
-     */
-    public function logout()
-    {
-        // Restart session with empty parameters
-        $_SESSION = [];
-        session_reset();
-        session_unset();
-
-        return redirect()->to(base_url());
-    }
-
-    /**
      * Displays a form to let user change his password
      *
      * @return void
@@ -181,5 +166,20 @@ class Auth extends BaseController {
             // Access is not allowed
             return redirect()->to('/user/auth/login');
         }
+    }
+
+    /**
+     * Logout and destroy session
+     *
+     * @return void
+     */
+    public function logout()
+    {
+        // Restart session with empty parameters
+        $_SESSION = [];
+        session_reset();
+        session_unset();
+
+        return redirect()->to(base_url());
     }
 }
