@@ -234,7 +234,6 @@
         $_SESSION['logged_in'] = true;
         $_SESSION['user_access'] = config('\User\Config\UserConfig')->access_lvl_guest;
         $_SESSION['user_id'] = 1;
-        $_SESSION['_ci_previous_url'] = 'url';
 
         // Execute change_password method of Auth class
         $result = $this->controller(Auth::class)
@@ -286,7 +285,6 @@
         $_SESSION['logged_in'] = true;
         $_SESSION["username"] = $username;
         $_SESSION['user_id'] = $userId;
-        $_SESSION['_ci_previous_url'] = 'url';
 
         // Execute change_password method of Auth class
         $result = $this->controller(Auth::class)

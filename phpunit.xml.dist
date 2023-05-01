@@ -11,9 +11,10 @@
         stopOnIncomplete="false"
         stopOnSkipped="false"
         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-    <coverage includeUncoveredFiles="true" processUncoveredFiles="true">
+    <coverage includeUncoveredFiles="true" processUncoveredFiles="false">
         <include>
             <directory suffix=".php">./orif/user</directory>
+            <directory suffix=".php">./app</directory>
         </include>
         <exclude>
 			<directory suffix=".php">./orif/user/database</directory>
