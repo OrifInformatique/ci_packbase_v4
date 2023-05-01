@@ -307,6 +307,110 @@
     }
 
     /**
+     * Asserts that the change_password page redirects to the base url when the old password is invalid
+     */
+    public function testchange_passwordPagePostedWithSessionWithInvalidOldPassword()
+    {
+        // Instantiate a new user model
+        $userModel = new \User\Models\User_model();
+
+        // Inserts user into database
+        $userType = self::GUEST_USER_TYPE;
+        $username = 'UserUnitTest';
+        $userEmail = 'userunittest@test.com';
+        $userPassword = 'UserUnitTestPassword';
+        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+
+        // Prepare the POST request
+        $_SERVER['REQUEST_METHOD'] = 'post';
+        $_POST['btn_change_password'] = 'true';
+        $_REQUEST['btn_change_password'] = 'true';
+        $_POST['old_password'] = 'UserUnitTestWrongPassword';
+        $_REQUEST['old_password'] = 'UserUnitTestWrongPassword';
+        $_POST['new_password'] = 'PasswordChanged';
+        $_REQUEST['new_password'] = 'PasswordChanged';
+        $_POST['confirm_password'] = 'PasswordChanged';
+        $_REQUEST['confirm_password'] = 'PasswordChanged';
+
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION["username"] = $username;
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['user_access'] = config('\User\Config\UserConfig')->access_lvl_guest;
+
+        // Execute change_password method of Auth class
+        $result = $this->controller(Auth::class)
+            ->execute('change_password');
+
+        // Deletes inserted user
+        $userModel->delete($userId, TRUE);
+
+        // Reset $_POST and $_REQUEST variables
+        $_POST = array();
+        $_REQUEST = array();
+
+        // Assertions
+        $response = $result->response();
+        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertNotEmpty($response->getBody());
+        $result->assertOK();
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $result->assertSee('L\'ancien mot de passe n\'est pas valide', 'div');
+    }
+
+    /**
+     * Asserts that the change_password page redirects to the base url when the confirmed password is invalid
+     */
+    public function testchange_passwordPagePostedWithSessionWithInvalidConfirmedPassword()
+    {
+        // Instantiate a new user model
+        $userModel = new \User\Models\User_model();
+
+        // Inserts user into database
+        $userType = self::GUEST_USER_TYPE;
+        $username = 'UserUnitTest';
+        $userEmail = 'userunittest@test.com';
+        $userPassword = 'UserUnitTestPassword';
+        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+
+        // Prepare the POST request
+        $_SERVER['REQUEST_METHOD'] = 'post';
+        $_POST['btn_change_password'] = 'true';
+        $_REQUEST['btn_change_password'] = 'true';
+        $_POST['old_password'] = $userPassword;
+        $_REQUEST['old_password'] = $userPassword;
+        $_POST['new_password'] = 'PasswordChanged';
+        $_REQUEST['new_password'] = 'PasswordChanged';
+        $_POST['confirm_password'] = 'WrongPasswordChanged';
+        $_REQUEST['confirm_password'] = 'WrongPasswordChanged';
+
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION["username"] = $username;
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['user_access'] = config('\User\Config\UserConfig')->access_lvl_guest;
+
+        // Execute change_password method of Auth class
+        $result = $this->controller(Auth::class)
+            ->execute('change_password');
+
+        // Deletes inserted user
+        $userModel->delete($userId, TRUE);
+
+        // Reset $_POST and $_REQUEST variables
+        $_POST = array();
+        $_REQUEST = array();
+
+        // Assertions
+        $response = $result->response();
+        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertNotEmpty($response->getBody());
+        $result->assertOK();
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $result->assertSee('Le mot de passe ne coïncide pas avec la confirmation du mot de passe.', 'div');
+    }
+
+    /**
      * Asserts that logout resets the session
      */
     public function testlogout()

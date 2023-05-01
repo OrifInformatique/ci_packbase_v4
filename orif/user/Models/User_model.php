@@ -84,12 +84,11 @@ class User_model extends \CodeIgniter\Model{
     public function check_password_name($username, $password){
         $user=$this->where("username",$username)->first();
         //If a user is found we can verify his password because if his archive is not empty, he is not in the array
-        if (!is_null($user)){
+        if (!is_null($user)) {
             return password_verify($password,$user['password']);
         }
-        else{
+        else {
             return false;
-
         }
     }
 
@@ -117,12 +116,7 @@ class User_model extends \CodeIgniter\Model{
      * @return mixed
      */
     public function get_access_level($user){
-        if ($this->user_type_model==null){
-            $this->user_type_model=new User_type_model();
-
-        }
         $user->access_level=$this->user_type_model->getWhere(['id'=>$user->fk_user_type])->getRow()->access_level;
         return $user->access_level;
-
     }
 }
