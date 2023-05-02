@@ -48,6 +48,36 @@
     }
 
     /**
+     * Asserts that the list_user page is loaded correctly 
+     */
+    public function testlist_userWithGuestSession() 
+    {
+        // Initialize session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_guest;
+        $_SESSION['_ci_previous_url'] = 'url';
+
+        // Execute list_user method of Admin class
+        $result = $this->controller(Admin::class)
+        ->execute('list_user');
+
+        // Assertions
+        $response = $result->response();
+        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertNotEmpty($response->getBody());
+        $result->assertOK();
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $result->assertSeeLink('Nouveau');
+        $result->assertSeeElement('#userslist');
+        $result->assertSee('Identifiant', 'th');
+        $result->assertSee('Type d\'utilisateur', 'th');
+        $result->assertSee('Activé', 'th');
+        $result->assertDontSee('Fake User', 'th');
+        $result->assertSeeLink('admin');
+        $result->assertSeeLink('utilisateur');
+    }
+
+    /**
      * Asserts that the list_user page is loaded correctly with disabled users
      */
     public function testlist_userWithDisabledUsers() 
@@ -86,7 +116,7 @@
     /**
      * Asserts that the list_user page is loaded correctly without disabled users (after disabling user id 1)
      */
-    public function testlist_userWitouthDisabledUsers() 
+    public function testlist_userWithoutDisabledUsers() 
     {
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
