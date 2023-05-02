@@ -74,6 +74,7 @@ abstract class BaseController extends Controller
             } else {
                 $this->display_view('\User\errors\403error');
             }
+            exit(); 
         }
     }
 

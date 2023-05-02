@@ -23,38 +23,13 @@
     const GUEST_USER_TYPE = 3;
 
     /**
-     * Asserts that the list_user page is loaded correctly 
+     * Asserts that the list_user page is loaded correctly with an administrator session
      */
-    public function testlist_user() 
-    {
-        // Execute list_user method of Admin class
-        $result = $this->controller(Admin::class)
-        ->execute('list_user');
-
-        // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
-        $result->assertSeeLink('Nouveau');
-        $result->assertSeeElement('#userslist');
-        $result->assertSee('Identifiant', 'th');
-        $result->assertSee('Type d\'utilisateur', 'th');
-        $result->assertSee('Activé', 'th');
-        $result->assertDontSee('Fake User', 'th');
-        $result->assertSeeLink('admin');
-        $result->assertSeeLink('utilisateur');
-    }
-
-    /**
-     * Asserts that the list_user page is loaded correctly 
-     */
-    public function testlist_userWithGuestSession() 
+    public function testlist_userWithAdministratorSession() 
     {
         // Initialize session
         $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_guest;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
         $_SESSION['_ci_previous_url'] = 'url';
 
         // Execute list_user method of Admin class
@@ -82,6 +57,11 @@
      */
     public function testlist_userWithDisabledUsers() 
     {
+        // Initialize session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
 
@@ -118,6 +98,11 @@
      */
     public function testlist_userWithoutDisabledUsers() 
     {
+        // Initialize session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
 
@@ -153,6 +138,11 @@
      */
     public function testpassword_change_user() 
     {
+        // Initialize session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Execute password_change_user method of Admin class
         $result = $this->controller(Admin::class)
         ->execute('password_change_user', 1);
@@ -177,6 +167,11 @@
      */
     public function testpassword_change_userWithNonExistingUser() 
     {
+        // Initialize session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Execute password_change_user method of Admin class
         $result = $this->controller(Admin::class)
         ->execute('password_change_user', 999999);
@@ -195,6 +190,11 @@
      */
     public function testdelete_userWithoutSession() 
     {
+        // Initialize session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
         $result = $this->controller(Admin::class)
         ->execute('delete_user', 1);
@@ -215,6 +215,9 @@
     {
         // Initialize session 
         $_SESSION['user_id'] = 2;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
 
         // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
         $result = $this->controller(Admin::class)
@@ -239,6 +242,9 @@
     {
         // Initialize the session
         $_SESSION['user_id'] = 2;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
 
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
@@ -269,6 +275,11 @@
      */
     public function testdelete_userWithNonExistingUser()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
         $result = $this->controller(Admin::class)
         ->execute('delete_user', 999999);
@@ -287,6 +298,11 @@
      */
     public function testdelete_userWitFakeAction()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Execute delete_user method of Admin class (fake action parameter is passed)
         $result = $this->controller(Admin::class)
         ->execute('delete_user', 1, 9);
@@ -307,6 +323,9 @@
     {
         // Initialize the session
         $_SESSION['user_id'] = 2;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
 
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
@@ -339,6 +358,9 @@
 
         // Initialize the session
         $_SESSION['user_id'] = 1;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -367,6 +389,11 @@
      */
     public function testreactivate_userWithNonExistingUser()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Execute reactivate_user method of Admin class
         $result = $this->controller(Admin::class)
         ->execute('reactivate_user', 999999);
@@ -385,6 +412,11 @@
      */
     public function testreactivate_userWithExistingUser()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
 
@@ -411,6 +443,11 @@
      */
     public function testsave_userWithUserId() 
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
         ->execute('save_user', 1);
@@ -449,6 +486,11 @@
      */
     public function testsave_userWithoutUserId() 
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
         ->execute('save_user');
@@ -487,6 +529,9 @@
     {
         // Initialize the session
         $_SESSION['user_id'] = 1;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
 
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
@@ -527,6 +572,11 @@
      */
     public function testsave_userWithDisabledUserId()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
 
@@ -578,6 +628,11 @@
      */
     public function testpassword_change_userPostedWhenChangingPassword()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
 
@@ -623,6 +678,11 @@
      */
     public function testpassword_change_userPostedWhenChangingPasswordWithError()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
 
@@ -668,6 +728,11 @@
      */
     public function testsave_userPostedForANewUser()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
 
@@ -724,6 +789,9 @@
 
         // Initialize session
         $_SESSION['user_id'] = 1;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -762,6 +830,11 @@
      */
     public function testsave_userPostedForAnExistingUser()
     {
+        // Initialize the session
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+
         // Instantiate a new user model
         $userModel = new \User\Models\User_model();
 
