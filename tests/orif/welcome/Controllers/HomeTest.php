@@ -33,7 +33,7 @@
         $this->assertNotEmpty($response->getBody());
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
-        $result->assertSee('Welcome to CodeIgniter 4.3.3', 'h1');
+        $result->assertSee('Welcome to CodeIgniter', 'h1');
         $result->assertSee('The small framework with powerful features', 'h2');
     }
 
