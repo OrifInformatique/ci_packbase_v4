@@ -179,6 +179,7 @@
 </div>
 
 <!-- JQuery script to refresh items list after user action -->
+<?php if (isset($url_getView)): ?>
 <script>
 $(document).ready(function(){
 
@@ -194,3 +195,4 @@ $(document).ready(function(){
     });
 });
 </script>
+<?php endif; ?>
