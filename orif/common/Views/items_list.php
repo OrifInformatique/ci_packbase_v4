@@ -97,6 +97,10 @@
     if (!isset($url_getView)) {
         $url_getView = null;
     }
+
+    // for form_checkbox
+    helper('form');
+
 ?>
 
 <div class="items_list container">
