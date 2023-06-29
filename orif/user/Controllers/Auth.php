@@ -281,11 +281,9 @@ class Auth extends BaseController {
                 }
             } else if (!is_null($this->request->getVar('btn_login_microsoft'))) {
 
-                $this->azure_login();
-
-                //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 After azure_login, it will continuce to $output just bellow which display the page just bellow the var_dumps (is azure successful)
                 
-                // return redirect()->to($_SESSION['after_login_redirect']);
+                $this->azure_login();// This'll redirect to redirect uri if successful
+
             }
             // Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
