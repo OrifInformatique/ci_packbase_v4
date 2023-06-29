@@ -25,7 +25,19 @@
                 <?php if(!is_null($session->getFlashdata('message-danger'))){ ?>
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
                 <?php } ?>
-                
+                <div class="form-group">
+                    <div class="row colbox">
+                        <div class="col-sm-4">
+                            <label for="username" class="control-label">Microsoft Login</label>
+                        </div>
+                    
+                        <div class="col-sm-8">
+                            <img src="https://learn.microsoft.com/en-us/azure/active-directory/develop/media/howto-add-branding-in-apps/ms-symbollockup_signin_light.svg" />
+                            <input id="btn_login_microsoft" name="btn_login_microsoft" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_login'); ?>" />
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <div class="row colbox">
                         <div class="col-sm-4">
@@ -52,7 +64,7 @@
                                   
                 <div class="form-group">
                     <div class="col-sm-12 text-right">
-                        <a id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
+                        <a id="btn_cancel" class="btn btn-default" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
                         <input id="btn_login" name="btn_login" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_login'); ?>" />
                     </div>
                 </div>
