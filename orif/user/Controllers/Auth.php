@@ -163,7 +163,6 @@ class Auth extends BaseController {
 
         } else {
             //If we end up here, something has obviously gone wrong... Likely a hacking attempt since sent and returned state aren't matching and no $_GET["error"] received.
-            $this->setSessionVariable($userdata);
             dd("Hey, please don't try to hack us!\n\n");
             echo "PHP Session ID used as state: " . session_id() . "\n";  //And for production version you likely don't want to show these for the potential hacker
             var_dump($_GET);  //But this being a test script having the var_dumps might be useful
