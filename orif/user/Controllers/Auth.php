@@ -16,8 +16,6 @@ use GuzzleHttp\Client;
 
 class Auth extends BaseController {
 
-    
-
     /**
      * Constructor
      */
@@ -58,30 +56,30 @@ class Auth extends BaseController {
      * @return void
      */
 
-    function setSessionVariable($userInfo) {
-        if ($this->request->getVar('btn_login')){
+    // function setSessionVariable($userInfo) {
+    //     if ($this->request->getVar('btn_login')){
 
             
-            $_SESSION['user_id'] = (int)$userInfo->id;
-            $_SESSION['username'] = (string)$userInfo->username;
-            $_SESSION['user_access'] = (int)$this->user_model->get_access_level($userInfo);
+    //         $_SESSION['user_id'] = (int)$userInfo->id;
+    //         $_SESSION['username'] = (string)$userInfo->username;
+    //         $_SESSION['user_access'] = (int)$this->user_model->get_access_level($userInfo);
             
-        } else if ($this->request->getVar('btn_login_microsoft')){
+    //     } else if ($this->request->getVar('btn_login_microsoft')){
             
-            d($userInfo);
+    //         d($userInfo);
 
-            d("ms login");
-            $_SESSION['user_id'] = (int)$userInfo->id;
-            $_SESSION['username'] = (string)$userInfo->username;
-            $_SESSION['user_access'] = (int)$this->user_model->get_access_level($userInfo); // TODO: Add access level if doesn't exist
+    //         d("ms login");
+    //         $_SESSION['user_id'] = (int)$userInfo->id;
+    //         $_SESSION['username'] = (string)$userInfo->username;
+    //         $_SESSION['user_access'] = (int)$this->user_model->get_access_level($userInfo); // TODO: Add access level if doesn't exist
 
-            d($_SESSION['user_id']);
-        }
+    //         d($_SESSION['user_id']);
+    //     }
         
-        $_SESSION['logged_in'] = (bool)true;
-        var_dump($_SESSION);
-        dd("Session");
-    }
+    //     $_SESSION['logged_in'] = (bool)true;
+    //     var_dump($_SESSION);
+    //     dd("Session");
+    // }
         
     public function azure_login() {
 
@@ -158,6 +156,27 @@ class Auth extends BaseController {
         $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
         $_SESSION['logged_in'] = (bool)true;
 
+        // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 Check in DB if user exists. If yes, fetch ID, else create a new user
+        
+        //$user = $this->user_model->getWhere(['email'=>$input])->getRow();
+
+        $data = [
+            'username' => $_SESSION['username'],
+            //'password' => '$2y$10$84r63xo.M4LVcIi8IvT8cO0qYxyglPshY1jJmKLedRMcaTcxhcVYO',
+            'fk_user_type' => '1',
+            'email' => 'david.mostoslavski@sectioninformatique.ch',
+        ];
+        
+        $userID = $this->user_model->insert($data);
+
+        d($this->user_model->errors());
+        
+        $query = $this->user_model->find($userID); // Problem :(
+
+        // $userID = $query->getRow();
+
+        dd($query); // debug // admin ?! there is the table i tried to create
+
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
 
@@ -168,8 +187,9 @@ class Auth extends BaseController {
             var_dump($_GET);  //But this being a test script having the var_dumps might be useful
             errorhandler(array("Description" => "Likely a hacking attempt, due state mismatch.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
         }
-        dd("end of azure__login()"); //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 When I delete this, the page is redirected to the login page, which erase the echos and dd().
-        // This should not be a problem if I put these info in $_SESSION anyway. Only the echos and dd() are erased
+
+        dd("end of azure__login()"); // When I delete this, the page is not redirected to the microscoft login page. No idea why but this should not be removed for now
+
         echo "\n\n";
         
         echo "\n<a href=\"" . $redirect_uri . "\">Click here to redo the authentication</a>";  //Only to ease up your tests
