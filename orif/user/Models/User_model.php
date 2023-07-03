@@ -62,6 +62,19 @@ class User_model extends \CodeIgniter\Model{
         parent::__construct($db, $validation);
     }
 
+    public static function fetch($username){
+        
+        $query = $username->db->table('user')
+
+            ->select('*')
+
+            ->where($_SESSION['username'] = $username)
+
+            ->get();
+
+        return $query;
+    }
+
     /**
      * Callback method to hash the password before inserting or updating it
      *

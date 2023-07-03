@@ -34,6 +34,9 @@ class Auth extends BaseController {
 
         // Load required models
         $this->user_model = new User_model();
+
+        $this->db = \Config\Database::connect();
+        
     }
 
     function errorhandler($input, $email)
@@ -85,7 +88,7 @@ class Auth extends BaseController {
 
         // $tokenClient = new Client();
         $client_id = getenv('CLIENT_ID');
-        $client_secret = getenv('CLIENT_SECRET'); // This is a custom variable i inserted .env
+        $client_secret = getenv('CLIENT_SECRET'); // This is a custom variable I inserted in .env
         $ad_tenant = getenv('TENANT_ID');
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
@@ -154,28 +157,41 @@ class Auth extends BaseController {
 
         $_SESSION['username'] = $userdata["displayName"];
         $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
-        $_SESSION['logged_in'] = (bool)true;
+        //$_SESSION['logged_in'] = (bool)true;
 
         // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 Check in DB if user exists. If yes, fetch ID, else create a new user
-        
-        //$user = $this->user_model->getWhere(['email'=>$input])->getRow();
 
-        $data = [
-            'username' => $_SESSION['username'],
-            //'password' => '$2y$10$84r63xo.M4LVcIi8IvT8cO0qYxyglPshY1jJmKLedRMcaTcxhcVYO',
-            'fk_user_type' => '1',
-            'email' => 'david.mostoslavski@sectioninformatique.ch',
-        ];
-        
-        $userID = $this->user_model->insert($data);
+        // Temporary hard coded fetch to test logic
+        // Requête SQL pour reprendre depuis la base de donnée les présences de l'utilisateur
 
-        d($this->user_model->errors());
-        
-        $query = $this->user_model->find($userID); // Problem :(
+        // dd(user_model::fetch($_SESSION['username'], $this->db));
 
-        // $userID = $query->getRow();
+        dd($this->user_model);
 
-        dd($query); // debug // admin ?! there is the table i tried to create
+        if ($test = $this->user_model->find('username') == "[Pomy] Mostoslavski David") {
+
+            dd("User already exists");
+
+        } else {
+            // Insertion if !user exists
+            $data = [
+                'username' => $_SESSION['username'],
+                //'password' => '',
+                'fk_user_type' => '1',
+                'email' => 'david.mostoslavski@sectioninformatique.ch',
+            ];
+            
+            $userID = $this->user_model->insert($data);
+    
+            d($this->user_model->errors());
+            
+            $query = $this->user_model->find($userID);
+    
+            // $userID = $query->getRow();
+    
+            d("User created successfully");
+            dd($query); // debug print
+        }
 
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
