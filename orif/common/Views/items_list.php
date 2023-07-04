@@ -33,6 +33,12 @@
      * @param url_getView: Link used to dynamically update the view's content with javascript.
      *                     It should call a method wich returns the view's content.
      *                     If not set, the "Display disabled items" checkbox won't be displayed.
+     * @param url_restore: Link to the controller method wich restore the item.
+     *                     If not set, take the value of url_delete
+     * @param date_delete: String with the date of deleted of the date    
+     *                     If set the line is not visible without check the checkbox
+     *                     and"restore" button will displays intead of delete button
+     * 
      * 
      * EXAMPLE METHOD TO CALL THIS VIEW FROM ANY CONTROLLER :
      * 
@@ -155,28 +161,37 @@
                     <!-- Add the "action" column (for detail/update/delete links) -->
                     <td class="text-right">                        
                         <!-- Bootstrap details icon ("Card text"), redirect to url_detail, adding /primary_key as parameter -->
-                        <?php if(isset($url_detail)) { ?>
+                        <?php if(isset($url_detail)): ?>
                             <a href="<?= site_url(esc($url_detail.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_details') ?>" >
-                                <i class="bi-card-text" style="font-size: 20px;"></i>
+                                <i class="bi bi-card-text" style="font-size: 20px;"></i>
                             </a>
-                        <?php } ?>
+                        <?php endif ?>
 
                         <!-- Bootstrap edit icon ("Pencil"), redirect to url_update, adding /primary_key as parameter -->
-                        <?php if(isset($url_update)) { ?>
+                        <?php if(isset($url_update)): ?>
                             <a href="<?= site_url(esc($url_update.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_edit') ?>" >
-                                <i class="bi-pencil" style="font-size: 20px;"></i>
+                                <i class="bi bi-pencil" style="font-size: 20px;"></i>
                             </a>
-                        <?php } ?>
+                        <?php endif ?>
                         
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
-                        <?php if(isset($url_delete)) { ?>
+                        <?php if(isset($url_delete)): ?>
+                            <?php if (!isset($itemEntity['date_delete'])) : ?>
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
-                                <i class="bi-trash" style="font-size: 20px;"></i>
+                                <i class="bi bi-trash" style="font-size: 20px;"></i>
                             </a>
-                        <?php } ?>
+                            <?php else : ?>
+                            <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore
+                                or url_delete if url_resotre is not set , adding /primary_key as parameter -->
+                            <a href="<?= site_url(esc($url_restore ?? $url_delete.$itemEntity[$primary_key_field])) ?>"
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
+                                <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
+                            </a>
+                            <?php endif ?>
+                        <?php endif ?>
                     </td>
                 </tr>
                 <?php endforeach ?>
