@@ -22,22 +22,25 @@
      *                     If not set, "id" is used by default.
      * @param btn_create_label :
      *                     Label for the "create" button. If not set, default label is used.
-     * @param url_detail : Link to the controller method wich displays item's details.
+     * @param url_detail : Link to the controller method that displays item's details.
      *                     If not set, no "detail" link will be displayed.
-     * @param url_update : Link to the controller method wich displays a form to update the item.
+     * @param url_update : Link to the controller method that displays a form to update the item.
      *                     If not set, no "update" link will be displayed.
-     * @param url_delete : Link to the controller method wich deletes the item.
+     * @param url_delete : Link to the controller method that deletes the item.
      *                     If not set, no "delete" link will be displayed.
-     * @param url_create : Link to the controller method wich displays a form to create a new item.
+     * @param url_create : Link to the controller method that displays a form to create a new item.
      *                     If not set, no "create" button will be displayed.
      * @param url_getView: Link used to dynamically update the view's content with javascript.
-     *                     It should call a method wich returns the view's content.
+     *                     It should call a method that returns the view's content.
      *                     If not set, the "Display disabled items" checkbox won't be displayed.
-     * @param url_restore: Link to the controller method wich restore the item.
+     * @param url_restore: Link to the controller method that restore the item.
      *                     If not set, take the value of url_delete
      * @param date_delete: String with the date of deleted of the date    
      *                     If set the line is not visible without check the checkbox
      *                     and"restore" button will displays intead of delete button
+     * @param url_copy:    Link to the controller method that displays a form to create a new item with the data of
+     *                     the item already inserted in the form.
+     *                     If not set, no "copy" button will be displayed.
      * 
      * 
      * EXAMPLE METHOD TO CALL THIS VIEW FROM ANY CONTROLLER :
@@ -191,6 +194,13 @@
                                 <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
                             </a>
                             <?php endif ?>
+                        <?php endif ?>
+                        <!-- Bootstrap copy icon "clipboard-plus" , redirect to url_copy, adding /primary_key as parameter -->
+                        <?php if(isset($url_copy)): ?>
+                            <a href="<?= site_url(esc($url_copy.$itemEntity[$primary_key_field])) ?>"
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_copy') ?>" >
+                                <i class="bi bi-clipboard-plus" style="font-size: 20px;"></i>
+                            </a>
                         <?php endif ?>
                     </td>
                 </tr>
