@@ -58,31 +58,6 @@ class Auth extends BaseController {
      *
      * @return void
      */
-
-    // function setSessionVariable($userInfo) {
-    //     if ($this->request->getVar('btn_login')){
-
-            
-    //         $_SESSION['user_id'] = (int)$userInfo->id;
-    //         $_SESSION['username'] = (string)$userInfo->username;
-    //         $_SESSION['user_access'] = (int)$this->user_model->get_access_level($userInfo);
-            
-    //     } else if ($this->request->getVar('btn_login_microsoft')){
-            
-    //         d($userInfo);
-
-    //         d("ms login");
-    //         $_SESSION['user_id'] = (int)$userInfo->id;
-    //         $_SESSION['username'] = (string)$userInfo->username;
-    //         $_SESSION['user_access'] = (int)$this->user_model->get_access_level($userInfo); // TODO: Add access level if doesn't exist
-
-    //         d($_SESSION['user_id']);
-    //     }
-        
-    //     $_SESSION['logged_in'] = (bool)true;
-    //     var_dump($_SESSION);
-    //     dd("Session");
-    // }
         
     public function azure_login() {
 
@@ -153,22 +128,17 @@ class Auth extends BaseController {
         $userdata = json_decode($json, true);  //This should now contain your logged on user information
         if (isset($userdata["error"])) errorhandler(array("Description" => "User data fetch contained an error.", "\$userdata[]" => $userdata, "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
 
-        // echo $userdata["mail"]."\n\n"; //Debug print
-
         $_SESSION['username'] = $userdata["displayName"];
+
+        $user_email = $userdata["mail"];
         $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
         //$_SESSION['logged_in'] = (bool)true;
 
         // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 Check in DB if user exists. If yes, fetch ID, else create a new user
 
-        // Temporary hard coded fetch to test logic
-        // Requête SQL pour reprendre depuis la base de donnée les présences de l'utilisateur
+        $ci_user = $this->user_model->where('email', $user_email)->first(); // This is like calling CodeIgniter\Database\BaseConnection::query()
 
-        // dd(user_model::fetch($_SESSION['username'], $this->db));
-
-        dd($this->user_model);
-
-        if ($test = $this->user_model->find('username') == "[Pomy] Mostoslavski David") {
+        if (isset($ci_user['email'])) {
 
             dd("User already exists");
 
@@ -177,17 +147,12 @@ class Auth extends BaseController {
             $data = [
                 'username' => $_SESSION['username'],
                 //'password' => '',
-                'fk_user_type' => '1',
-                'email' => 'david.mostoslavski@sectioninformatique.ch',
+                'fk_user_type' => '1', // To be replaced by user type of azure
+                'email' => $user_email,
             ];
-            
-            $userID = $this->user_model->insert($data);
-    
-            d($this->user_model->errors());
-            
-            $query = $this->user_model->find($userID);
-    
-            // $userID = $query->getRow();
+
+            $ci_user = $this->user_model->insert($data);
+            $query = $this->user_model->find($ci_user);
     
             d("User created successfully");
             dd($query); // debug print
