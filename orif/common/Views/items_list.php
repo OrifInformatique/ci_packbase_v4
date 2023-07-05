@@ -179,6 +179,14 @@
                             </a>
                         <?php endif ?>
                         
+                        <!-- Bootstrap copy icon "files" , redirect to url_copy, adding /primary_key as parameter -->
+                        <?php if(isset($url_copy)): ?>
+                            <a href="<?= site_url(esc($url_copy.$itemEntity[$primary_key_field])) ?>"
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_copy') ?>" >
+                                <i class="bi bi-files" style="font-size: 20px;"></i>
+                            </a>
+                        <?php endif ?>
+
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
                         <?php if(isset($url_delete)): ?>
                             <?php if (!isset($itemEntity['date_delete'])) : ?>
@@ -195,13 +203,7 @@
                             </a>
                             <?php endif ?>
                         <?php endif ?>
-                        <!-- Bootstrap copy icon "clipboard-plus" , redirect to url_copy, adding /primary_key as parameter -->
-                        <?php if(isset($url_copy)): ?>
-                            <a href="<?= site_url(esc($url_copy.$itemEntity[$primary_key_field])) ?>"
-                                    class="text-decoration-none" title="<?=lang('common_lang.btn_copy') ?>" >
-                                <i class="bi bi-clipboard-plus" style="font-size: 20px;"></i>
-                            </a>
-                        <?php endif ?>
+
                     </td>
                 </tr>
                 <?php endforeach ?>
