@@ -145,12 +145,10 @@
                 <!-- One table row for each item -->
                 <?php foreach ($items as $itemEntity): ?>
                 <tr>
-                    <!-- Only display item's properties wich are listed in "columns" variable -->
-                    <?php foreach ($itemEntity as $propertyKey => $propertyValue): 
-                        if (array_key_exists($propertyKey, $columns)) {
-                            echo ('<td>'.$propertyValue.'</td>');
-                        }
-                    endforeach ?>
+                    <!-- Only display item's properties wich are listed in "columns" variable in the order of the columns -->
+                    <?php foreach ($columns as $columnKey => $column): ?>
+                        <td><?= $itemEntity[$columnKey] ?></td>
+                    <?php endforeach ?>
                     
                     <!-- Add the "action" column (for detail/update/delete links) -->
                     <td class="text-right">                        
