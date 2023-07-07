@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Database\Migrations;
+namespace User\Database\Migrations;
 
-use CodeIgniter\Database\Migration;
-
-class AddAzureMail extends Migration
+class AddAzureMail extends \CodeIgniter\Database\Migration
 {
     public function up()
     {
@@ -24,8 +22,12 @@ class AddAzureMail extends Migration
         $forge->addColumn('user', $fields);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function down()
     {
         // $this->forge->dropTable('user');
+        $this->forge->dropColumn('user', 'azure_mail'); // to drop one single column
     }
 }

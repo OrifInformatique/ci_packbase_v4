@@ -129,33 +129,22 @@ class Auth extends BaseController {
         if (isset($userdata["error"])) errorhandler(array("Description" => "User data fetch contained an error.", "\$userdata[]" => $userdata, "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
 
         $_SESSION['username'] = $userdata["displayName"];
-
         $user_email = $userdata["mail"];
-        $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
-        //$_SESSION['logged_in'] = (bool)true;
+        $_SESSION['logged_in'] = (bool)true; // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
 
-        // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 Check in DB if user exists. If yes, fetch ID, else create a new user
+        $ci_user = $this->user_model->where('azure_mail', $user_email)->first(); // This is like calling CodeIgniter\Database\BaseConnection::query()
+        
+        // if email is registered in DB
+        if (isset($ci_user['azure_mail'])) {
+            
+            // give default azure access to user
+        
+            $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
 
-        $ci_user = $this->user_model->where('email', $user_email)->first(); // This is like calling CodeIgniter\Database\BaseConnection::query()
-
-        if (isset($ci_user['email'])) {
-
-            dd("User already exists");
-
+            dd($_SESSION['user_access']);
+            
         } else {
-            // Insertion if !user exists
-            $data = [
-                'username' => $_SESSION['username'],
-                //'password' => '',
-                'fk_user_type' => '1', // To be replaced by user type of azure
-                'email' => $user_email,
-            ];
-
-            $ci_user = $this->user_model->insert($data);
-            $query = $this->user_model->find($ci_user);
-    
-            d("User created successfully");
-            dd($query); // debug print
+            $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
         }
 
         // Send the user to the redirection URL
