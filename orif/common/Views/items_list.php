@@ -147,7 +147,11 @@
                 <tr>
                     <!-- Only display item's properties wich are listed in "columns" variable in the order of the columns -->
                     <?php foreach ($columns as $columnKey => $column): ?>
-                        <td><?= $itemEntity[$columnKey] ?></td>
+                        <?php if (array_key_exists($columnKey, $itemEntity)) : ?>
+                            <td><?= $itemEntity[$columnKey] ?></td>
+                        <?php else: ?>
+                            <td></td>
+                        <?php endif ?>
                     <?php endforeach ?>
                     
                     <!-- Add the "action" column (for detail/update/delete links) -->
