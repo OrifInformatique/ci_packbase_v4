@@ -157,7 +157,7 @@
                         <!-- Bootstrap details icon ("Card text"), redirect to url_detail, adding /primary_key as parameter -->
                         <?php if(isset($url_detail)) { ?>
                             <a href="<?= site_url(esc($url_detail.$itemEntity[$primary_key_field])) ?>"
-                                    class="text-decoration-none" >
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_details') ?>" >
                                 <i class="bi-card-text" style="font-size: 20px;"></i>
                             </a>
                         <?php } ?>
@@ -165,7 +165,7 @@
                         <!-- Bootstrap edit icon ("Pencil"), redirect to url_update, adding /primary_key as parameter -->
                         <?php if(isset($url_update)) { ?>
                             <a href="<?= site_url(esc($url_update.$itemEntity[$primary_key_field])) ?>"
-                                    class="text-decoration-none" >
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_edit') ?>" >
                                 <i class="bi-pencil" style="font-size: 20px;"></i>
                             </a>
                         <?php } ?>
@@ -173,7 +173,7 @@
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
                         <?php if(isset($url_delete)) { ?>
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
-                                    class="text-decoration-none" >
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
                                 <i class="bi-trash" style="font-size: 20px;"></i>
                             </a>
                         <?php } ?>
