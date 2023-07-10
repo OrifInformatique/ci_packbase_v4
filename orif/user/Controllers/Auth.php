@@ -82,11 +82,7 @@ class Auth extends BaseController {
         $url .= "&redirect_uri=" . urlencode($redirect_uri);
         header("Location: " . $url);  //So off you go my dear browser and welcome back for round two after some redirects at Azure end
 
-        echo "\n\n";
-
         } elseif (isset($_GET["error"])) {  //Second load of this page begins, but hopefully we end up to the next elseif section...
-        echo "Error handler activated:\n\n";
-        var_dump($_GET);  //Debug print
         errorhandler(array("Description" => "Error received at the beginning of second stage.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
         } elseif (strcmp(session_id(), $_GET["state"]) == 0) {  //Checking that the session_id matches to the state for security reasons
         //And now the browser has returned from its various redirects at Azure side and carrying some gifts inside $_GET
@@ -130,8 +126,8 @@ class Auth extends BaseController {
 
         $_SESSION['username'] = $userdata["displayName"];
         $user_email = $userdata["mail"];
-        $_SESSION['logged_in'] = (bool)true; // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
 
+        
         $ci_user = $this->user_model->where('azure_mail', $user_email)->first(); // This is like calling CodeIgniter\Database\BaseConnection::query()
         
         // if email is registered in DB
@@ -147,6 +143,8 @@ class Auth extends BaseController {
             $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
         }
 
+        $_SESSION['logged_in'] = (bool)true;
+
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
 
@@ -158,11 +156,7 @@ class Auth extends BaseController {
             errorhandler(array("Description" => "Likely a hacking attempt, due state mismatch.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
         }
 
-        dd("end of azure__login()"); // When I delete this, the page is not redirected to the microscoft login page. No idea why but this should not be removed for now
-
-        echo "\n\n";
-        
-        echo "\n<a href=\"" . $redirect_uri . "\">Click here to redo the authentication</a>";  //Only to ease up your tests
+        //dd();
     }
 
     public function login(){   
@@ -198,7 +192,7 @@ class Auth extends BaseController {
                             . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
                             . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'
                     ]
-                    ];
+                ];
                 $this->validation->setRules($validation_rules);
 
                 // Check fields validation rules
@@ -234,6 +228,7 @@ class Auth extends BaseController {
     
             } else if (!is_null($this->request->getVar('btn_login_microsoft'))) {
                 $this->azure_login();// This'll redirect to redirect uri if successful
+                dd('test'); 
             }
             // Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
@@ -244,6 +239,9 @@ class Auth extends BaseController {
         }
     }
 
+    public function azure_redirect_URI(){
+        $_SESSION['after_login_redirect'] = base_url();
+    }
     /**
      * Logout and destroy session
      *

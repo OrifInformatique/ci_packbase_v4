@@ -10,6 +10,28 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-sm-10 well">
+            <?php 
+                $attributes = array("class" => "form-horizontal",
+                                    "id" => "azureloginform",
+                                    "name" => "azureloginform");
+                echo form_open("user/auth/login", $attributes);
+            ?>
+            <fieldset>
+                <div class="form-group">
+                    <div class="row colbox">
+                        <div class="col-sm-4">
+                            <label for="username" class="control-label">Microsoft Login</label>
+                        </div>
+                    
+                        <div class="col-sm-8">
+                            <img src="https://learn.microsoft.com/en-us/azure/active-directory/develop/media/howto-add-branding-in-apps/ms-symbollockup_signin_light.svg" />
+                            <input id="btn_login_microsoft" name="btn_login_microsoft" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_login'); ?>" />
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <?= form_close(); ?>
+            
             <?php
             $session=\Config\Services::session();
             $validation=\Config\Services::validation();
@@ -25,18 +47,7 @@
                 <?php if(!is_null($session->getFlashdata('message-danger'))){ ?>
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
                 <?php } ?>
-                <div class="form-group">
-                    <div class="row colbox">
-                        <div class="col-sm-4">
-                            <label for="username" class="control-label">Microsoft Login</label>
-                        </div>
-                    
-                        <div class="col-sm-8">
-                            <img src="https://learn.microsoft.com/en-us/azure/active-directory/develop/media/howto-add-branding-in-apps/ms-symbollockup_signin_light.svg" />
-                            <input id="btn_login_microsoft" name="btn_login_microsoft" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_login'); ?>" />
-                        </div>
-                    </div>
-                </div>
+                
 
                 <div class="form-group">
                     <div class="row colbox">
