@@ -128,6 +128,7 @@ class Auth extends BaseController {
             $user_email = $userdata["mail"];
 
             $_SESSION['logged_in'] = (bool)true;
+            $_SESSION['azure_identification'] = (bool)true;
 
             
             $ci_user = $this->user_model->where('azure_mail', $user_email)->first(); // This is like calling CodeIgniter\Database\BaseConnection::query()
@@ -223,8 +224,6 @@ class Auth extends BaseController {
                     }
                     $this->session->setFlashdata('message-danger', lang('user_lang.msg_err_invalid_password'));
                 }
-                
-            dd($this->request->getVar('btn_login_microsoft'));
             } else if (!is_null($this->request->getPost('btn_login_microsoft'))) {
                 $this->azure_login();// This'll redirect to redirect uri if successful
                 exit();
