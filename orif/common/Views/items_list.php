@@ -9,6 +9,7 @@
      * @param list_title : String displayed on the top of the list.
      * @param items :      Array of items to display, each item being a subarray with multiple properties.
      * @param columns :    Array of columns to display in the list.
+     *                     Columns display order is the same as the order given in this parameter.
      *                     Key is the name of the corresponding items property in items subarrays.
      *                     Value is the header to display for each column.
      * @param with_deleted : 
