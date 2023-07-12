@@ -135,13 +135,8 @@ class Auth extends BaseController {
                 
             // if email is registered in DB
             if (isset($ci_user['azure_mail'])) {
-                
                 // give default azure access to user
-            
                 $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
-
-                dd($_SESSION['user_access']);
-                
             } else {
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
             }
@@ -236,11 +231,7 @@ class Auth extends BaseController {
             return redirect()->to(base_url());
         }
     }
-
-    public function azure_redirect_URI(){
-
-        return redirect()->to($_SESSION['after_login_redirect']);
-    }
+    
     /**
      * Logout and destroy session
      *
