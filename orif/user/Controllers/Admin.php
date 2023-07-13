@@ -48,7 +48,7 @@ class Admin extends BaseController
      * @param boolean $with_deleted : Display archived users or not
      * @return void
      */
-    public function list_user($with_deleted = FALSE): string
+    public function list_user(?bool $with_deleted = FALSE): string
     {
         if ($with_deleted) {
             $users = $this->user_model->orderBy('username')->withDeleted()
@@ -78,7 +78,7 @@ class Admin extends BaseController
      * @param integer $user_id = The id of the user to modify, leave blank to create a new one
      * @return void
      */
-    public function save_user($user_id = 0): string|Response
+    public function save_user(?int $user_id = 0): string|Response
     {
         //store the user name and user type to display them again in the form
         $oldName = NULL;
@@ -144,7 +144,7 @@ class Admin extends BaseController
      *  - 2 for deleting (hard delete)
      * @return void
      */
-    public function delete_user($user_id, $action = 0)
+    public function delete_user(int $user_id, ?int $action = 0): string|Response
     {
         $user = $this->user_model->withDeleted()->find($user_id);
         if (is_null($user)) {
@@ -157,7 +157,7 @@ class Admin extends BaseController
                     'user' => $user,
                     'title' => lang('user_lang.title_user_delete')
                 );
-                $this->display_view('\User\admin\delete_user', $output);
+                return $this->display_view('\User\admin\delete_user', $output);
                 break;
             case 1: // Deactivate (soft delete) user
                 if ($_SESSION['user_id'] != $user['id']) {
@@ -180,7 +180,7 @@ class Admin extends BaseController
      * @param integer $user_id = ID of the user to affect
      * @return void
      */
-    public function reactivate_user($user_id)
+    public function reactivate_user(int $user_id): Response
     {
         $user = $this->user_model->withDeleted()->find($user_id);
         if (is_null($user)) {
@@ -197,7 +197,7 @@ class Admin extends BaseController
      * @param integer $user_id = ID of the user to update
      * @return void
      */
-    public function password_change_user($user_id)
+    public function password_change_user(int $user_id): Response
     {
         // Get user from DB, redirect if user doesn't exist
         $user = $this->user_model->withDeleted()->find($user_id);
