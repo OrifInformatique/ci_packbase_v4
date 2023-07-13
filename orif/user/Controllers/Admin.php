@@ -13,13 +13,15 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use User\Models\User_model;
 use User\Models\User_type_model;
+use CodeIgniter\HTTP\Response;
 
 class Admin extends BaseController
 {
     /**
      * Constructor
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger): void
     {
         // Set Access level before calling parent constructor
         // Accessibility reserved to admin users
@@ -46,7 +48,7 @@ class Admin extends BaseController
      * @param boolean $with_deleted : Display archived users or not
      * @return void
      */
-    public function list_user($with_deleted = FALSE)
+    public function list_user($with_deleted = FALSE): string
     {
         if ($with_deleted) {
             $users = $this->user_model->orderBy('username')->withDeleted()
@@ -67,7 +69,7 @@ class Admin extends BaseController
             'user_types' => $usertypes,
             'with_deleted' => $with_deleted
         );
-        $this->display_view('\User\admin\list_user', $output);
+        return $this->display_view('\User\admin\list_user', $output);
     }
 
     /**
@@ -76,7 +78,7 @@ class Admin extends BaseController
      * @param integer $user_id = The id of the user to modify, leave blank to create a new one
      * @return void
      */
-    public function save_user($user_id = 0)
+    public function save_user($user_id = 0): string|Response
     {
         //store the user name and user type to display them again in the form
         $oldName = NULL;
@@ -129,7 +131,7 @@ class Admin extends BaseController
             'errors'        => $this->user_model->errors()==null?[]:$this->user_model->errors()
         );
 
-        $this->display_view('\User\admin\form_user', $output);
+        return $this->display_view('\User\admin\form_user', $output);
     }
 
     /**
@@ -219,6 +221,6 @@ class Admin extends BaseController
             'title' => lang('user_lang.title_user_password_reset'),
             'errors' => $this->user_model->errors()==null?[]:$this->user_model->errors()
         );
-        $this->display_view('\User\admin\password_change_user', $output);
+        return $this->display_view('\User\admin\password_change_user', $output);
     }
 }
