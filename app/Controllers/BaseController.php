@@ -59,7 +59,7 @@ abstract class BaseController extends Controller
      * Constructor.
      */
     public function initController(RequestInterface $request,
-        ResponseInterface $response, LoggerInterface $logger): void|string
+        ResponseInterface $response, LoggerInterface $logger)
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
@@ -70,7 +70,7 @@ abstract class BaseController extends Controller
         
         // Check permission on construct
         if (!$this->check_permission()) {
-            return $this->display_view('\User\errors\403error');
+            echo $this->display_view('\User\errors\403error');
             exit();
             //throw new \Exception("some message here",403);
             //show_error(lang('msg_err_access_denied_message'), 403, lang('msg_err_access_denied_header'));
