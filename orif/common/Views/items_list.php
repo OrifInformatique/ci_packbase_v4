@@ -1,5 +1,5 @@
 <?php
-   /** @author      Orif, section informatique (ViDi, AeDa)
+   /** @author      Orif, section informatique (ViDi, AeDa, PoMa)
      * @link        https://github.com/OrifInformatique
      * @copyright   Copyright (c), Orif (https://www.orif.ch)
      * 
@@ -9,7 +9,6 @@
      * @param list_title : String displayed on the top of the list.
      * @param items :      Array of items to display, each item being a subarray with multiple properties.
      * @param columns :    Array of columns to display in the list.
-     *                     Columns display order is the same as the order given in this parameter.
      *                     Key is the name of the corresponding items property in items subarrays.
      *                     Value is the header to display for each column.
      * @param with_deleted : 
@@ -35,10 +34,11 @@
      *                     It should call a method that returns the view's content.
      *                     If not set, the "Display disabled items" checkbox won't be displayed.
      * @param url_restore: Link to the controller method that restore the item.
-     *                     If not set, take the value of url_delete
-     * @param date_delete: String with the date of deleted of the date    
-     *                     If set the line is not visible without check the checkbox
-     *                     and"restore" button will displays intead of delete button
+     *                     If not set, no "restore" button will be displayed.
+     * @param deleted_field:
+     *                     String with the the name of the field if is set and not null mean the item is deleted
+     *                     If the field in the item array is set the line is not visible without check the checkbox
+     *                     and the button will become read 
      * @param url_copy:    Link to the controller method that displays a form to create a new item with the data of
      *                     the item already inserted in the form.
      *                     If not set, no "copy" button will be displayed.
@@ -108,6 +108,11 @@
         $url_getView = null;
     }
 
+    // If no deleted_field variable is sent as parameter, set it to null
+    if (!isset($deleted_field)) {
+        $deleted_field = null;
+    }
+
     // for form_checkbox
     helper('form');
 
@@ -121,18 +126,18 @@
         </div>
         <div class="col-sm-6 text-left">
             <!-- Display the "create" button if url_create is defined -->
-            <?php if(isset($url_create)) { ?>
+            <?php if(isset($url_create)): ?>
                 <a class="btn btn-primary" href="<?= site_url(esc($url_create)) ?>"><?= esc($btn_create_label) ?></a>
-            <?php } ?>
+            <?php endif ?>
         </div>
         <div class="col-sm-6 text-right">
             <!-- Display the "with_deleted" checkbox if with_deleted and url_getView variables are defined -->
-            <?php if (isset($with_deleted) && isset($url_getView)) { ?>
+            <?php if (isset($with_deleted) && isset($url_getView)): ?>
                 <label class="form-check-label" for="toggle_deleted">
                     <?= lang($display_deleted_label); ?>
                 </label>
                 <?= form_checkbox('toggle_deleted', '', $with_deleted, ['id' => 'toggle_deleted']); ?>
-            <?php } ?>
+            <?php endif ?>
         </div>
     </div>
 
@@ -146,9 +151,9 @@
                     <?php endforeach ?>
 
                     <!-- Add the "action" column (for detail/update/delete links) -->
-                    <?php if(isset($url_detail) || isset($url_update) || isset($url_delete)) { ?>
+                    <?php if(isset($url_detail) || isset($url_update) || isset($url_delete)): ?>
                         <th class="text-right" scope="col"></th>
-                    <?php } ?>
+                    <?php endif ?>
                 </tr>
             </thead>
             <tbody>
@@ -158,12 +163,16 @@
                     <!-- Only display item's properties wich are listed in "columns" variable in the order of the columns -->
                     <?php foreach ($columns as $columnKey => $column): ?>
                         <?php if (array_key_exists($columnKey, $itemEntity)) : ?>
-                            <td><?= $itemEntity[$columnKey] ?></td>
+                            <?php if (!isset($itemEntity[$deleted_field])) : ?>
+                                <td><?= esc($itemEntity[$columnKey]) ?></td>
+                            <?php else: ?>
+                                <td><del><?= esc($itemEntity[$columnKey]) ?></del></td>
+                            <?php endif ?>
                         <?php else: ?>
                             <td></td>
                         <?php endif ?>
                     <?php endforeach ?>
-                    
+
                     <!-- Add the "action" column (for detail/update/delete links) -->
                     <td class="text-right">                        
                         <!-- Bootstrap details icon ("Card text"), redirect to url_detail, adding /primary_key as parameter -->
@@ -191,22 +200,27 @@
                         <?php endif ?>
 
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
-                        <?php if(isset($url_delete)): ?>
-                            <?php if (!isset($itemEntity['date_delete'])) : ?>
+                        <?php if ((isset($url_delete)) and (!isset($itemEntity[$deleted_field]))): ?>
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
                                 <i class="bi bi-trash" style="font-size: 20px;"></i>
                             </a>
-                            <?php else : ?>
-                            <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore
-                                or url_delete if url_resotre is not set , adding /primary_key as parameter -->
-                            <a href="<?= site_url(esc($url_restore ?? $url_delete.$itemEntity[$primary_key_field])) ?>"
+                        <?php endif ?>
+                        <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore,
+                                adding/primary_key as parameter -->
+                        <?php if ((isset($url_restore)) and (isset($itemEntity[$deleted_field]))) : ?>
+                            <a href="<?= site_url(esc($url_restore . $itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
                                 <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
                             </a>
-                            <?php endif ?>
                         <?php endif ?>
-
+                        <?php if ((isset($url_delete)) and (isset($itemEntity[$deleted_field]))) : ?>
+                            <!-- Bootstrap delete icon ("Trash") with red color, redirect to url_delete, adding /primary_key as parameter -->
+                            <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
+                                <i class="bi bi-trash text-danger" style="font-size: 20px;"></i>
+                            </a>
+                        <?php endif ?>
                     </td>
                 </tr>
                 <?php endforeach ?>
@@ -218,7 +232,7 @@
 <!-- JQuery script to refresh items list after user action -->
 <?php if (isset($url_getView)): ?>
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
 
     // "Display disabled items" checkbox value change
     $('#toggle_deleted').change(e => {
