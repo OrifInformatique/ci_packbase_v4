@@ -143,13 +143,13 @@ abstract class BaseController extends Controller
             $data['title'] = '';
         }
 
-        // Display common headers
+        // Add common headers to the view
         $viewToDisplay .=  view('Common\header', $data);
 
-        // Display login bar
+        // Add login bar to the view
         $viewToDisplay .= view('Common\login_bar');
 
-        // Display admin menu if appropriate
+        // Add admin menu to the view if the current url is an admin url
         foreach (config('Common\Config\AdminPanelConfig')->tabs as $tab){
             if (strstr(current_url(),$tab['pageLink'])) {
                 $viewToDisplay .= view('\Common\adminMenu');
@@ -157,18 +157,20 @@ abstract class BaseController extends Controller
         }
 
         if (is_array($view_parts)) {
-            // Display multiple view parts
+            // Add multiple parts to the view
             foreach ($view_parts as $view_part) {
                 $viewToDisplay .= view($view_part, $data);
             }
         }
         elseif (is_string($view_parts)) {
-            // Display unique view part
+            // Add unique part to the view
             $viewToDisplay .= view($view_parts, $data);
         }
 
-        // Display common footer
+        // Add common footers to the view
         $viewToDisplay .= view('Common\footer');
+        
+        // Return the complete view to display
         return $viewToDisplay;
     }
 }
