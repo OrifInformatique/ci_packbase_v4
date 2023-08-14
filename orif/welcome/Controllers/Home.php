@@ -19,9 +19,9 @@ class Home extends BaseController
 
 	public function index()
 	{
-		return view('Welcome\welcome_message');
+        return view('Welcome\welcome_message');
 	}
-
+    
     public function display_items($with_deleted = false)
     {
         $data['list_title'] = "Test de la liste items_list";

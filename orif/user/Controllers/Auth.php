@@ -140,7 +140,6 @@ class Auth extends BaseController {
             } else {
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
             }
-
             // Send the user to the redirection URL
             return redirect()->to($_SESSION['after_login_redirect']);
 
