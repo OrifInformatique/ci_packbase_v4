@@ -2,7 +2,7 @@
 /**
  * 401 Unauthorized access
  *
- * @author      Orif (ViDi,HeMa)
+ * @author      Orif (ViDi,MoDa)
  * @link        https://github.com/OrifInformatique
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
@@ -10,7 +10,7 @@
 http_response_code(401);
 ?>
 
-<div id="message" class="container alert alert-danger">
+<div id="message" class="wrap container alert alert-danger">
     <div class="row">
         <div class="col">
             <h2><?= lang('user_lang.code_error_401')?></h2>

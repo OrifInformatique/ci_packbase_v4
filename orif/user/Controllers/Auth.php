@@ -52,8 +52,6 @@ class Auth extends BaseController {
     exit;
     }
 
-    
-
     /**
      * Login user and create session variables
      *
@@ -68,8 +66,6 @@ class Auth extends BaseController {
         $ad_tenant = getenv('TENANT_ID');
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
-        
-        if (isset($_GET["code"])) echo "<pre>";  //This is just for easier and better looking var_dumps for debug purposes
         
         if (!isset($_GET["code"]) and !isset($_GET["error"])) {  //Real authentication part begins
             
