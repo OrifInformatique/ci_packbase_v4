@@ -52,6 +52,8 @@ class Auth extends BaseController {
     exit;
     }
 
+    
+
     /**
      * Login user and create session variables
      *
@@ -103,12 +105,17 @@ class Auth extends BaseController {
                 )
             );
             $context  = stream_context_create($options);
-            $json = file_get_contents("https://login.microsoftonline.com/" . $ad_tenant . "/oauth2/v2.0/token", false, $context);
+
+            try {
+                $json = file_get_contents("https://login.microsoftonline.com/" . $ad_tenant . "/oauth2/v2.0/token", false, $context);
+            } catch(\Exception $e) {
+                $this->display_view('\User\errors\401error');
+                exit();
+            };
+
             if ($json === false) errorhandler(array("Description" => "Error received during Bearer token fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
             $authdata = json_decode($json, true);
             if (isset($authdata["error"])) errorhandler(array("Description" => "Bearer token fetch contained an error.", "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
-        
-            // echo $authdata["access_token"];  //Debug print
             
             //Fetching the basic user information that is likely needed by your application
             $options = array(
