@@ -60,9 +60,8 @@ class Auth extends BaseController {
         
     public function azure_login() {
 
-        // $tokenClient = new Client();
         $client_id = getenv('CLIENT_ID');
-        $client_secret = getenv('CLIENT_SECRET'); // This is a custom variable I inserted in .env
+        $client_secret = getenv('CLIENT_SECRET');
         $ad_tenant = getenv('TENANT_ID');
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
@@ -80,7 +79,10 @@ class Auth extends BaseController {
             header("Location: " . $url);  //So off you go my dear browser and welcome back for round two after some redirects at Azure end
 
         } elseif (isset($_GET["error"])) {  //Second load of this page begins, but hopefully we end up to the next elseif section...
-            errorhandler(array("Description" => "Error received at the beginning of second stage.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
+            //errorhandler(array("Description" => "Error received at the beginning of second stage.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
+            $this->display_view('\User\errors\azureErrors');
+            exit();
+
         } elseif (strcmp(session_id(), $_GET["state"]) == 0) {
              //Checking that the session_id matches to the state for security reasons
             //And now the browser has returned from its various redirects at Azure side and carrying some gifts inside $_GET
@@ -109,9 +111,17 @@ class Auth extends BaseController {
                 exit();
             };
 
-            if ($json === false) errorhandler(array("Description" => "Error received during Bearer token fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+            if ($json === false){
+                //errorhandler(array("Description" => "Error received during Bearer token fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+                $this->display_view('\User\errors\azureErrors');
+                exit();
+            };
             $authdata = json_decode($json, true);
-            if (isset($authdata["error"])) errorhandler(array("Description" => "Bearer token fetch contained an error.", "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+            if (isset($authdata["error"])){
+                // errorhandler(array("Description" => "Bearer token fetch contained an error.", "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+                $this->display_view('\User\errors\azureErrors');
+                exit();
+            };
             
             //Fetching the basic user information that is likely needed by your application
             $options = array(
@@ -123,9 +133,19 @@ class Auth extends BaseController {
             );
             $context = stream_context_create($options);
             $json = file_get_contents("https://graph.microsoft.com/v1.0/me", false, $context);
-            if ($json === false) errorhandler(array("Description" => "Error received during user data fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+            if ($json === false) {
+                //errorhandler(array("Description" => "Error received during user data fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+                $this->display_view('\User\errors\azureErrors');
+                exit();
+            };
             $userdata = json_decode($json, true);  //This should now contain your logged on user information
-            if (isset($userdata["error"])) errorhandler(array("Description" => "User data fetch contained an error.", "\$userdata[]" => $userdata, "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+            if (isset($userdata["error"])) {
+                //errorhandler(array("Description" => "User data fetch contained an error.", "\$userdata[]" => $userdata, "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+                $this->display_view('\User\errors\azureErrors');
+                exit();
+            };
+
+            // Setting up the session
             
             $_SESSION['username'] = $userdata["displayName"];
             $user_email = $userdata["mail"];
@@ -148,10 +168,12 @@ class Auth extends BaseController {
 
         } else {
             //If we end up here, something has obviously gone wrong... Likely a hacking attempt since sent and returned state aren't matching and no $_GET["error"] received.
-            dd("Hey, please don't try to hack us!\n\n");
-            echo "PHP Session ID used as state: " . session_id() . "\n";  //And for production version you likely don't want to show these for the potential hacker
-            var_dump($_GET);  //But this being a test script having the var_dumps might be useful
-            errorhandler(array("Description" => "Likely a hacking attempt, due state mismatch.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
+            // dd("Hey, please don't try to hack us!\n\n");
+            // echo "PHP Session ID used as state: " . session_id() . "\n";  //And for production version you likely don't want to show these for the potential hacker
+            // var_dump($_GET);  //But this being a test script having the var_dumps might be useful
+            // errorhandler(array("Description" => "Likely a hacking attempt, due state mismatch.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
+            $this->display_view('\User\errors\azureErrors');
+            exit();
         }
     }
 
