@@ -23,6 +23,7 @@ http_response_code(401);
                     <?= esc($message) ?>
                 <?php else : ?>
                     <?= lang('user_lang.msg_err_unauthorized').'.' ?>
+                    <?= esc($e) ?>
                 <?php endif ?>
             </p>
         </div>

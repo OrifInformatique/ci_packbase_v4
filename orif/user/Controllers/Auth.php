@@ -106,7 +106,7 @@ class Auth extends BaseController {
 
             try {
                 $json = file_get_contents("https://login.microsoftonline.com/" . $ad_tenant . "/oauth2/v2.0/token", false, $context);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->display_view('\User\errors\401error');
                 exit();
             };
