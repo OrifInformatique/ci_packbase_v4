@@ -65,6 +65,7 @@ class Auth extends BaseController {
         $ad_tenant = getenv('TENANT_ID');
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
+        $environment = getenv('CI_ENVIRONMENT');
         
         if (!isset($_GET["code"]) and !isset($_GET["error"])) {  //Real authentication part begins
             
@@ -107,7 +108,10 @@ class Auth extends BaseController {
             try {
                 $json = file_get_contents("https://login.microsoftonline.com/" . $ad_tenant . "/oauth2/v2.0/token", false, $context);
             } catch (\Exception $e) {
-                $this->display_view('\User\errors\401error');
+                $data['title'] = 'test';
+                $data['Exception'] = $e;
+                $data['env'] = $environment;
+                $this->display_view('\User\errors\401error', $data);
                 exit();
             };
 

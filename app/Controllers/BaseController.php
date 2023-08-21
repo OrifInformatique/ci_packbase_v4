@@ -158,6 +158,7 @@ abstract class BaseController extends Controller
         }
         elseif (is_string($view_parts)) {
             // Display unique view part
+            d($data);
             echo view($view_parts, $data);
         }
 
