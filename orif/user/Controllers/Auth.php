@@ -38,18 +38,26 @@ class Auth extends BaseController {
         
     }
 
-    function errorhandler($input, $email)
+    function errorhandler($data)
     {
-    $output = "PHP Session ID:    " . session_id() . PHP_EOL;
-    $output .= "Client IP Address: " . getenv("REMOTE_ADDR") . PHP_EOL;
-    $output .= "Client Browser:    " . $_SERVER["HTTP_USER_AGENT"] . PHP_EOL;
-    $output .= PHP_EOL;
-    ob_start();  //Start capturing the output buffer
-    var_dump($input);  //This is not for debug print, this is to collect the data for the email
-    $output .= ob_get_contents();  //Storing the output buffer content to $output
-    ob_end_clean();  //While testing, you probably want to comment the next row out
-    mb_send_mail($email, "Your Azure AD Oauth2 script faced an error!", $output, "X-Priority: 1\nContent-Transfer-Encoding: 8bit\nX-Mailer: PHP/" . phpversion());
-    exit;
+    // $output = "PHP Session ID:    " . session_id() . PHP_EOL;
+    // $output .= "Client IP Address: " . getenv("REMOTE_ADDR") . PHP_EOL;
+    // $output .= "Client Browser:    " . $_SERVER["HTTP_USER_AGENT"] . PHP_EOL;
+    // $output .= PHP_EOL;
+    // ob_start();  //Start capturing the output buffer
+    // var_dump($input);  //This is not for debug print, this is to collect the data for the email
+    // $output .= ob_get_contents();  //Storing the output buffer content to $output
+    // ob_end_clean();  //While testing, you probably want to comment the next row out
+    // mb_send_mail($email, "Your Azure AD Oauth2 script faced an error!", $output, "X-Priority: 1\nContent-Transfer-Encoding: 8bit\nX-Mailer: PHP/" . phpversion());
+    // exit;
+
+    // errorhandler(array("Description" => "Bearer token fetch contained an error.", "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+
+    $data['title'] = 'Azure error';
+    $data['env'] = $environment;
+
+    $this->display_view('\User\errors\azureErrors', $data);
+    exit();
     }
 
     /**
@@ -108,7 +116,7 @@ class Auth extends BaseController {
             try {
                 $json = file_get_contents("https://login.microsoftonline.com/" . $ad_tenant . "/oauth2/v2.0/token", false, $context);
             } catch (\Exception $e) {
-                $data['title'] = 'test';
+                $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
                 $data['env'] = $environment;
                 $this->display_view('\User\errors\401error', $data);
@@ -117,14 +125,14 @@ class Auth extends BaseController {
 
             if ($json === false){
                 //errorhandler(array("Description" => "Error received during Bearer token fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
-                $this->display_view('\User\errors\azureErrors');
-                exit();
+                $data['Exception'] = lang('user_lang.msg_err_no_token').'.';
+                $this->errorhandler($data);
             };
             $authdata = json_decode($json, true);
             if (isset($authdata["error"])){
                 // errorhandler(array("Description" => "Bearer token fetch contained an error.", "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
-                $this->display_view('\User\errors\azureErrors');
-                exit();
+                $data['Exception'] = null;
+                $this->errorhandler($data);
             };
             
             //Fetching the basic user information that is likely needed by your application
@@ -139,14 +147,14 @@ class Auth extends BaseController {
             $json = file_get_contents("https://graph.microsoft.com/v1.0/me", false, $context);
             if ($json === false) {
                 //errorhandler(array("Description" => "Error received during user data fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
-                $this->display_view('\User\errors\azureErrors');
-                exit();
+                $data['Exception'] = null;
+                $this->errorhandler($data);
             };
             $userdata = json_decode($json, true);  //This should now contain your logged on user information
             if (isset($userdata["error"])) {
                 //errorhandler(array("Description" => "User data fetch contained an error.", "\$userdata[]" => $userdata, "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
-                $this->display_view('\User\errors\azureErrors');
-                exit();
+                $data['Exception'] = null;
+                $this->errorhandler($data);
             };
 
             // Setting up the session
@@ -176,8 +184,8 @@ class Auth extends BaseController {
             // echo "PHP Session ID used as state: " . session_id() . "\n";  //And for production version you likely don't want to show these for the potential hacker
             // var_dump($_GET);  //But this being a test script having the var_dumps might be useful
             // errorhandler(array("Description" => "Likely a hacking attempt, due state mismatch.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
-            $this->display_view('\User\errors\azureErrors');
-            exit();
+            $data['Exception'] = lang('user_lang.msg_err_mismatch').'.';
+            $this->errorhandler($data);
         }
     }
 
