@@ -6,7 +6,6 @@
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
 
-//http_response_code(401);
 ?>
 
 <div id="message" class="wrap container alert alert-danger">
@@ -17,13 +16,17 @@
     </div>
     <div class="row">
         <div class="col">
-            <p>
-                <?php if (! empty($message) && $message !== '(null)') : ?>
-                    <?= esc($message) ?>
-                <?php else : ?>
-                    <?= lang('user_lang.msg_err_azure').'.' ?>
-                <?php endif ?>
-            </p>
+            <p><?php
+                if (! empty($message) && $message !== '(null)') {
+                    esc($message);
+                } else {            
+                    if (ENVIRONMENT != 'production') {
+                        echo lang('user_lang.msg_err_default_azure').' : '.$Exception;
+                    } else {
+                        echo(lang('user_lang.msg_err_default_azure').'.');
+                    }
+                }
+            ?></p>
         </div>
     </div>
 </div>

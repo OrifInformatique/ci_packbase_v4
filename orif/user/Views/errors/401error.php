@@ -21,10 +21,9 @@ http_response_code(401);
             <p><?php
                 if (! empty($message) && $message !== '(null)') {
                     esc($message);
-                } else {
-                    //echo lang('user_lang.msg_err_unauthorized').'.';               
-                    if ($env == 'development') {
-                        echo lang('user_lang.msg_err_unauthorized').'.';
+                } else {            
+                    if (ENVIRONMENT != 'production') {
+                        echo lang('user_lang.msg_err_unauthorized').' : ';
                         dd($Exception);
                     } else {
                         echo lang('user_lang.msg_err_unauthorized').'.';

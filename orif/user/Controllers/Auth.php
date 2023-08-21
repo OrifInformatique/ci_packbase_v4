@@ -38,26 +38,10 @@ class Auth extends BaseController {
         
     }
 
-    function errorhandler($data)
-    {
-    // $output = "PHP Session ID:    " . session_id() . PHP_EOL;
-    // $output .= "Client IP Address: " . getenv("REMOTE_ADDR") . PHP_EOL;
-    // $output .= "Client Browser:    " . $_SERVER["HTTP_USER_AGENT"] . PHP_EOL;
-    // $output .= PHP_EOL;
-    // ob_start();  //Start capturing the output buffer
-    // var_dump($input);  //This is not for debug print, this is to collect the data for the email
-    // $output .= ob_get_contents();  //Storing the output buffer content to $output
-    // ob_end_clean();  //While testing, you probably want to comment the next row out
-    // mb_send_mail($email, "Your Azure AD Oauth2 script faced an error!", $output, "X-Priority: 1\nContent-Transfer-Encoding: 8bit\nX-Mailer: PHP/" . phpversion());
-    // exit;
-
-    // errorhandler(array("Description" => "Bearer token fetch contained an error.", "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
-
-    $data['title'] = 'Azure error';
-    $data['env'] = $environment;
-
-    $this->display_view('\User\errors\azureErrors', $data);
-    exit();
+    function errorhandler($data) {
+        $data['title'] = 'Azure error';
+        $this->display_view('\User\errors\azureErrors', $data);
+        exit();
     }
 
     /**
@@ -73,29 +57,28 @@ class Auth extends BaseController {
         $ad_tenant = getenv('TENANT_ID');
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
-        $environment = getenv('CI_ENVIRONMENT');
         
-        if (!isset($_GET["code"]) and !isset($_GET["error"])) {  //Real authentication part begins
+        // Authentication part begins
+        if (!isset($_GET["code"]) and !isset($_GET["error"])) {
             
-            //First stage of the authentication process; This is just a simple redirect (first load of this page)
+            // First stage of the authentication process
             $url = "https://login.microsoftonline.com/" . $ad_tenant . "/oauth2/v2.0/authorize?";
-            $url .= "state=" . session_id();  //This at least semi-random string is likely good enough as state identifier
-            $url .= "&scope=" . $graphUserScopes;  //This scope seems to be enough, but you can try "&scope=profile+openid+email+offline_access+User.Read" if you like
+            $url .= "state=" . session_id();
+            $url .= "&scope=" . $graphUserScopes;
             $url .= "&response_type=code";
             $url .= "&approval_prompt=auto";
             $url .= "&client_id=" . $client_id;
             $url .= "&redirect_uri=" . urlencode($redirect_uri);
-            header("Location: " . $url);  //So off you go my dear browser and welcome back for round two after some redirects at Azure end
+            header("Location: " . $url);  // Redirection to Microsoft's login page
 
-        } elseif (isset($_GET["error"])) {  //Second load of this page begins, but hopefully we end up to the next elseif section...
-            //errorhandler(array("Description" => "Error received at the beginning of second stage.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
-            $this->display_view('\User\errors\azureErrors');
-            exit();
+        // Second stage of the authentication process
+        } elseif (isset($_GET["error"])) {
+
+            $data['Exception'] = null;
+            $this->errorhandler($data);
 
         } elseif (strcmp(session_id(), $_GET["state"]) == 0) {
-             //Checking that the session_id matches to the state for security reasons
-            //And now the browser has returned from its various redirects at Azure side and carrying some gifts inside $_GET
-            //var_dump($_GET);  //Debug print
+            //Checking that the session_id matches to the state for security reasons
             
             //Verifying the received tokens with Azure and finalizing the authentication part
             $content = "grant_type=authorization_code";
@@ -113,29 +96,29 @@ class Auth extends BaseController {
             );
             $context  = stream_context_create($options);
 
+            // Special error handler to verify if "client secret" is still valid
             try {
                 $json = file_get_contents("https://login.microsoftonline.com/" . $ad_tenant . "/oauth2/v2.0/token", false, $context);
             } catch (\Exception $e) {
                 $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
-                $data['env'] = $environment;
                 $this->display_view('\User\errors\401error', $data);
                 exit();
             };
 
             if ($json === false){
-                //errorhandler(array("Description" => "Error received during Bearer token fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+                //Error received during Bearer token fetch
                 $data['Exception'] = lang('user_lang.msg_err_no_token').'.';
                 $this->errorhandler($data);
             };
             $authdata = json_decode($json, true);
             if (isset($authdata["error"])){
-                // errorhandler(array("Description" => "Bearer token fetch contained an error.", "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+                //Bearer token fetch contained an error
                 $data['Exception'] = null;
                 $this->errorhandler($data);
             };
             
-            //Fetching the basic user information that is likely needed by your application
+            //Fetching user information
             $options = array(
                 "http" => array(  //Use "http" even if you send the request with https
                 "method" => "GET",
@@ -146,13 +129,13 @@ class Auth extends BaseController {
             $context = stream_context_create($options);
             $json = file_get_contents("https://graph.microsoft.com/v1.0/me", false, $context);
             if ($json === false) {
-                //errorhandler(array("Description" => "Error received during user data fetch.", "PHP_Error" => error_get_last(), "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+                // Error received during user data fetch.
                 $data['Exception'] = null;
                 $this->errorhandler($data);
             };
-            $userdata = json_decode($json, true);  //This should now contain your logged on user information
+            $userdata = json_decode($json, true);
             if (isset($userdata["error"])) {
-                //errorhandler(array("Description" => "User data fetch contained an error.", "\$userdata[]" => $userdata, "\$authdata[]" => $authdata, "\$_GET[]" => $_GET, "HTTP_msg" => $options), $error_email);
+                // User data fetch contained an error.
                 $data['Exception'] = null;
                 $this->errorhandler($data);
             };
@@ -166,11 +149,10 @@ class Auth extends BaseController {
             $_SESSION['azure_identification'] = (bool)true;
 
             
-            $ci_user = $this->user_model->where('azure_mail', $user_email)->first(); // This is like calling CodeIgniter\Database\BaseConnection::query()
+            $ci_user = $this->user_model->where('azure_mail', $user_email)->first();
                 
-            // if email is registered in DB
-            if (isset($ci_user['azure_mail'])) {
-                // give default azure access to user
+            
+            if (isset($ci_user['azure_mail'])) { // if email is registered in DB give default azure access to user
                 $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
             } else {
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
@@ -179,18 +161,13 @@ class Auth extends BaseController {
             return redirect()->to($_SESSION['after_login_redirect']);
 
         } else {
-            //If we end up here, something has obviously gone wrong... Likely a hacking attempt since sent and returned state aren't matching and no $_GET["error"] received.
-            // dd("Hey, please don't try to hack us!\n\n");
-            // echo "PHP Session ID used as state: " . session_id() . "\n";  //And for production version you likely don't want to show these for the potential hacker
-            // var_dump($_GET);  //But this being a test script having the var_dumps might be useful
-            // errorhandler(array("Description" => "Likely a hacking attempt, due state mismatch.", "\$_GET[]" => $_GET, "\$_SESSION[]" => $_SESSION), $error_email);
+            // Returned states mismatch and no $_GET["error"] received.
             $data['Exception'] = lang('user_lang.msg_err_mismatch').'.';
             $this->errorhandler($data);
         }
     }
 
     public function login(){   
-        
         // If user is not already logged
         if(!(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)) {
 
@@ -206,7 +183,7 @@ class Auth extends BaseController {
                 $_SESSION['after_login_redirect'] = base_url();
             }
 
-            // Check if the form has been submitted, else just display the form
+            // Check if the form has been submitted, else check if Microsoft button submitted
             if (!is_null($this->request->getVar('btn_login'))) {
 
                 // Define fields validation rules
@@ -255,8 +232,10 @@ class Auth extends BaseController {
                     }
                     $this->session->setFlashdata('message-danger', lang('user_lang.msg_err_invalid_password'));
                 }
+
+            // Check if microsoft login button submitted, else, display login page
             } else if (!is_null($this->request->getPost('btn_login_microsoft'))) {
-                $this->azure_login();// This'll redirect to redirect uri if successful
+                $this->azure_login();
                 exit();
             }
             //Display login page
