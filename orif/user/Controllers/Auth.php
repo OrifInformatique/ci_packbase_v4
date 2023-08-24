@@ -12,13 +12,15 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use User\Models\User_model;
+use CodeIgniter\HTTP\Response;
 
 class Auth extends BaseController {
 
     /**
      * Constructor
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger): void
     {
         // Set Access level before calling parent constructor
         // Accessibility for all users to let visitors have access to authentication
@@ -49,7 +51,6 @@ class Auth extends BaseController {
      *
      * @return void
      */
-        
     public function azure_login() {
 
         $client_id = getenv('CLIENT_ID');
@@ -167,7 +168,8 @@ class Auth extends BaseController {
         }
     }
 
-    public function login(){   
+    public function login(): string|Response
+    {
         // If user is not already logged
         if(!(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)) {
 
@@ -240,8 +242,7 @@ class Auth extends BaseController {
             }
             //Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
-            $this->display_view('\User\auth\login', $output);
-
+            return $this->display_view('\User\auth\login', $output);
         } else {
             return redirect()->to(base_url());
         }
@@ -252,7 +253,7 @@ class Auth extends BaseController {
      *
      * @return void
      */
-    public function logout()
+    public function logout(): Response
     {
         // Restart session with empty parameters
         $_SESSION = [];
@@ -267,7 +268,7 @@ class Auth extends BaseController {
      *
      * @return void
      */
-    public function change_password()
+    public function change_password(): Response|string 
     {
         // Check if access is allowed
         if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
@@ -305,7 +306,7 @@ class Auth extends BaseController {
 
             // Display the password change form
             $output['title'] = lang('user_lang.page_my_password_change');
-            $this->display_view('\User\auth\change_password', $output);
+            return $this->display_view('\User\auth\change_password', $output);
 
         } else {
             // Access is not allowed
