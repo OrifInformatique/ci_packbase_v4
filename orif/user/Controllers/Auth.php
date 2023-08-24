@@ -109,7 +109,7 @@ class Auth extends BaseController {
 
             if ($json === false){
                 //Error received during Bearer token fetch
-                $data['Exception'] = lang('user_lang.msg_err_no_token').'.';
+                $data['Exception'] = lang('user_lang.msg_err_azure_no_token').'.';
                 $this->errorhandler($data);
             };
             $authdata = json_decode($json, true);
@@ -163,7 +163,7 @@ class Auth extends BaseController {
 
         } else {
             // Returned states mismatch and no $_GET["error"] received.
-            $data['Exception'] = lang('user_lang.msg_err_mismatch').'.';
+            $data['Exception'] = lang('user_lang.msg_err_azure_mismatch').'.';
             $this->errorhandler($data);
         }
     }
