@@ -42,7 +42,7 @@ class Auth extends BaseController {
 
     function errorhandler($data) {
         $data['title'] = 'Azure error';
-        $this->display_view('\User\errors\azureErrors', $data);
+        echo $this->display_view('\User\errors\azureErrors', $data);
         exit();
     }
 
@@ -103,7 +103,7 @@ class Auth extends BaseController {
             } catch (\Exception $e) {
                 $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
-                $this->display_view('\User\errors\401error', $data);
+                echo $this->display_view('\User\errors\401error', $data);
                 exit();
             };
 

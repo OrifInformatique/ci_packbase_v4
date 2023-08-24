@@ -24,7 +24,7 @@ http_response_code(401);
                 } else {            
                     if (ENVIRONMENT != 'production') {
                         echo lang('user_lang.msg_err_azure_unauthorized').' : ';
-                        dd($Exception);
+                        d($Exception);
                     } else {
                         echo lang('user_lang.msg_err_azure_unauthorized').'.';
                     }
