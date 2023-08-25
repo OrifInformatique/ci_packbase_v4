@@ -20,7 +20,7 @@ class Home extends BaseController
 
 	public function index(): string
 	{
-		return view('Welcome\welcome_message');
+        return view('Welcome\welcome_message');
 	}
 
     public function display_items($with_deleted = false): string
