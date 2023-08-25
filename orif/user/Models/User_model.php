@@ -36,12 +36,12 @@ class User_model extends \CodeIgniter\Model{
             'fk_user_type' =>
                 ['label' => lang('user_lang.field_usertype'),
                  'rules' => 'required|cb_not_null_user_type'],
-            // 'password' =>
-            //     ['label' => lang('user_lang.field_password'),
-            //      'rules' => 'required|trim|'.
-            //                 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'.
-            //                 'max_length['.config("\User\Config\UserConfig")->password_max_length.']|'.
-            //                 'matches[password_confirm]'],
+            'password' =>
+                ['label' => lang('user_lang.field_password'),
+                 'rules' => 'required|trim|'.
+                            'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'.
+                            'max_length['.config("\User\Config\UserConfig")->password_max_length.']|'.
+                            'matches[password_confirm]'],
             'email' =>
                 ['label' => lang('user_lang.field_email'),
                  'rules' => 'cb_unique_useremail[{id}]|required|valid_email|'.
@@ -60,19 +60,6 @@ class User_model extends \CodeIgniter\Model{
         ];
 
         parent::__construct($db, $validation);
-    }
-
-    public static function fetch($username){
-        
-        $query = $username->db->table('user')
-
-            ->select('*')
-
-            ->where($_SESSION['username'] = $username)
-
-            ->get();
-
-        return $query;
     }
 
     /**
