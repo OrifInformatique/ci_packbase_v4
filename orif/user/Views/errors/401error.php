@@ -23,10 +23,10 @@ http_response_code(401);
                     esc($message);
                 } else {            
                     if (ENVIRONMENT != 'production') {
-                        echo lang('user_lang.msg_err_unauthorized').' : ';
-                        dd($Exception);
+                        echo lang('user_lang.msg_err_azure_unauthorized').' : ';
+                        d($Exception);
                     } else {
-                        echo lang('user_lang.msg_err_unauthorized').'.';
+                        echo lang('user_lang.msg_err_azure_unauthorized').'.';
                     }
                 }
             ?></p>

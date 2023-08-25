@@ -12,13 +12,15 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use User\Models\User_model;
+use CodeIgniter\HTTP\Response;
 
 class Auth extends BaseController {
 
     /**
      * Constructor
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger): void
     {
         // Set Access level before calling parent constructor
         // Accessibility for all users to let visitors have access to authentication
@@ -40,7 +42,7 @@ class Auth extends BaseController {
 
     function errorhandler($data) {
         $data['title'] = 'Azure error';
-        $this->display_view('\User\errors\azureErrors', $data);
+        echo $this->display_view('\User\errors\azureErrors', $data);
         exit();
     }
 
@@ -49,7 +51,6 @@ class Auth extends BaseController {
      *
      * @return void
      */
-        
     public function azure_login() {
 
         $client_id = getenv('CLIENT_ID');
@@ -102,13 +103,13 @@ class Auth extends BaseController {
             } catch (\Exception $e) {
                 $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
-                $this->display_view('\User\errors\401error', $data);
+                echo $this->display_view('\User\errors\401error', $data);
                 exit();
             };
 
             if ($json === false){
                 //Error received during Bearer token fetch
-                $data['Exception'] = lang('user_lang.msg_err_no_token').'.';
+                $data['Exception'] = lang('user_lang.msg_err_azure_no_token').'.';
                 $this->errorhandler($data);
             };
             $authdata = json_decode($json, true);
@@ -141,33 +142,34 @@ class Auth extends BaseController {
             };
 
             // Setting up the session
-            
-            $_SESSION['username'] = $userdata["displayName"];
             $user_email = $userdata["mail"];
 
             $_SESSION['logged_in'] = (bool)true;
             $_SESSION['azure_identification'] = (bool)true;
-
             
             $ci_user = $this->user_model->where('azure_mail', $user_email)->first();
                 
-            
-            if (isset($ci_user['azure_mail'])) { // if email is registered in DB give default azure access to user
+            if (isset($ci_user['azure_mail'])) { 
+                // if email is registered in DB, get personnal user informations
                 $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
+                $_SESSION['username'] = $ci_user["username"];
             } else {
+                // if email is not registered in DB, use default azure informations
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
+                $_SESSION['username'] = $userdata["displayName"];
             }
             // Send the user to the redirection URL
             return redirect()->to($_SESSION['after_login_redirect']);
 
         } else {
             // Returned states mismatch and no $_GET["error"] received.
-            $data['Exception'] = lang('user_lang.msg_err_mismatch').'.';
+            $data['Exception'] = lang('user_lang.msg_err_azure_mismatch').'.';
             $this->errorhandler($data);
         }
     }
 
-    public function login(){   
+    public function login(): string|Response
+    {
         // If user is not already logged
         if(!(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)) {
 
@@ -240,8 +242,7 @@ class Auth extends BaseController {
             }
             //Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
-            $this->display_view('\User\auth\login', $output);
-
+            return $this->display_view('\User\auth\login', $output);
         } else {
             return redirect()->to(base_url());
         }
@@ -252,7 +253,7 @@ class Auth extends BaseController {
      *
      * @return void
      */
-    public function logout()
+    public function logout(): Response
     {
         // Restart session with empty parameters
         $_SESSION = [];
@@ -267,7 +268,7 @@ class Auth extends BaseController {
      *
      * @return void
      */
-    public function change_password()
+    public function change_password(): Response|string 
     {
         // Check if access is allowed
         if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
@@ -305,7 +306,7 @@ class Auth extends BaseController {
 
             // Display the password change form
             $output['title'] = lang('user_lang.page_my_password_change');
-            $this->display_view('\User\auth\change_password', $output);
+            return $this->display_view('\User\auth\change_password', $output);
 
         } else {
             // Access is not allowed

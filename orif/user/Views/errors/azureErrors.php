@@ -21,9 +21,9 @@
                     esc($message);
                 } else {            
                     if (ENVIRONMENT != 'production') {
-                        echo lang('user_lang.msg_err_default_azure').' : '.$Exception;
+                        echo lang('user_lang.msg_err_default').' : '.$Exception;
                     } else {
-                        echo(lang('user_lang.msg_err_default_azure').'.');
+                        echo(lang('user_lang.msg_err_default').'.');
                     }
                 }
             ?></p>
