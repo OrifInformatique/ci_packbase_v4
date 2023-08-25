@@ -153,10 +153,12 @@ class Auth extends BaseController {
                 // if email is registered in DB, get personnal user informations
                 $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
                 $_SESSION['username'] = $ci_user["username"];
+                $_SESSION['user_id'] = (int)$ci_user['id'];
             } else {
                 // if email is not registered in DB, use default azure informations
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
                 $_SESSION['username'] = $userdata["displayName"];
+                $_SESSION['user_id'] = NULL;
             }
             // Send the user to the redirection URL
             return redirect()->to($_SESSION['after_login_redirect']);
