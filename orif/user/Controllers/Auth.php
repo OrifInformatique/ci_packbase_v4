@@ -19,6 +19,7 @@ class Auth extends BaseController {
     /**
      * Constructor
      */
+    
     public function initController(RequestInterface $request,
         ResponseInterface $response, LoggerInterface $logger): void
     {
@@ -44,6 +45,33 @@ class Auth extends BaseController {
         $data['title'] = 'Azure error';
         echo $this->display_view('\User\errors\azureErrors', $data);
         exit();
+    }
+
+    public function processMailForm() {
+        // Fetch data from form
+
+        $email = $this->request->getPost('user_email');
+        $azure_mail = $this->request->getPost('azure_mail');
+
+        // if none found, is it 'isset = false' or 'null' ?
+        $ci_user = $this->user_model->where('email', $email)->first();
+
+        // if user with this mail found :
+        if (!empty($ci_user)){
+            $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
+            $_SESSION['user_id'] = (int)$ci_user['id'];
+            $_SESSION['username'] = $ci_user['username'];
+
+            $data = [
+                'azure_mail' => $azure_mail['value']
+            ];
+
+            $this->user_model->update($ci_user['id'], $data);
+        }
+        // default user access already set
+
+        // Send the user to the redirection URL
+        return redirect()->to($_SESSION['after_login_redirect']);
     }
 
     /**
@@ -78,8 +106,8 @@ class Auth extends BaseController {
             $data['Exception'] = null;
             $this->errorhandler($data);
 
+        //Checking that the session_id matches to the state for security reasons
         } elseif (strcmp(session_id(), $_GET["state"]) == 0) {
-            //Checking that the session_id matches to the state for security reasons
             
             //Verifying the received tokens with Azure and finalizing the authentication part
             $content = "grant_type=authorization_code";
@@ -134,7 +162,9 @@ class Auth extends BaseController {
                 $data['Exception'] = null;
                 $this->errorhandler($data);
             };
+
             $userdata = json_decode($json, true);
+
             if (isset($userdata["error"])) {
                 // User data fetch contained an error.
                 $data['Exception'] = null;
@@ -142,26 +172,37 @@ class Auth extends BaseController {
             };
 
             // Setting up the session
-            $user_email = $userdata["mail"];
-
             $_SESSION['logged_in'] = (bool)true;
             $_SESSION['azure_identification'] = (bool)true;
-            
-            $ci_user = $this->user_model->where('azure_mail', $user_email)->first();
-                
-            if (isset($ci_user['azure_mail'])) { 
-                // if email is registered in DB, get personnal user informations
-                $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
-                $_SESSION['username'] = $ci_user["username"];
-                $_SESSION['user_id'] = (int)$ci_user['id'];
-            } else {
-                // if email is not registered in DB, use default azure informations
-                $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
-                $_SESSION['username'] = $userdata["displayName"];
+
+            // Mail correspondances
+
+            // Definition of ci_user_azure
+            $user_azure_mail = $userdata["mail"];
+            $ci_user_azure = $this->user_model->where('azure_mail', $user_azure_mail)->first();
+
+            // Azure mail not found in DB
+            if (empty($ci_user_azure)){
+
                 $_SESSION['user_id'] = NULL;
-            }
-            // Send the user to the redirection URL
-            return redirect()->to($_SESSION['after_login_redirect']);
+                $_SESSION['username'] = $userdata['displayName'];
+                $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
+
+                $output = array(
+                    'title' => lang('user_lang.title_page_login'),
+                    'ci_user' => $ci_user_azure,
+                    'userdata' => $userdata);
+                    
+                return $this->display_view('\User\auth\mail_form', $output); 
+            
+            // Azure mail found
+            } else {
+                $_SESSION['user_id'] = $ci_user_azure['id'];
+                $_SESSION['username'] = $ci_user_azure['username'];
+                $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user_azure);
+
+                return redirect()->to($_SESSION['after_login_redirect']);
+            };
 
         } else {
             // Returned states mismatch and no $_GET["error"] received.

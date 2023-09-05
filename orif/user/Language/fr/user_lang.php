@@ -16,6 +16,7 @@ return[
 'title_user_password_reset'      => 'Réinitialiser le mot de passe',
 'title_page_login'               => 'Connexion',
 'title_administration'           => 'Administration',
+'title_email_validation'         => 'Validation d\'e-mail',
 
 // Buttons
 'btn_admin'                      => 'Administration',
@@ -27,6 +28,7 @@ return[
 'btn_save'                       => 'Enregistrer',
 'btn_hard_delete_user'           => 'Supprimer cet utilisateur',
 'btn_disable_user'               => 'Désactiver cet utilisateur',
+'btn_next'                       => 'Suivant',
 
 // Fields labels
 'field_username'                 => 'Identifiant',
@@ -75,5 +77,6 @@ return[
 'user_update_usertype_himself'   => 'Vous ne pouvez pas modifier votre propre type d\'utilisateur. Cette opération doit être faite par un autre administrateur.',
 'user_delete_himself'            => 'Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.',
 'page_my_password_change'        => 'Modification de mon mot de passe',
+'user_first_azure_connexion'     => 'Nous detectons que vous utilisez la connexion azure pour la première fois. À des fins d\'identification, veuillez entrer votre e-mail @formation.orif.ch ou @orif.ch s\'il vous plaît.'
 
 ];
