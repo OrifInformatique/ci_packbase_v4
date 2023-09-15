@@ -50,14 +50,14 @@ class Auth extends BaseController {
     public function processMailForm() {
         // Fetch data from form
 
-        $email = $this->request->getPost('user_email');
+        $form_email = $this->request->getPost('user_email');
         $azure_mail = $this->request->getPost('azure_mail');
 
         // Sending verification code to user's orif mail
-        $this->emailVerification();
+        $this->emailVerification($form_email);
 
         // if none found, is it 'isset = false' or 'null' ?
-        $ci_user = $this->user_model->where('email', $email)->first();
+        $ci_user = $this->user_model->where('email', $form_email)->first();
 
         // if user with this orif mail found :
         if (!empty($ci_user)){
@@ -79,7 +79,7 @@ class Auth extends BaseController {
         return redirect()->to($_SESSION['after_login_redirect']);
     }
 
-    public function emailVerification() {
+    public function emailVerification($form_email) {
         // Random code generator
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $shuffledCharacters = str_shuffle($characters);
@@ -90,12 +90,14 @@ class Auth extends BaseController {
 
         // Sending code to user's orif mail
         $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
-        $email->setTo('david.mostoslavski@formation.orif.ch');
+        $email->setTo($form_email);
         $email->setSubject('Code de vérification');
-        $email->setMessage('Voici votre code de vérification: '.$verificationCode);
+        $email->setMessage('Voici votre code de vérification: '.$verificationCode. " c'est un test, tu peux ignorer ce message");
         
         if($email->send()){
-            dd('success. code: '. $verificationCode);
+            dd('success. code: '. $verificationCode.' sent to '.$form_email);
+
+            // view for user to input code in
         } else {
             dd("Une erreur c'est produite.");
         }
