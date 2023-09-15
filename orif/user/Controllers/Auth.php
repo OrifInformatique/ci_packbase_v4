@@ -92,7 +92,7 @@ class Auth extends BaseController {
         $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
         $email->setTo($form_email);
         $email->setSubject('Code de vérification');
-        $email->setMessage('Voici votre code de vérification: '.$verificationCode. " c'est un test, tu peux ignorer ce message");
+        $email->setMessage('Voici votre code de vérification: '.$verificationCode);
         
         if($email->send()){
             dd('success. code: '. $verificationCode.' sent to '.$form_email);
