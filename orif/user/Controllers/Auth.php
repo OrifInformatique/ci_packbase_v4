@@ -53,10 +53,13 @@ class Auth extends BaseController {
         $email = $this->request->getPost('user_email');
         $azure_mail = $this->request->getPost('azure_mail');
 
+        // Sending verification code to user's orif mail
+        $this->emailVerification();
+
         // if none found, is it 'isset = false' or 'null' ?
         $ci_user = $this->user_model->where('email', $email)->first();
 
-        // if user with this mail found :
+        // if user with this orif mail found :
         if (!empty($ci_user)){
             $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
             $_SESSION['user_id'] = (int)$ci_user['id'];
@@ -67,11 +70,35 @@ class Auth extends BaseController {
             ];
 
             $this->user_model->update($ci_user['id'], $data);
+
+            
         }
         // default user access already set
 
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
+    }
+
+    public function emailVerification() {
+        // Random code generator
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $shuffledCharacters = str_shuffle($characters);
+        $verificationCode = substr($shuffledCharacters, 0, 6);
+        
+        // setup
+        $email = \Config\Services::email();
+
+        // Sending code to user's orif mail
+        $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
+        $email->setTo('david.mostoslavski@formation.orif.ch');
+        $email->setSubject('Code de vérification');
+        $email->setMessage('Voici votre code de vérification: '.$verificationCode);
+        
+        if($email->send()){
+            dd('success. code: '. $verificationCode);
+        } else {
+            dd("Une erreur c'est produite.");
+        }
     }
 
     /**
@@ -198,6 +225,8 @@ class Auth extends BaseController {
                 } else {
                     $correspondingEmail = $correspondingUser['email'];
                 }
+
+                //dd($correspondingEmail);
 
                 $output = array(
                     'title' => lang('user_lang.title_page_login'),
