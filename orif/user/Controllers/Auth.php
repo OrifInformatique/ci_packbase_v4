@@ -2,7 +2,7 @@
 /**
  * User Authentication
  *
- * @author      Orif (ViDi,HeMa)
+ * @author      Orif (ViDi,HeMa,MoDa)
  * @link        https://github.com/OrifInformatique
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
@@ -80,26 +80,39 @@ class Auth extends BaseController {
     }
 
     public function emailVerification($form_email) {
-        // Random code generator
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $shuffledCharacters = str_shuffle($characters);
-        $verificationCode = substr($shuffledCharacters, 0, 6);
-        
-        // setup
-        $email = \Config\Services::email();
 
-        // Sending code to user's orif mail
-        $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
-        $email->setTo($form_email);
-        $email->setSubject('Code de vérification');
-        $email->setMessage('Voici votre code de vérification: '.$verificationCode);
-        
-        if($email->send()){
-            dd('success. code: '. $verificationCode.' sent to '.$form_email);
+        $verification_code = $this->request->getPost('verification_code');
 
-            // view for user to input code in
+        if (!isset($verification_code)){
+
+            // Random code generator
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $shuffledCharacters = str_shuffle($characters);
+            $verificationCode = substr($shuffledCharacters, 0, 6);
+            
+            // setup
+            $email = \Config\Services::email();
+            
+            // Sending code to user's orif mail
+            $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
+            $email->setTo($form_email);
+            $email->setSubject('Code de vérification');
+            $email->setMessage('Voici votre code de vérification: '.$verificationCode);
+            
+            if($email->send()){
+                // dd('success. code: '. $verificationCode.' sent to '.$form_email);
+
+                // TODO view for user to input code in
+                $output = array('title' => lang('user_lang.title_page_login'));
+                echo $this->display_view('\User\auth\verificationCode', $output);
+                exit();
+                // return $this->display_view('\User\auth\verificationCode', $output); 
+
+            } else {
+                dd("Une erreur c'est produite.");
+            }
         } else {
-            dd("Une erreur c'est produite.");
+            dd($verification_code = $this->request-GetPost('verification_code'));
         }
     }
 
