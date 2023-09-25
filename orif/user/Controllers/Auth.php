@@ -112,7 +112,7 @@ class Auth extends BaseController {
                 );
 
                 try {
-                    echo view('\User\auth\verificationCode');
+                    dd(view('\User\auth\verificationCode'));
                 } catch (\Exception $e) {
                     // Handle the error or exception here
                     // You can log the error, display an error message, or take other actions
