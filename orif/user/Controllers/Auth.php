@@ -82,6 +82,9 @@ class Auth extends BaseController {
     public function emailVerification($form_email) {
 
         $verification_code = $this->request->getPost('verification_code');
+        // $form_email = $this->request->getPost('form_email');
+
+        $_SESSION['cb'] = 0;
 
         if (!isset($verification_code)){
 
@@ -103,16 +106,24 @@ class Auth extends BaseController {
                 // dd('success. code: '. $verificationCode.' sent to '.$form_email);
 
                 // TODO view for user to input code in
-                $output = array('title' => lang('user_lang.title_page_login'));
-                echo $this->display_view('\User\auth\verificationCode', $output);
-                exit();
-                // return $this->display_view('\User\auth\verificationCode', $output); 
+                $output = array(
+                    'title'         => lang('user_lang.title_page_login'),
+                    'form_email'    => $form_email,
+                );
 
+                try {
+                    echo view('\User\auth\verificationCode');
+                } catch (\Exception $e) {
+                    // Handle the error or exception here
+                    // You can log the error, display an error message, or take other actions
+                    dd($e->getMessage());
+                }
+                
             } else {
                 dd("Une erreur c'est produite.");
             }
         } else {
-            dd($verification_code = $this->request-GetPost('verification_code'));
+            dd($verification_code.' '.$form_email);
         }
     }
 
@@ -240,8 +251,6 @@ class Auth extends BaseController {
                 } else {
                     $correspondingEmail = $correspondingUser['email'];
                 }
-
-                //dd($correspondingEmail);
 
                 $output = array(
                     'title' => lang('user_lang.title_page_login'),

@@ -13,11 +13,10 @@
             <legend><?= lang('user_lang.title_email_validation'); ?></legend>
             <?php
             $session=\Config\Services::session();
-            $validation=\Config\Services::validation();
                 $attributes = array("class" => "form-horizontal",
                                     "id" => "verificationCode",
                                     "name" => "verificationCode");
-                echo form_open("user/auth/emailVerification", $attributes);
+                echo form_open("user/auth/errorhandler", $attributes);
             ?>
             <fieldset>
                 <!-- Status messages -->
@@ -35,9 +34,14 @@
                 <div class="form-group">
                     <div class="col-sm-12 text-right">
                         <a id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
-                        <input id="btn_login" name="btn_login" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
+                        <input id="btn_submit" name="btn_submit" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
                     </div>
                 </div>
+                <?= form_hidden('form_email',
+                    [
+                        'id' => 'form_email',
+                        'value' => $form_email ?? $form_email ?? '',
+                    ]); ?>
             </fieldset>
             <?= form_close(); ?>
         </div>
