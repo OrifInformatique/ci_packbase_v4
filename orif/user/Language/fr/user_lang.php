@@ -17,6 +17,7 @@ return[
 'title_page_login'               => 'Connexion',
 'title_administration'           => 'Administration',
 'title_email_validation'         => 'Validation d\'e-mail',
+'title_validation_code'          => 'Code de validation',
 
 // Buttons
 'btn_admin'                      => 'Administration',
@@ -59,6 +60,8 @@ return[
 'msg_err_default'                => 'Une erreur est survenue',
 'msg_err_azure_no_token'         => 'Azure n\'a pas répondu',
 'msg_err_azure_mismatch'         => 'Les tokens ne correspondent pas',
+'msg_err_validation_code'        => 'Le code de validation entré est erroné.',
+'msg_err_attempts'               => 'Tentatives restantes: ',
 
 // Error code messages
 'azure_error'                    => 'Azure',
@@ -78,6 +81,7 @@ return[
 'user_update_usertype_himself'   => 'Vous ne pouvez pas modifier votre propre type d\'utilisateur. Cette opération doit être faite par un autre administrateur.',
 'user_delete_himself'            => 'Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.',
 'page_my_password_change'        => 'Modification de mon mot de passe',
-'user_first_azure_connexion'     => 'Nous detectons que vous utilisez la connexion azure pour la première fois. À des fins d\'identification, veuillez entrer votre e-mail @formation.orif.ch ou @orif.ch s\'il vous plaît.'
+'user_first_azure_connexion'     => 'Nous detectons que vous utilisez la connexion azure pour la première fois. À des fins d\'identification, veuillez entrer votre e-mail @formation.orif.ch ou @orif.ch s\'il vous plaît.',
+'user_validation_code'           => 'Veuillez entrer votre code de vérification'
 
 ];

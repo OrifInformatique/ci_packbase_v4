@@ -10,13 +10,24 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-sm-10 well">
-            <legend><?= lang('user_lang.title_email_validation'); ?></legend>
+            <legend><?=$title;?></legend>
+            <?php if(isset($errorMsg)): ?>
+                <div class="alert alert-danger">
+                    <?= $errorMsg; ?>
+                    <?php if($attemptsLeft = 2): ?>
+                        <div>
+                            <?= $msg_attemptsLeft;?>
+                        </div>
+                    <?php endif ?>
+                </div>
+            <?php endif ?>
+
             <?php
-            $session=\Config\Services::session();
+                $session=\Config\Services::session();  
                 $attributes = array("class" => "form-horizontal",
                                     "id" => "verificationCode",
                                     "name" => "verificationCode");
-                echo form_open("user/auth/errorhandler", $attributes);
+                echo form_open("user/auth/processMailForm", $attributes);
             ?>
             <fieldset>
                 <!-- Status messages -->
@@ -24,11 +35,11 @@
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
                 <?php } ?>
                 <div class="bg-info"style="color:white">
-                    <p><?= lang('user_lang.user_first_azure_connexion'); ?></p>
+                    <p><?= lang('user_lang.user_validation_code'); ?></p>
                 </div>
                 <div class="form-group">
 
-                    <input class="form-control" id="verification_code" name="verification_code" placeholder="<?= lang('user_lang.field_verification_code'); ?>" type="text" value="<?= set_value('username'); ?>" />
+                    <input class="form-control" id="user_verification_code" name="user_verification_code" placeholder="<?= lang('user_lang.field_verification_code'); ?>" type="text" value="<?= set_value('username'); ?>" />
                     
                 </div>             
                 <div class="form-group">
@@ -37,11 +48,7 @@
                         <input id="btn_submit" name="btn_submit" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
                     </div>
                 </div>
-                <?= form_hidden('form_email',
-                    [
-                        'id' => 'form_email',
-                        'value' => $form_email ?? $form_email ?? '',
-                    ]); ?>
+
             </fieldset>
             <?= form_close(); ?>
         </div>

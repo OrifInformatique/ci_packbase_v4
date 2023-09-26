@@ -48,83 +48,89 @@ class Auth extends BaseController {
     }
 
     public function processMailForm() {
-        // Fetch data from form
-
-        $form_email = $this->request->getPost('user_email');
-        $azure_mail = $this->request->getPost('azure_mail');
-
-        // Sending verification code to user's orif mail
-        $this->emailVerification($form_email);
-
-        // if none found, is it 'isset = false' or 'null' ?
-        $ci_user = $this->user_model->where('email', $form_email)->first();
-
-        // if user with this orif mail found :
-        if (!empty($ci_user)){
-            $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
-            $_SESSION['user_id'] = (int)$ci_user['id'];
-            $_SESSION['username'] = $ci_user['username'];
-
-            $data = [
-                'azure_mail' => $azure_mail['value']
-            ];
-
-            $this->user_model->update($ci_user['id'], $data);
-
+        
+        if(empty($this->request->getPost('user_verification_code'))) {
             
-        }
-        // default user access already set
+            // Fetch data from form
+            $_SESSION['form_email'] = $this->request->getPost('user_email');
+            $_SESSION['verificationAttempts'] = 3;
 
+            // Sending verification code to user's mail
+            $_SESSION['verificationCode'] = $this->sendVerificationMail($_SESSION['form_email']);
+    
+            // display verificationCode view
+            $output = array(
+                    'title'         => lang('user_lang.field_verification_code'),
+                );
+            return $this->display_view('\User\auth\verificationCode', $output);
+
+        } else {
+            $user_verification_code = $this->request->getPost('user_verification_code');
+            
+            if ($user_verification_code == $_SESSION['verificationCode']){
+
+                $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
+
+                // if user with this orif mail found :
+                if (!empty($ci_user)){
+                    $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
+                    $_SESSION['user_id'] = (int)$ci_user['id'];
+                    $_SESSION['username'] = $ci_user['username'];
+    
+                    $data = [
+                        'azure_mail' =>  $_SESSION['azure_mail']
+                    ];
+    
+                    $this->user_model->update($ci_user['id'], $data);
+                }
+            //else, keep default user access, already given by azure_login()
+            } else  {
+                // 3 attempts
+                $_SESSION['verificationAttempts'] -= 1;
+
+                if ($_SESSION['verificationAttempts'] == 0){
+                    //keep default user access, already given by azure_login()
+
+                } else {
+                    // 3th attempt of same code (no regen)
+                    $output = array(
+                        'title'                 => lang('user_lang.title_validation_code'),
+                        'errorMsg'              => lang('user_lang.msg_err_validation_code'),
+                        'attemptsLeft'          => $_SESSION['verificationAttempts'],
+                        'msg_attemptsLeft'      => lang('user_lang.msg_err_attempts').' '.$_SESSION['verificationAttempts'],
+                    );
+                    return $this->display_view('\User\auth\verificationCode', $output);
+                }
+            }
+
+        $_SESSION['form_email'] = null;
+        $_SESSION['azure_mail'] = null;
+        $_SESSION['verificationAttempts'] = null;
+        $_SESSION['verificationCode'] = null;
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
+        }
     }
 
-    public function emailVerification($form_email) {
+    public function sendVerificationMail($form_email) { // gen code and send mail
 
-        $verification_code = $this->request->getPost('verification_code');
-        // $form_email = $this->request->getPost('form_email');
+        // Random code generator
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $shuffledCharacters = str_shuffle($characters);
+        $verificationCode = substr($shuffledCharacters, 0, 6);
+        
+        // setup
+        $email = \Config\Services::email();
+        
+        // Sending code to user's orif mail
+        $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
+        $email->setTo($form_email);
+        $email->setSubject('Code de vérification');
+        $email->setMessage('Voici votre code de vérification: '.$verificationCode);
+        
+        $email->send();
+        return $verificationCode;
 
-        $_SESSION['cb'] = 0;
-
-        if (!isset($verification_code)){
-
-            // Random code generator
-            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            $shuffledCharacters = str_shuffle($characters);
-            $verificationCode = substr($shuffledCharacters, 0, 6);
-            
-            // setup
-            $email = \Config\Services::email();
-            
-            // Sending code to user's orif mail
-            $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
-            $email->setTo($form_email);
-            $email->setSubject('Code de vérification');
-            $email->setMessage('Voici votre code de vérification: '.$verificationCode);
-            
-            if($email->send()){
-                // dd('success. code: '. $verificationCode.' sent to '.$form_email);
-
-                // TODO view for user to input code in
-                $output = array(
-                    'title'         => lang('user_lang.title_page_login'),
-                    'form_email'    => $form_email,
-                );
-
-                try {
-                    dd(view('\User\auth\verificationCode'));
-                } catch (\Exception $e) {
-                    // Handle the error or exception here
-                    // You can log the error, display an error message, or take other actions
-                    dd($e->getMessage());
-                }
-                
-            } else {
-                dd("Une erreur c'est produite.");
-            }
-        } else {
-            dd($verification_code.' '.$form_email);
-        }
     }
 
     /**
@@ -243,6 +249,7 @@ class Auth extends BaseController {
                 $_SESSION['user_id'] = NULL;
                 $_SESSION['username'] = $userdata['displayName'];
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
+                $_SESSION['azure_mail'] = $user_azure_mail;
 
                 $correspondingUser = $this->user_model->where('email LIKE', $nameAndLastname . '%')->first();
 
