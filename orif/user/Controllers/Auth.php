@@ -53,21 +53,21 @@ class Auth extends BaseController {
             
             // Fetch data from form
             $_SESSION['form_email'] = $this->request->getPost('user_email');
-            $_SESSION['verificationAttempts'] = 3;
+            $_SESSION['verification_attempts'] = 3;
 
             // Sending verification code to user's mail
-            $_SESSION['verificationCode'] = $this->sendVerificationMail($_SESSION['form_email']);
+            $_SESSION['verification_code'] = $this->sendVerificationMail($_SESSION['form_email']);
     
-            // display verificationCode view
+            // display verification_code view
             $output = array(
                     'title'         => lang('user_lang.field_verification_code'),
                 );
-            return $this->display_view('\User\auth\verificationCode', $output);
+            return $this->display_view('\User\auth\verification_code_form', $output);
 
         } else {
             $user_verification_code = $this->request->getPost('user_verification_code');
             
-            if ($user_verification_code == $_SESSION['verificationCode']){
+            if ($user_verification_code == $_SESSION['verification_code']){
 
                 $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
 
@@ -86,9 +86,9 @@ class Auth extends BaseController {
             //else, keep default user access, already given by azure_login()
             } else  {
                 // 3 attempts
-                $_SESSION['verificationAttempts'] -= 1;
+                $_SESSION['verification_attempts'] -= 1;
 
-                if ($_SESSION['verificationAttempts'] == 0){
+                if ($_SESSION['verification_attempts'] == 0){
                     //keep default user access, already given by azure_login()
 
                 } else {
@@ -96,17 +96,17 @@ class Auth extends BaseController {
                     $output = array(
                         'title'                 => lang('user_lang.title_validation_code'),
                         'errorMsg'              => lang('user_lang.msg_err_validation_code'),
-                        'attemptsLeft'          => $_SESSION['verificationAttempts'],
-                        'msg_attemptsLeft'      => lang('user_lang.msg_err_attempts').' '.$_SESSION['verificationAttempts'],
+                        'attemptsLeft'          => $_SESSION['verification_attempts'],
+                        'msg_attemptsLeft'      => lang('user_lang.msg_err_attempts').' '.$_SESSION['verification_attempts'],
                     );
-                    return $this->display_view('\User\auth\verificationCode', $output);
+                    return $this->display_view('\User\auth\verification_code_form', $output);
                 }
             }
 
         $_SESSION['form_email'] = null;
         $_SESSION['azure_mail'] = null;
-        $_SESSION['verificationAttempts'] = null;
-        $_SESSION['verificationCode'] = null;
+        $_SESSION['verification_attempts'] = null;
+        $_SESSION['verification_code'] = null;
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
         }
@@ -116,8 +116,8 @@ class Auth extends BaseController {
 
         // Random code generator
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $shuffledCharacters = str_shuffle($characters);
-        $verificationCode = substr($shuffledCharacters, 0, 6);
+        $shuffled_caracters = str_shuffle($characters);
+        $verification_code = substr($shuffled_caracters, 0, 6);
         
         // setup
         $email = \Config\Services::email();
@@ -126,10 +126,10 @@ class Auth extends BaseController {
         $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
         $email->setTo($form_email);
         $email->setSubject('Code de vérification');
-        $email->setMessage('Voici votre code de vérification: '.$verificationCode);
+        $email->setMessage('Voici votre code de vérification: '.$verification_code);
         
         $email->send();
-        return $verificationCode;
+        return $verification_code;
 
     }
 
@@ -394,7 +394,7 @@ class Auth extends BaseController {
 
             // Empty errors message in output
             $output['errors'] = [];
-            
+
             // Check if the form has been submitted, else just display the form
             if (!is_null($this->request->getVar('btn_change_password'))) {
                 $old_password = $this->request->getVar('old_password');
