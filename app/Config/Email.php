@@ -16,9 +16,8 @@ class Email extends BaseConfig
 
     public function __construct()
     {
+        // Why not getenv in auth.php ?
         parent::__construct();
-        $this->SMTPUser = getenv('SMTP_ID');
-        $this->SMTPPass = getenv('SMTP_PASSWORD');
     }
 
     /**

@@ -48,6 +48,13 @@
                         <input id="btn_submit" name="btn_submit" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
                     </div>
                 </div>
+                <div>
+                    <?= form_hidden('user_email',
+                    [
+                        'id' => 'user_email',
+                        'value' => $userdata['mail'] ?? $azure_mail ?? '',
+                    ]); ?>
+                <div>
 
             </fieldset>
             <?= form_close(); ?>

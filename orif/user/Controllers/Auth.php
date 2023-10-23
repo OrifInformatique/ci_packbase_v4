@@ -12,6 +12,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use User\Models\User_model;
+use CodeIgniter\Email\Email;
 use CodeIgniter\HTTP\Response;
 
 class Auth extends BaseController {
@@ -50,65 +51,84 @@ class Auth extends BaseController {
     public function processMailForm() {
         
         if(empty($this->request->getPost('user_verification_code'))) {
-            
-            // Fetch data from form
             $_SESSION['form_email'] = $this->request->getPost('user_email');
-            $_SESSION['verification_attempts'] = 3;
+        }
 
-            // Sending verification code to user's mail
-            $_SESSION['verification_code'] = $this->sendVerificationMail($_SESSION['form_email']);
-    
-            // display verification_code view
-            $output = array(
-                    'title'         => lang('user_lang.field_verification_code'),
-                );
-            return $this->display_view('\User\auth\verification_code_form', $output);
+        $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
 
-        } else {
-            $user_verification_code = $this->request->getPost('user_verification_code');
+        // debug
+        // if(!empty($this->request->getPost('user_verification_code'))) {
+        //     d($_SESSION);
+        //     d($_SESSION['form_email']);
+        //     dd($ci_user);
+        // }
+
+        // if found in DB: ask for verification code, else give default access
+        if (!empty($ci_user['email']) || !empty($this->request->getPost('user_verification_code'))){
+
             
-            if ($user_verification_code == $_SESSION['verification_code']){
+            if(empty($this->request->getPost('user_verification_code'))) {
+            
+                $_SESSION['verification_attempts'] = 3;
 
-                $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
-
-                // if user with this orif mail found :
-                if (!empty($ci_user)){
-                    $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
-                    $_SESSION['user_id'] = (int)$ci_user['id'];
-                    $_SESSION['username'] = $ci_user['username'];
-    
-                    $data = [
-                        'azure_mail' =>  $_SESSION['azure_mail']
-                    ];
-    
-                    $this->user_model->update($ci_user['id'], $data);
-                }
-            //else, keep default user access, already given by azure_login()
-            } else  {
-                // 3 attempts
-                $_SESSION['verification_attempts'] -= 1;
-
-                if ($_SESSION['verification_attempts'] == 0){
-                    //keep default user access, already given by azure_login()
-
-                } else {
-                    // 3th attempt of same code (no regen)
-                    $output = array(
-                        'title'                 => lang('user_lang.title_validation_code'),
-                        'errorMsg'              => lang('user_lang.msg_err_validation_code'),
-                        'attemptsLeft'          => $_SESSION['verification_attempts'],
-                        'msg_attemptsLeft'      => lang('user_lang.msg_err_attempts').' '.$_SESSION['verification_attempts'],
+                // Sending verification code to user's mail
+                $_SESSION['verification_code'] = $this->sendVerificationMail($_SESSION['form_email']);
+        
+                // display verification_code view
+                $output = array(
+                        'title'         => lang('user_lang.field_verification_code'),
                     );
-                    return $this->display_view('\User\auth\verification_code_form', $output);
-                }
-            }
+                return $this->display_view('\User\auth\verification_code_form', $output);
 
-        $_SESSION['form_email'] = null;
-        $_SESSION['azure_mail'] = null;
-        $_SESSION['verification_attempts'] = null;
-        $_SESSION['verification_code'] = null;
-        // Send the user to the redirection URL
-        return redirect()->to($_SESSION['after_login_redirect']);
+            } else {
+
+                //dd($ci_user);
+
+                $user_verification_code = $this->request->getPost('user_verification_code');
+                
+                if ($user_verification_code == $_SESSION['verification_code']){
+
+                    //dd($ci_user); //TODO : Pourquoi c'est vide ??
+
+                    // if user with this mail found :
+                        if (!empty($ci_user)){
+                            $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
+                            $_SESSION['user_id'] = (int)$ci_user['id'];
+                            $_SESSION['username'] = $ci_user['username'];
+            
+                            $data = [
+                                'azure_mail' =>  $_SESSION['azure_mail']
+                            ];
+            
+                            $this->user_model->update($ci_user['id'], $data);
+                        }
+                //else, keep default user access, already given by azure_login()
+                } else  {
+                    // 3 attempts
+                    $_SESSION['verification_attempts'] -= 1;
+
+                    if ($_SESSION['verification_attempts'] == 0){
+                        //keep default user access, already given by azure_login()
+
+                    } else {
+                        // 3th attempt of same code (no regen)
+                        $output = array(
+                            'title'                 => lang('user_lang.title_validation_code'),
+                            'errorMsg'              => lang('user_lang.msg_err_validation_code'),
+                            'attemptsLeft'          => $_SESSION['verification_attempts'],
+                            'msg_attemptsLeft'      => lang('user_lang.msg_err_attempts').' '.$_SESSION['verification_attempts'],
+                        );
+                        return $this->display_view('\User\auth\verification_code_form', $output);
+                    }
+                }
+        
+            }
+            $_SESSION['form_email'] = null;
+            $_SESSION['azure_mail'] = null;
+            $_SESSION['verification_attempts'] = null;
+            $_SESSION['verification_code'] = null;
+            // Send the user to the redirection URL
+            return redirect()->to($_SESSION['after_login_redirect']);
         }
     }
 
@@ -116,13 +136,20 @@ class Auth extends BaseController {
 
         // Random code generator
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $shuffled_caracters = str_shuffle($characters);
-        $verification_code = substr($shuffled_caracters, 0, 6);
+        $shuffledCharacters = str_shuffle($characters);
+        $verification_code = substr($shuffledCharacters, 0, 6);
         
         // setup
         $email = \Config\Services::email();
-        
-        // Sending code to user's orif mail
+                
+        $emailConfig = [
+            'SMTPUser' => getenv('SMTP_ID'),
+            'SMTPPass' => getenv('SMTP_PASSWORD'),
+        ];
+
+        $email->initialize($emailConfig);
+
+        // Sending code to user's  mail
         $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
         $email->setTo($form_email);
         $email->setSubject('Code de vérification');
@@ -130,7 +157,6 @@ class Auth extends BaseController {
         
         $email->send();
         return $verification_code;
-
     }
 
     /**

@@ -41,6 +41,7 @@
                         <input id="btn_login" name="btn_login" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
                     </div>
                 </div>
+                <div>
                     <?= form_hidden('azure_mail',
                     [
                         'id' => 'azure_mail',
