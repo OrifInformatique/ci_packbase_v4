@@ -28,6 +28,9 @@ class User_model extends \CodeIgniter\Model{
     {
         $this->user_type_model=new User_type_model();
         $this->validationRules=[
+            'id' => [
+                'rules' => 'permit_empty|numeric'
+            ],
             'username' =>
                 ['label' => lang('user_lang.field_username'),
                  'rules' => 'cb_unique_username[{id}]|required|trim|'.
@@ -116,7 +119,16 @@ class User_model extends \CodeIgniter\Model{
      * @return mixed
      */
     public function get_access_level($user){
-        $user->access_level=$this->user_type_model->getWhere(['id'=>$user->fk_user_type])->getRow()->access_level;
-        return $user->access_level;
+        if ($this->user_type_model==null){
+            $this->user_type_model=new User_type_model();
+
+        }
+        if (is_array($user) ){
+            $user["access_level"] = $this->user_type_model->getWhere(['id'=>$user["fk_user_type"]])->getRow()->access_level;
+            return $user["access_level"];
+        } else {
+            $user->access_level = $this->user_type_model->getWhere(['id'=>$user->fk_user_type])->getRow()->access_level;
+            return $user->access_level;
+        }
     }
 }
