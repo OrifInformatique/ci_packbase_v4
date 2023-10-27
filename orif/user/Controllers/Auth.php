@@ -204,6 +204,7 @@ class Auth extends BaseController {
             'password'          => $new_password,
             'password_confirm'  => $new_password,
             'email'             => $_SESSION['form_email'],
+            'azure_mail'        => $_SESSION['azure_mail'],
         );
         
         return $new_user;
