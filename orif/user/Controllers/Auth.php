@@ -73,7 +73,7 @@ class Auth extends BaseController {
             $_SESSION['verification_code'] = $this->sendVerificationMail($_SESSION['form_email']);
             
             $output = array(
-                'title' => lang('user_lang.field_verification_code'),
+                'title' => lang('user_lang.title_email_validation'),
             );
 
             return $this->display_view('\User\auth\verification_code_form', $output);
@@ -120,7 +120,7 @@ class Auth extends BaseController {
                 // No more attempts, keep default user access
             } else {
                 $output = array(
-                    'title' => lang('user_lang.title_validation_code'),
+                    'title' => lang('user_lang.title_email_validation'),
                     'errorMsg' => lang('user_lang.msg_err_validation_code'),
                     'attemptsLeft' => $_SESSION['verification_attempts'],
                     'msg_attemptsLeft' => lang('user_lang.msg_err_attempts') . ' ' . $_SESSION['verification_attempts'],

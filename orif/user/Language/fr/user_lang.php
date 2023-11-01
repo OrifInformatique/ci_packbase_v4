@@ -16,13 +16,14 @@ return[
 'title_user_password_reset'      => 'Réinitialiser le mot de passe',
 'title_page_login'               => 'Connexion',
 'title_administration'           => 'Administration',
-'title_email_validation'         => 'Validation d\'e-mail',
-'title_validation_code'          => 'Code de validation',
+'title_register_account'         => 'Enregistrer votre compte',
+'title_email_validation'         => 'Validation de l\'e-mail',
 
 // Buttons
 'btn_admin'                      => 'Administration',
 'btn_login'                      => 'Se connecter',
 'btn_logout'                     => 'Se déconnecter',
+'btn_connect_with_local_account' => 'Connexion avec un compte local',
 'btn_change_my_password'         => 'Modifier mon mot de passe',
 'btn_back'                       => 'Retour',
 'btn_cancel'                     => 'Annuler',
@@ -42,7 +43,7 @@ return[
 'field_user_active'              => 'Activé',
 'field_deleted_users_display'    => 'Afficher les utilisateurs désactivés',
 'field_login_input'              => 'Identifiant ou e-mail',
-'field_verification_code'        => 'Code d\'identification',
+'field_verification_code'        => 'Code de vérification',
 
 // Error messages
 'msg_err_user_not_exist'         => 'L\'utilisateur sélectionné n\'existe pas',
@@ -60,7 +61,7 @@ return[
 'msg_err_default'                => 'Une erreur est survenue',
 'msg_err_azure_no_token'         => 'Azure n\'a pas répondu',
 'msg_err_azure_mismatch'         => 'Les tokens ne correspondent pas',
-'msg_err_validation_code'        => 'Le code de validation entré est erroné.',
+'msg_err_validation_code'        => 'Le code de vérification entré est erroné.',
 'msg_err_attempts'               => 'Tentatives restantes: ',
 
 // Error code messages
@@ -81,7 +82,7 @@ return[
 'user_update_usertype_himself'   => 'Vous ne pouvez pas modifier votre propre type d\'utilisateur. Cette opération doit être faite par un autre administrateur.',
 'user_delete_himself'            => 'Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.',
 'page_my_password_change'        => 'Modification de mon mot de passe',
-'user_first_azure_connexion'     => 'Nous detectons que vous utilisez la connexion azure pour la première fois. À des fins d\'identification, veuillez entrer votre e-mail @formation.orif.ch ou @orif.ch s\'il vous plaît.',
-'user_validation_code'           => 'Veuillez entrer votre code de vérification'
+'user_first_azure_connexion'     => 'Vous utilisez la connexion Microsoft pour la première fois. Afin d\'enregistrer votre compte, merci d\'indiquer votre adresse e-mail se terminant par @formation.orif.ch ou @orif.ch.',
+'user_validation_code'           => 'Un code de vérification a été envoyé sur votre adresse e-mail.<br>Merci d\'entrer ce code.'
 
 ];

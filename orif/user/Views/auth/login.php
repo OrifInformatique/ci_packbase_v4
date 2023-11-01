@@ -84,7 +84,7 @@
                     <label for="username" class="control-label"></label>
                 </div>
                 <div class="col-sm-8">
-                    <button id="btn_reveal" class="btn btn-primary">Connexion avec un autre compte</button>
+                    <button id="btn_reveal" class="btn btn-primary"><?= lang('user_lang.btn_connect_with_local_account'); ?></button>
                 </div>
             </div>
         </div>

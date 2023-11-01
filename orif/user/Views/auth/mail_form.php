@@ -10,7 +10,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-sm-10">
-            <legend><?= lang('user_lang.title_email_validation'); ?></legend>
+            <legend><?= lang('user_lang.title_register_account'); ?></legend>
             <?php
                 $session=\Config\Services::session();
                 $attributes = array("class" => "form-horizontal",
@@ -23,8 +23,8 @@
                 <?php if(!is_null($session->getFlashdata('message-danger'))){ ?>
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
                 <?php } ?>
-                <div class="bg-info"style="color:white">
-                    <p><?= lang('user_lang.user_first_azure_connexion'); ?></p>
+                <div class="alert alert-info">
+                    <?= lang('user_lang.user_first_azure_connexion'); ?>
                 </div>
                 <div class="form-group">
                     <?= form_label(lang('user_lang.field_email'), 'user_email', ['class' => 'form-label']); ?>

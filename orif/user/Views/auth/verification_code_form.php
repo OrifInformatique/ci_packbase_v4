@@ -34,8 +34,8 @@
                 <?php if(!is_null($session->getFlashdata('message-danger'))){ ?>
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
                 <?php } ?>
-                <div class="bg-info"style="color:white">
-                    <p><?= lang('user_lang.user_validation_code'); ?></p>
+                <div class="alert alert-info">
+                    <?= lang('user_lang.user_validation_code'); ?>
                 </div>
                 <div class="form-group">
 
