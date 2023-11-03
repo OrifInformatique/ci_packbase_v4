@@ -158,7 +158,7 @@
         $result->assertDontSee('Fake Reset', 'h1');
         $result->assertSeeElement('#password_new');
         $result->assertSeeElement('#password_confirm');
-        $result->assertSeeElement('.btn btn-default');
+        $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
     }
 
@@ -475,7 +475,7 @@
         $result->assertDontSeeElement('#user_password_again');
         $result->assertSeeLink('Réinitialiser le mot de passe');
         $result->assertSeeLink('Désactiver ou supprimer cet utilisateur');
-        $result->assertSeeElement('.btn btn-default');
+        $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
         $result->assertSeeLink('Annuler');
         $result->assertSeeInField('save', 'Enregistrer');
@@ -516,7 +516,7 @@
         $result->assertSeeElement('#user_password');
         $result->assertSee('Confirmer le mot de passe', 'label');
         $result->assertSeeElement('#user_password_again');
-        $result->assertSeeElement('.btn btn-default');
+        $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
         $result->assertSeeLink('Annuler');
         $result->assertSeeInField('save', 'Enregistrer');
@@ -561,7 +561,7 @@
         $result->assertDontSeeElement('#user_password_again');
         $result->assertSeeLink('Réinitialiser le mot de passe');
         $result->assertSeeLink('Désactiver ou supprimer cet utilisateur');
-        $result->assertSeeElement('.btn btn-default');
+        $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
         $result->assertSeeLink('Annuler');
         $result->assertSeeInField('save', 'Enregistrer');
@@ -617,7 +617,7 @@
         $result->assertSeeLink('Réinitialiser le mot de passe');
         $result->assertSeeLink('Réactiver cet utilisateur');
         $result->assertSeeLink('Supprimer cet utilisateur');
-        $result->assertSeeElement('.btn btn-default');
+        $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
         $result->assertSeeLink('Annuler');
         $result->assertSeeInField('save', 'Enregistrer');
