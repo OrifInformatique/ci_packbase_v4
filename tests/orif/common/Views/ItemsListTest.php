@@ -8,37 +8,81 @@ class ItemsListTest extends CIUnitTestCase
 {
 
     use ControllerTestTrait;
-    public function testTitleIsVisible()
+    public function testTitleIsShown()
     {
         $data = self::getDefaultData();
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
-        $response = $result->response();
+        $response = $result->response()->getBody();
         $result->assertSee($data['list_title'], 'h3');
     }
 
-    public function testTitleIsHide()
+    public function testTitleIsHidden()
     {
         $data = self::getDefaultData();
-        unset($data['list_title']);
+        $list_title = $data['list_title'];
+        $data['list_title'] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
-        $response = $result->response();
-        $result->assertSee('', 'h3');
+        $response = $result->response()->getBody();
+        $result->assertDontSee($list_title, 'h3');
     }
 
-    public function testCreateButtonVisible()
+    public function testCreateButtonShown()
     {
         $data = self::getDefaultData();
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
-        $response = $result->response();
+        $response = $result->response()->getBody();
+        $result->assertSee($data['btn_create_label'], 'a');
         $result->assertSeeLink($data['btn_create_label']);
         #$result->assertSee($data['btn_create_label'], 'a .btn .btn-primary');
         #$result->assertSeeElement($data['url_create']);
-        $result->assertSeeElement('.btn .btn-primary');
+        #$result->assertSeeElement('.btn .btn-primary');
 
     }
+
+    
+    public function testCreateButtonHidden()
+    {
+        $data = self::getDefaultData();
+        $data['url_create'] = null;
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertDontSee($data['btn_create_label'], 'a');
+
+    }
+
+    public function testCheckboxShown()
+    {
+        $data = self::getDefaultData();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertSee(lang('common_lang.btn_show_disabled'), 'label');
+    }
+
+    public function testCheckboxHidden()
+    {
+        $data = self::getDefaultData();
+        $data['with_deleted'] = null;
+        $data['url_getView'] = null;
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertDontSee(lang('common_lang.btn_show_disabled'), 'label');
+    }
+
+    public function testDetailsIconShown()
+    {
+        $data = self::getDefaultData();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertSee(lang('common_lang.btn_details'));
+    }
+
 
     private function getDefaultData(): array
     {
@@ -64,7 +108,7 @@ class ItemsListTest extends CIUnitTestCase
         $data['btn_create_label']   = 'Add an item';
         $data['with_deleted']       = true;
         $data['deleted_field']      = 'deleted';
-        $data = array_merge($data, $this->getDefaultUrlData());
+        $data = array_merge($data, self::getDefaultUrlData());
         return $data;
     }
 
