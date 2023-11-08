@@ -8,7 +8,7 @@ class ItemsListTest extends CIUnitTestCase
 {
 
     use ControllerTestTrait;
-    public function testTitleIsShown()
+    public function testTitleIsShown(): void
     {
         $data = self::getDefaultData();
         $result = $this->controller(Test::class)
@@ -17,7 +17,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSee($data['list_title'], 'h3');
     }
 
-    public function testTitleIsHidden()
+    public function testTitleIsHidden(): void
     {
         $data = self::getDefaultData();
         $list_title = $data['list_title'];
@@ -28,7 +28,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee($list_title, 'h3');
     }
 
-    public function testCreateButtonShown()
+    public function testCreateButtonShown(): void
     {
         $data = self::getDefaultData();
         $result = $this->controller(Test::class)
@@ -43,7 +43,7 @@ class ItemsListTest extends CIUnitTestCase
     }
 
     
-    public function testCreateButtonHidden()
+    public function testCreateButtonHidden(): void
     {
         $data = self::getDefaultData();
         $data['url_create'] = null;
@@ -54,7 +54,7 @@ class ItemsListTest extends CIUnitTestCase
 
     }
 
-    public function testCheckboxShown()
+    public function testCheckboxShown(): void
     {
         $data = self::getDefaultData();
         $result = $this->controller(Test::class)
@@ -63,7 +63,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSee(lang('common_lang.btn_show_disabled'), 'label');
     }
 
-    public function testCheckboxHidden()
+    public function testCheckboxHidden(): void
     {
         $data = self::getDefaultData();
         $data['with_deleted'] = null;
@@ -74,15 +74,129 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee(lang('common_lang.btn_show_disabled'), 'label');
     }
 
-    public function testDetailsIconShown()
+    public function testDetailsIconShown(): void
     {
-        $data = self::getDefaultData();
+        $this->testIconShown('common_lang.btn_details');
+    }
+
+    public function testDetailsIconHidden(): void
+    {
+        $this->testIconHidden('common_lang.btn_details', 'url_detail');
+    }
+
+    public function testUpdateIconShown(): void
+    {
+        $this->testIconShown('common_lang.btn_edit');
+    }
+
+    public function testUpdateIconHidden(): void
+    {
+        $this->testIconHidden('common_lang.btn_edit', 'url_update');
+    }
+
+    public function testDuplicateIconShown(): void
+    {
+        $this->testIconShown('common_lang.btn_copy');
+    }
+
+    public function testDuplicateIconHidden(): void
+    {
+        $this->testIconHidden('common_lang.btn_copy', 'url_duplicate');
+    }
+
+    public function testDeleteIconShown(): void
+    {
+        $this->testIconShown('common_lang.btn_delete');
+    }
+
+    public function testDeleteIconHidden(): void
+    {
+        $this->testIconHidden('common_lang.btn_delete', 'url_delete');
+    }
+
+    public function testRestoreIconShown(): void
+    {
+        $this->testIconShown('common_lang.btn_restore');
+    }
+
+    public function testRestoreIconHidden(): void
+    {
+        $this->testIconHidden('common_lang.btn_restore', 'url_restore');
+    }
+
+    public function testRestoreIconHiddenWhenDateNull(): void
+    {
+        $data = $this->getDefaultData();
+        $data['items'][1]['deleted'] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
-        $result->assertSee(lang('common_lang.btn_details'));
+        $result->assertDontSee(lang('common_lang.btn_restore'));
     }
 
+    public function testRedDeleteIconShown(): void
+    {
+        $this->testIconShown('common_lang.btn_hard_delete');
+    }
+
+    public function testRedDeleteIconHidden(): void
+    {
+        $this->testIconHidden('common_lang.btn_hard_delete', 'url_delete');
+    }
+
+    public function testRedDeleteIconHiddenWhenDateNull(): void
+    {
+        $data = $this->getDefaultData();
+        $data['items'][1]['deleted'] = null;
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertDontSee(lang('common_lang.btn_hard_delete'));
+    }
+
+    private function testIconShown(string $titleKey): void
+    {
+        $data = $this->getDefaultData();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertSee(lang($titleKey));
+    }
+
+    private function testIconHidden(string $titleKey, string $urlKey): void
+    {
+        $data = $this->getDefaultData();
+        $data[$urlKey] = null;
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertDontSee(lang($titleKey));
+    }
+
+    public function testArrangementColumnsName(): void
+    {
+        $data = $this->getDefaultData();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $pattern = array_reduce($data['columns'], fn($carry, $name) =>
+            "$carry$name.*", '');
+        $this->assertEquals(1, preg_match("/$pattern/s", $response));
+    }
+
+    public function testArrangementValuesByColumns(): void
+    {
+        $data = $this->getDefaultData();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $columnsValues = array_map(fn($key) => $data['items'][0][$key],
+            array_keys($data['columns']));
+        # fix here 
+        $pattern = array_reduce($columnsValues, fn($carry, $value) =>
+            '$carry'.preg_quote($value).'.*', '');
+        $this->assertEquals(1, preg_match("/$pattern/s", $response));
+    }
 
     private function getDefaultData(): array
     {
