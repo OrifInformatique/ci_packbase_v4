@@ -17,6 +17,17 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSee($data['list_title'], 'h3');
     }
 
+    public function testDefaultNameId(): void
+    {
+        $data = self::getDefaultData();
+        $data['primary_key_field'] = null;
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $keys = array_keys($data['columns']);
+        $result->assertSee($data['items'][0][$keys[0]]);
+    }
+
     public function testTitleIsHidden(): void
     {
         $data = self::getDefaultData();
@@ -36,6 +47,21 @@ class ItemsListTest extends CIUnitTestCase
         $response = $result->response()->getBody();
         $result->assertSee($data['btn_create_label'], 'a');
         $result->assertSeeLink($data['btn_create_label']);
+        #$result->assertSee($data['btn_create_label'], 'a .btn .btn-primary');
+        #$result->assertSeeElement($data['url_create']);
+        #$result->assertSeeElement('.btn .btn-primary');
+
+    }
+
+    public function testCreateDefaultLabelButtonShown(): void
+    {
+        $data = self::getDefaultData();
+        $data['btn_create_label'] = null;
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertSee(lang('common_lang.btn_add'), 'a');
+        $result->assertSeeLink(lang('common_lang.btn_add'));
         #$result->assertSee($data['btn_create_label'], 'a .btn .btn-primary');
         #$result->assertSeeElement($data['url_create']);
         #$result->assertSeeElement('.btn .btn-primary');
@@ -68,6 +94,7 @@ class ItemsListTest extends CIUnitTestCase
         $data = self::getDefaultData();
         $data['with_deleted'] = null;
         $data['url_getView'] = null;
+        $data['deleted_field'] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
@@ -192,10 +219,19 @@ class ItemsListTest extends CIUnitTestCase
         $response = $result->response()->getBody();
         $columnsValues = array_map(fn($key) => $data['items'][0][$key],
             array_keys($data['columns']));
-        # fix here 
         $pattern = array_reduce($columnsValues, fn($carry, $value) =>
-            '$carry'.preg_quote($value).'.*', '');
+            $carry.preg_quote($value, '/').'.*', '');
         $this->assertEquals(1, preg_match("/$pattern/s", $response));
+    }
+
+    public function testWhenColuneNotInItemData():void
+    {
+        $data = $this->getDefaultData();
+        $data['columns']['fake'] = 'fakevalue';
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\items_list', $data);
+        $response = $result->response()->getBody();
+        $result->assertSee($data['columns']['fake']);
     }
 
     private function getDefaultData(): array
@@ -209,13 +245,13 @@ class ItemsListTest extends CIUnitTestCase
         $data['items'] = [
             [
                 'id' => '1', 'name' => 'Item 1', 'inventory_nb' => 'ITM0001',
-                'buying_date' => '01/01/2020',
-                'warranty_duration' => '12 months', 'deleted' => ''
+                'warranty_duration' => '12 months', 'deleted' => '',
+                'buying_date' => '01/01/2020'
             ],
             [
                 'id' => '12', 'name' => 'Item 12', 'inventory_nb' => 'ITM0012',
                 'buying_date' => '01/03/2020',
-                'warranty_duration' => '12 months', 'deleted' => '2000-01-01'
+                'warranty_duration' => '12 months', 'deleted' => '2000-01-01',
             ]
         ];
         $data['primary_key_field']  = 'id';
