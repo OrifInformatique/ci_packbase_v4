@@ -7,8 +7,8 @@
 - N’affiche pas le titre si la variable est indéfinie.
 
 
-- Affiche le bouton d’ajouter quand un lien d’ajouter est donné.
-- N’affiche pas le bouton d’ajouter quand un lien d’ajouter n’est donné pas.
+- Affiche le bouton d’ajout quand un lien d’ajouter est donné.
+- N’affiche pas le bouton d’ajout quand un lien d’ajout n’est pas donné.
 
 
 - Affiche la case à cocher quand un lien de getView est donné.
@@ -49,9 +49,14 @@ pas.
 
 
 
-- Affiche le label par défault pour le bouton d’ajoute quand un lien est donné
+- Affiche le label par défaut pour le bouton d’ajout quand un lien est donné
 mais pas un label.
 
-- Utilise un nom d’id par défault quand le nom n’est pas spécifié.
-- Si un nom de colone n’est pas présence dans les données des objects cela ne 
-ne fait pas une erreur.
+- Utilise un nom d’ID par défaut quand le nom n’est pas spécifié.
+- Si un nom de colonne n’est pas présent dans les données des objets, cela ne 
+ne fais pas une erreur.
+
+
+
+# set de tests complet pour l’admin menu
+- Affiche le lien pour la liste des utilisateurs
