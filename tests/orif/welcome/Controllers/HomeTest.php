@@ -11,8 +11,6 @@
 
  use CodeIgniter\Test\CIUnitTestCase;
  use CodeIgniter\Test\ControllerTestTrait;
-
- use User\Models;
  
  class HomeTest extends CIUnitTestCase
 {

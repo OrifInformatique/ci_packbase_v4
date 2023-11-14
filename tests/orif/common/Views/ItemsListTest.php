@@ -224,7 +224,7 @@ class ItemsListTest extends CIUnitTestCase
         $this->assertEquals(1, preg_match("/$pattern/s", $response));
     }
 
-    public function testWhenColuneNotInItemData():void
+    public function testWhenColumnNotInItemData():void
     {
         $data = $this->getDefaultData();
         $data['columns']['fake'] = 'fakevalue';
