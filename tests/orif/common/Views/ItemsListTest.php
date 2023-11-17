@@ -3,23 +3,27 @@ namespace Common\Controllers;
 
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\ControllerTestTrait;
+use App\Controllers\BaseController;
+
+class Test extends BaseController
+{}
 
 class ItemsListTest extends CIUnitTestCase
 {
 
     use ControllerTestTrait;
-    public function testTitleIsShown(): void
+    public function test_title_is_shown(): void
     {
-        $data = self::getDefaultData();
+        $data = self::get_default_data();
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
         $result->assertSee($data['list_title'], 'h3');
     }
 
-    public function testDefaultNameId(): void
+    public function test_default_name_id(): void
     {
-        $data = self::getDefaultData();
+        $data = self::get_default_data();
         $data['primary_key_field'] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
@@ -28,9 +32,9 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSee($data['items'][0][$keys[0]]);
     }
 
-    public function testTitleIsHidden(): void
+    public function test_title_is_hidden(): void
     {
-        $data = self::getDefaultData();
+        $data = self::get_default_data();
         $list_title = $data['list_title'];
         $data['list_title'] = null;
         $result = $this->controller(Test::class)
@@ -39,9 +43,9 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee($list_title, 'h3');
     }
 
-    public function testCreateButtonShown(): void
+    public function test_create_button_shown(): void
     {
-        $data = self::getDefaultData();
+        $data = self::get_default_data();
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
@@ -53,9 +57,9 @@ class ItemsListTest extends CIUnitTestCase
 
     }
 
-    public function testCreateDefaultLabelButtonShown(): void
+    public function test_create_default_label_button_shown(): void
     {
-        $data = self::getDefaultData();
+        $data = self::get_default_data();
         $data['btn_create_label'] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
@@ -69,9 +73,9 @@ class ItemsListTest extends CIUnitTestCase
     }
 
     
-    public function testCreateButtonHidden(): void
+    public function test_create_button_hidden(): void
     {
-        $data = self::getDefaultData();
+        $data = self::get_default_data();
         $data['url_create'] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
@@ -80,18 +84,18 @@ class ItemsListTest extends CIUnitTestCase
 
     }
 
-    public function testCheckboxShown(): void
+    public function test_checkbox_shown(): void
     {
-        $data = self::getDefaultData();
+        $data = self::get_default_data();
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
         $result->assertSee(lang('common_lang.btn_show_disabled'), 'label');
     }
 
-    public function testCheckboxHidden(): void
+    public function test_checkbox_hidden(): void
     {
-        $data = self::getDefaultData();
+        $data = self::get_default_data();
         $data['with_deleted'] = null;
         $data['url_getView'] = null;
         $data['deleted_field'] = null;
@@ -101,59 +105,59 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee(lang('common_lang.btn_show_disabled'), 'label');
     }
 
-    public function testDetailsIconShown(): void
+    public function test_details_icon_shown(): void
     {
-        $this->testIconShown('common_lang.btn_details');
+        $this->test_icon_shown('common_lang.btn_details');
     }
 
-    public function testDetailsIconHidden(): void
+    public function test_details_icon_hidden(): void
     {
-        $this->testIconHidden('common_lang.btn_details', 'url_detail');
+        $this->test_icon_hidden('common_lang.btn_details', 'url_detail');
     }
 
-    public function testUpdateIconShown(): void
+    public function test_update_icon_shown(): void
     {
-        $this->testIconShown('common_lang.btn_edit');
+        $this->test_icon_shown('common_lang.btn_edit');
     }
 
-    public function testUpdateIconHidden(): void
+    public function test_update_icon_hidden(): void
     {
-        $this->testIconHidden('common_lang.btn_edit', 'url_update');
+        $this->test_icon_hidden('common_lang.btn_edit', 'url_update');
     }
 
-    public function testDuplicateIconShown(): void
+    public function test_duplicate_icon_shown(): void
     {
-        $this->testIconShown('common_lang.btn_copy');
+        $this->test_icon_shown('common_lang.btn_copy');
     }
 
-    public function testDuplicateIconHidden(): void
+    public function test_duplicate_icon_hidden(): void
     {
-        $this->testIconHidden('common_lang.btn_copy', 'url_duplicate');
+        $this->test_icon_hidden('common_lang.btn_copy', 'url_duplicate');
     }
 
-    public function testDeleteIconShown(): void
+    public function test_delete_icon_shown(): void
     {
-        $this->testIconShown('common_lang.btn_delete');
+        $this->test_icon_shown('common_lang.btn_delete');
     }
 
-    public function testDeleteIconHidden(): void
+    public function test_delete_icon_hidden(): void
     {
-        $this->testIconHidden('common_lang.btn_delete', 'url_delete');
+        $this->test_icon_hidden('common_lang.btn_delete', 'url_delete');
     }
 
-    public function testRestoreIconShown(): void
+    public function test_restore_icon_shown(): void
     {
-        $this->testIconShown('common_lang.btn_restore');
+        $this->test_icon_shown('common_lang.btn_restore');
     }
 
-    public function testRestoreIconHidden(): void
+    public function test_restore_icon_hidden(): void
     {
-        $this->testIconHidden('common_lang.btn_restore', 'url_restore');
+        $this->test_icon_hidden('common_lang.btn_restore', 'url_restore');
     }
 
-    public function testRestoreIconHiddenWhenDateNull(): void
+    public function test_restore_icon_hidden_when_date_null(): void
     {
-        $data = $this->getDefaultData();
+        $data = $this->get_default_data();
         $data['items'][1]['deleted'] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
@@ -161,19 +165,19 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee(lang('common_lang.btn_restore'));
     }
 
-    public function testRedDeleteIconShown(): void
+    public function test_red_delete_icon_shown(): void
     {
-        $this->testIconShown('common_lang.btn_hard_delete');
+        $this->test_icon_shown('common_lang.btn_hard_delete');
     }
 
-    public function testRedDeleteIconHidden(): void
+    public function test_red_delete_icon_hidden(): void
     {
-        $this->testIconHidden('common_lang.btn_hard_delete', 'url_delete');
+        $this->test_icon_hidden('common_lang.btn_hard_delete', 'url_delete');
     }
 
-    public function testRedDeleteIconHiddenWhenDateNull(): void
+    public function test_red_delete_icon_hidden_when_date_null(): void
     {
-        $data = $this->getDefaultData();
+        $data = $this->get_default_data();
         $data['items'][1]['deleted'] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
@@ -181,18 +185,18 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee(lang('common_lang.btn_hard_delete'));
     }
 
-    private function testIconShown(string $titleKey): void
+    private function test_icon_shown(string $titleKey): void
     {
-        $data = $this->getDefaultData();
+        $data = $this->get_default_data();
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
         $result->assertSee(lang($titleKey));
     }
 
-    private function testIconHidden(string $titleKey, string $urlKey): void
+    private function test_icon_hidden(string $titleKey, string $urlKey): void
     {
-        $data = $this->getDefaultData();
+        $data = $this->get_default_data();
         $data[$urlKey] = null;
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
@@ -200,9 +204,9 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee(lang($titleKey));
     }
 
-    public function testArrangementColumnsName(): void
+    public function test_arrangement_columns_name(): void
     {
-        $data = $this->getDefaultData();
+        $data = $this->get_default_data();
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
@@ -211,9 +215,9 @@ class ItemsListTest extends CIUnitTestCase
         $this->assertEquals(1, preg_match("/$pattern/s", $response));
     }
 
-    public function testArrangementValuesByColumns(): void
+    public function test_arrangement_values_by_columns(): void
     {
-        $data = $this->getDefaultData();
+        $data = $this->get_default_data();
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
@@ -224,9 +228,9 @@ class ItemsListTest extends CIUnitTestCase
         $this->assertEquals(1, preg_match("/$pattern/s", $response));
     }
 
-    public function testWhenColumnNotInItemData():void
+    public function test_when_column_not_in_item_data():void
     {
-        $data = $this->getDefaultData();
+        $data = $this->get_default_data();
         $data['columns']['fake'] = 'fakevalue';
         $result = $this->controller(Test::class)
                        ->execute('display_view', '\Common\items_list', $data);
@@ -234,7 +238,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSee($data['columns']['fake']);
     }
 
-    private function getDefaultData(): array
+    private function get_default_data(): array
     {
         $data['list_title'] = "Test items_list view";
         $data['columns'] = [
@@ -258,11 +262,11 @@ class ItemsListTest extends CIUnitTestCase
         $data['btn_create_label']   = 'Add an item';
         $data['with_deleted']       = true;
         $data['deleted_field']      = 'deleted';
-        $data = array_merge($data, self::getDefaultUrlData());
+        $data = array_merge($data, self::get_default_url_data());
         return $data;
     }
 
-    private static function getDefaultUrlData(): array
+    private static function get_default_url_data(): array
     {
         $data['url_detail'] = "items_list/detail/";
         $data['url_update'] = "items_list/update/";

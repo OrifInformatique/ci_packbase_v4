@@ -1,26 +1,27 @@
 # liste test
 - Test les accès
     - Autoriser d’accéder sans compte quand le contrôleur autorise sans compte
-    (testAllUserAccessLevelWithoutAccount)
+    (`test_all_user_access_level_without_account`)
     - Autoriser d’accéder avec un compte registered quand le contrôleur
-    autorise sans compte
+    autorise sans compte (`test_all_user_access_level_with_registered`)
     - Autoriser d’accéder avec un compte admin quand le contrôleur autorise
-    sans compte
+    sans compte (`test_all_user_access_level_with_registered`)
 
     - Interdiction d’accéder sans compte quand le contrôleur autorise avec un
-    compte (testLoggedUserAccessLevelWithoutAccount)
+    compte (`test_logged_user_access_level_without_account`)
     - Autoriser d’accéder avec un compte registered quand le contrôleur 
-    autorise avec un compte (testLoggedUserAccessLevelWithRegistered)
+    autorise avec un compte (`test_logged_user_access_level_with_registered`)
     - Autoriser d’accéder avec un compte admin quand le contrôleur autorise
-    avec un compte (testLoggedUserAccessLevelWithAdmin)
+    avec un compte (`test_logged_user_access_level_with_admin`)
 
     - Interdiction d’accéder sans compte quand le contrôleur autorise avec un
-    compte admin
+    compte admin (`test_admin_access_level_without_account`)
     - Interdiction d’accéder avec un compte registered quand le contrôleur
     autorise avec un compte adminitrateur.
+    (`test_admin_access_level_with_registered`)
     - Autoriser d’accéder avec un compte admin quand le contrôleur autorise
-    avec un compte admin
+    avec un compte admin (`test_admin_access_level_with_admin`)
 
-- display view affiche le header la view passée en string et le footer
-- display view affiche le header les views passées en array et le footer
+- `display_view` affiche le header, la view passée en string et le footer
+- `display_view` affiche le header, les views passées en array et le footer
 

@@ -28,7 +28,7 @@ class AdminMenuTest extends CIUnitTestCase
 
     }
 
-    public function testPanelConfigWithAdministratorSession() 
+    public function test_panel_config_with_administrator_session() 
     {
         $_SESSION['logged_in'] = true;
         $_SESSION['user_access'] = Config('\User\Config\UserConfig')
