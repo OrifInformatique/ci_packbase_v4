@@ -5,6 +5,10 @@ use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\ControllerTestTrait;
 use CodeIgniter\Test\TestResponse;
 
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
+
 function bool_to_string(bool $b): string
 {
     return $b ? 'true': 'false';
@@ -27,6 +31,16 @@ class Test extends BaseController
         $this->access_level = Config('\User\Config\UserConfig')
              ->access_lvl_admin;
         return bool_to_string($this->check_permission());
+    }
+}
+class TestAdmin extends BaseController
+{
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger): void
+    {
+        $this->access_level=config('\User\Config\UserConfig')
+             ->access_lvl_admin;
+        parent::initController($request, $response, $logger);
     }
 }
 
@@ -85,6 +99,52 @@ class BaseControllerTest extends CIUnitTestCase
             $this->get_admin_data())(true);
     }
 
+    public function test_display_view_with_view_by_string(): void
+    {
+        $data = array();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\login_bar', $data);
+        $body = $result->response()->getBody();
+        $toFind = lang('common_lang.btn_login');
+        $pattern = '/'.$toFind.'.*'.$toFind.'/s';
+        $this->assertEquals(1, preg_match($pattern, $body));
+    }
+
+    public function test_display_view_with_view_by_array(): void
+    {
+        $data = array();
+        $view = array('\Common\login_bar', '\Common\login_bar');
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', $view, $data);
+        $body = $result->response()->getBody();
+        $toFind = lang('common_lang.btn_login');
+        $pattern = '/' . $toFind . '.*' . $toFind . '.*' . $toFind . '/s';
+        $this->assertEquals(1, preg_match($pattern, $body));
+    }
+
+    public function test_display_view_when_unauthorized(): void
+    {
+        $data = array();
+        try {
+            $result = $this->controller(TestAdmin::class)
+                           ->execute('display_view', '\Common\login_bar');
+        } catch (\Exception $e) {
+            $this->assertEquals($e, $e);
+            # $body = $result->response()->getBody();
+            # $result->assertSee(lang('user_lang.msg_err_access_denied_message'));
+        }
+    }
+
+    public function test_display_view_when_authorized(): void
+    {
+        $data = array();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\login_bar');
+        $body = $result->response()->getBody();
+        $result->assertDontSee(
+            lang('user_lang.msg_err_access_denied_message'));
+    }
+
     private function test_access_level(string $method_name,
         ?array $sessionData=null): callable
     {
@@ -120,5 +180,8 @@ class BaseControllerTest extends CIUnitTestCase
            ->access_lvl_admin;
         return $data;
     }
+
+
+
     
 }
