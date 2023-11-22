@@ -129,9 +129,10 @@ class BaseControllerTest extends CIUnitTestCase
             $result = $this->controller(TestAdmin::class)
                            ->execute('display_view', '\Common\login_bar');
         } catch (\Exception $e) {
-            $this->assertEquals($e, $e);
-            # $body = $result->response()->getBody();
-            # $result->assertSee(lang('user_lang.msg_err_access_denied_message'));
+            $this->assertEquals(
+                lang('user_lang.msg_err_access_denied_message'),
+                $e->getMessage()
+            );
         }
     }
 
