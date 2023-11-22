@@ -108,6 +108,9 @@ class BaseControllerTest extends CIUnitTestCase
         $toFind = lang('common_lang.btn_login');
         $pattern = '/'.$toFind.'.*'.$toFind.'/s';
         $this->assertEquals(1, preg_match($pattern, $body));
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $result->assertSee('Script to update favicon in some browsers');
+        
     }
 
     public function test_display_view_with_view_by_array(): void
@@ -120,6 +123,31 @@ class BaseControllerTest extends CIUnitTestCase
         $toFind = lang('common_lang.btn_login');
         $pattern = '/' . $toFind . '.*' . $toFind . '.*' . $toFind . '/s';
         $this->assertEquals(1, preg_match($pattern, $body));
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+    }
+
+    public function test_display_view_connection_button(): void
+    {
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = Config('\User\Config\UserConfig')
+           ->access_lvl_admin;
+        $_SESSION['_ci_previous_url'] = 'url';
+        $data = array();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\login_bar', $data);
+        $body = $result->response()->getBody();
+        $result->assertSee(lang('common_lang.btn_logout'));
+        $result->assertDontSee(lang('common_lang.btn_login'));
+    }
+
+    public function test_display_view_disconnection_button(): void
+    {
+        $data = array();
+        $result = $this->controller(Test::class)
+                       ->execute('display_view', '\Common\login_bar', $data);
+        $body = $result->response()->getBody();
+        $result->assertSee(lang('common_lang.btn_login'));
+        $result->assertDontSee(lang('common_lang.btn_logout'));
     }
 
     public function test_display_view_when_unauthorized(): void

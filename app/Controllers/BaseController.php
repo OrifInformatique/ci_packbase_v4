@@ -71,8 +71,15 @@ abstract class BaseController extends Controller
         
         // Check permission on construct
         if (!$this->check_permission()) {
-            echo $this->display_view('\User\errors\403error');
-            exit();
+            throw \Common\Exceptions\AccessDeniedException::forPageAccessDenied();
+
+            # echo $this->display_view('\User\errors\403error');
+            # exit();
+            
+            # $response->setBody($this->display_view('\User\errors\403error'));
+            # $response->send();
+            # throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+            # throw new \Exception('Unauthorised', 403);
             //throw new \Exception("some message here",403);
             //show_error(lang('msg_err_access_denied_message'), 403, lang('msg_err_access_denied_header'));
         }
