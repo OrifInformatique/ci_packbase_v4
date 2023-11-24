@@ -10,6 +10,8 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use CodeIgniter\HTTP\Response;
 
+use Common\Exceptions\AccessDeniedException;
+
 /**
  * Class BaseController
  *
@@ -71,17 +73,7 @@ abstract class BaseController extends Controller
         
         // Check permission on construct
         if (!$this->check_permission()) {
-            throw \Common\Exceptions\AccessDeniedException::forPageAccessDenied();
-
-            # echo $this->display_view('\User\errors\403error');
-            # exit();
-            
-            # $response->setBody($this->display_view('\User\errors\403error'));
-            # $response->send();
-            # throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-            # throw new \Exception('Unauthorised', 403);
-            //throw new \Exception("some message here",403);
-            //show_error(lang('msg_err_access_denied_message'), 403, lang('msg_err_access_denied_header'));
+            throw AccessDeniedException::forPageAccessDenied();
         }
     }
 

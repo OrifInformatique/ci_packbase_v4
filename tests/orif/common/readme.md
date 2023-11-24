@@ -42,7 +42,8 @@ donné ou que la date de suppression est valide. (`test_delete_icon_hidden`)
 - Affiche l’icône de suppression rouge quand un lien de suppression est donné
 et que la date de suppression est valide. (`test_red_delete_icon_shown`)
 - N'affiche pas l’icône de suppression rouge quand un lien de suppression n’est
-pas donné ou que la date de suppression est nulle. (`test_red_delete_icon_hidden`)
+pas donné ou que la date de suppression est nulle.
+(`test_red_delete_icon_hidden`)
 
 
 - Affiche l’icône de restauration quand un lien de restauration est donné et

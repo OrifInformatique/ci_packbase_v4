@@ -6,7 +6,6 @@ use CodeIgniter\Exceptions\HTTPExceptionInterface;
 use CodeIgniter\Exceptions\DebugTraceableTrait;
 use CodeIgniter\Exceptions\ExceptionInterface;
 use RuntimeException;
-# use OutOfBoundsException;
 
 class AccessDeniedException extends RuntimeException implements
     ExceptionInterface, HTTPExceptionInterface

@@ -21,7 +21,13 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSee($data['list_title'], 'h3');
     }
 
-    public function test_default_name_id_when_null(): void
+    public function test_default_name_id(): void
+    {
+        $this->test_default_name_id_when_null();
+        $this->test_default_name_id_when_unset();
+    }
+
+    private function test_default_name_id_when_null(): void
     {
         $data = self::get_default_data();
         $data['primary_key_field'] = null;
@@ -32,7 +38,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSee($data['items'][0][$keys[0]]);
     }
 
-    public function test_default_name_id_when_unset(): void
+    private function test_default_name_id_when_unset(): void
     {
         $data = self::get_default_data();
         unset($data['primary_key_field']);
@@ -45,6 +51,12 @@ class ItemsListTest extends CIUnitTestCase
 
     public function test_title_is_hidden(): void
     {
+        $this->test_title_is_hidden_when_null();
+        $this->test_title_is_hidden_when_unset();
+    }
+
+    private function test_title_is_hidden_when_null(): void
+    {
         $data = self::get_default_data();
         $list_title = $data['list_title'];
         $data['list_title'] = null;
@@ -54,7 +66,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee($list_title, 'h3');
     }
 
-    public function test_title_is_hidden_when_unset(): void
+    private function test_title_is_hidden_when_unset(): void
     {
         $data = self::get_default_data();
         $list_title = $data['list_title'];
@@ -73,12 +85,15 @@ class ItemsListTest extends CIUnitTestCase
         $response = $result->response()->getBody();
         $result->assertSee($data['btn_create_label'], 'a');
         $result->assertSeeLink($data['btn_create_label']);
-        #$result->assertSee($data['btn_create_label'], 'a .btn .btn-primary');
-        #$result->assertSeeElement($data['url_create']);
-        #$result->assertSeeElement('.btn .btn-primary');
     }
 
     public function test_create_default_label_button_shown(): void
+    {
+        $this->test_create_default_label_button_shown_null();
+        $this->test_create_default_label_button_shown_unset();
+    }
+
+    private function test_create_default_label_button_shown_null(): void
     {
         $data = self::get_default_data();
         $data['btn_create_label'] = null;
@@ -89,7 +104,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSeeLink(lang('common_lang.btn_add'));
     }
 
-    public function test_create_default_label_button_shown_unset(): void
+    private function test_create_default_label_button_shown_unset(): void
     {
         $data = self::get_default_data();
         unset($data['btn_create_label']);
@@ -102,6 +117,12 @@ class ItemsListTest extends CIUnitTestCase
     
     public function test_create_button_hidden(): void
     {
+        $this->test_create_button_hidden_null();
+        $this->test_create_button_hidden_unset();
+    }
+
+    private function test_create_button_hidden_null(): void
+    {
         $data = self::get_default_data();
         $data['url_create'] = null;
         $result = $this->controller(Test::class)
@@ -111,7 +132,7 @@ class ItemsListTest extends CIUnitTestCase
 
     }
 
-    public function test_create_button_hidden_unset(): void
+    private function test_create_button_hidden_unset(): void
     {
         $data = self::get_default_data();
         unset($data['url_create']);
@@ -119,7 +140,6 @@ class ItemsListTest extends CIUnitTestCase
                        ->execute('display_view', '\Common\items_list', $data);
         $response = $result->response()->getBody();
         $result->assertDontSee($data['btn_create_label'], 'a');
-
     }
 
     public function test_checkbox_shown(): void
@@ -133,6 +153,12 @@ class ItemsListTest extends CIUnitTestCase
 
     public function test_checkbox_hidden(): void
     {
+        $this->test_checkbox_hidden_null();
+        $this->test_checkbox_hidden_unset();
+    }
+
+    private function test_checkbox_hidden_null(): void
+    {
         $data = self::get_default_data();
         $data['with_deleted'] = null;
         $data['url_getView'] = null;
@@ -143,7 +169,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee(lang('common_lang.btn_show_disabled'), 'label');
     }
 
-    public function test_checkbox_hidden_unset(): void
+    private function test_checkbox_hidden_unset(): void
     {
         $data = self::get_default_data();
         unset($data['with_deleted']);
@@ -203,9 +229,11 @@ class ItemsListTest extends CIUnitTestCase
     public function test_restore_icon_hidden(): void
     {
         $this->test_icon_hidden('common_lang.btn_restore', 'url_restore');
+        $this->test_restore_icon_hidden_when_date_null();
+        $this->test_restore_icon_hidden_when_date_unset();
     }
 
-    public function test_restore_icon_hidden_when_date_null(): void
+    private function test_restore_icon_hidden_when_date_null(): void
     {
         $data = $this->get_default_data();
         $data['items'][1]['deleted'] = null;
@@ -215,7 +243,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee(lang('common_lang.btn_restore'));
     }
 
-    public function test_restore_icon_hidden_when_date_unset(): void
+    private function test_restore_icon_hidden_when_date_unset(): void
     {
         $data = $this->get_default_data();
         unset($data['items'][1]['deleted']);
@@ -233,9 +261,11 @@ class ItemsListTest extends CIUnitTestCase
     public function test_red_delete_icon_hidden(): void
     {
         $this->test_icon_hidden('common_lang.btn_hard_delete', 'url_delete');
+        $this->test_red_delete_icon_hidden_when_date_null();
+        $this->test_red_delete_icon_hidden_when_date_unset();
     }
 
-    public function test_red_delete_icon_hidden_when_date_null(): void
+    private function test_red_delete_icon_hidden_when_date_null(): void
     {
         $data = $this->get_default_data();
         $data['items'][1]['deleted'] = null;
@@ -245,7 +275,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertDontSee(lang('common_lang.btn_hard_delete'));
     }
 
-    public function test_red_delete_icon_hidden_when_date_unset(): void
+    private function test_red_delete_icon_hidden_when_date_unset(): void
     {
         $data = $this->get_default_data();
         unset($data['items'][1]['deleted']);
@@ -325,7 +355,7 @@ class ItemsListTest extends CIUnitTestCase
         $result->assertSee($data['columns']['fake']);
     }
 
-    private function get_default_data(?string $without = null): array
+    private function get_default_data(): array
     {
         $data['list_title'] = "Test items_list view";
         $data['columns'] = [
@@ -350,9 +380,6 @@ class ItemsListTest extends CIUnitTestCase
         $data['with_deleted']       = true;
         $data['deleted_field']      = 'deleted';
         $data = array_merge($data, self::get_default_url_data());
-        if (isset($without)) {
-            unset($data[$without]);
-        }
         return $data;
     }
 
@@ -367,6 +394,4 @@ class ItemsListTest extends CIUnitTestCase
         $data['url_duplicate'] = "items_list/duplicate_item/";
         return $data;
     }
-
-
 }

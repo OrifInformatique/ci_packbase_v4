@@ -7,14 +7,17 @@
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
 
- namespace User\Controllers;
+namespace User\Controllers;
 
- use CodeIgniter\Test\CIUnitTestCase;
- use CodeIgniter\Test\ControllerTestTrait;
+use CodeIgniter\Test\CIUnitTestCase;
+use CodeIgniter\Test\ControllerTestTrait;
 
- use User\Models;
- 
- class AdminTest extends CIUnitTestCase
+use CodeIgniter\HTTP\Response;
+use CodeIgniter\HTTP\RedirectResponse;
+use CodeIgniter\Test\TestResponse;
+use User\Models\User_model;
+
+class AdminTest extends CIUnitTestCase
 {
     use ControllerTestTrait;
 
@@ -22,29 +25,53 @@
     const REGISTERED_USER_TYPE = 2;
     const GUEST_USER_TYPE = 3;
 
+    private function get_session_data()
+    {
+        $data['logged_in'] = true;
+        $data['user_access'] = Config('\User\Config\UserConfig')
+            ->access_lvl_admin;
+        $data['_ci_previous_url'] = 'url';
+        return $data;
+    }
+
+    private function get_response_and_assert(TestResponse $result)
+        : Response
+    {
+        $result->assertOK();
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        return $result->response();
+    }
+
+    private function assert_reponse(TestResponse $result): void
+    {
+        $response = $this->get_response_and_assert($result);
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertNotEmpty($response->getBody());
+        
+    }
+
+    private function assert_redirect(TestResponse $result): void
+    {
+        $response = $this->get_response_and_assert($result);
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertEmpty($response->getBody());
+    }
+
     /**
      * Asserts that the list_user page is loaded correctly with an administrator session
      */
     public function testlist_userWithAdministratorSession() 
     {
-        // Initialize session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        $_SESSION = $this->get_session_data();
 
         // Execute list_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('list_user');
-
+            ->execute('list_user');
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSeeLink('Nouveau');
         $result->assertSeeElement('#userslist');
-        $result->assertSee('Identifiant', 'th');
+        $result->assertSee(lang('user_lang.field_username'), 'th');
         $result->assertSee('Type d\'utilisateur', 'th');
         $result->assertSee('Activé', 'th');
         $result->assertDontSee('Fake User', 'th');
@@ -57,35 +84,21 @@
      */
     public function testlist_userWithDisabledUsers() 
     {
-        // Initialize session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
-
-        // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
-
+        $_SESSION = $this->get_session_data();
+        $userModel = model(User_model::class);
         $user_id = 1;
-
         // Disable user id 1
         $userModel->update($user_id, ['archive' => '2023-03-30 10:32:00']);
-
         // Execute list_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('list_user', true);
-
+            ->execute('list_user', true);
         // Enable user id 1
         $userModel->update($user_id, ['archive' => NULL]);
-
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSeeLink('Nouveau');
         $result->assertSeeElement('#userslist');
-        $result->assertSee('Identifiant', 'th');
+        $result->assertSee(lang('user_lang.field_username'), 'th');
         $result->assertSee('Type d\'utilisateur', 'th');
         $result->assertSee('Activé', 'th');
         $result->assertDontSee('Fake User', 'th');
@@ -98,35 +111,21 @@
      */
     public function testlist_userWithoutDisabledUsers() 
     {
-        // Initialize session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
-
-        // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
-
+        $_SESSION = $this->get_session_data();
+        $userModel = model(User_model::class);
         $user_id = 1;
-
         // Disable user id 1
         $userModel->update($user_id, ['archive' => '2023-03-30 10:32:00']);
-
         // Execute list_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('list_user');
-        
+            ->execute('list_user');
         // Enable user id 1
         $userModel->update($user_id, ['archive' => NULL]);
-
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSeeLink('Nouveau');
         $result->assertSeeElement('#userslist');
-        $result->assertSee('Identifiant', 'th');
+        $result->assertSee(lang('user_lang.field_username'), 'th');
         $result->assertSee('Type d\'utilisateur', 'th');
         $result->assertSee('Activé', 'th');
         $result->assertDontSee('Fake User', 'th');
@@ -138,21 +137,12 @@
      */
     public function testpassword_change_user() 
     {
-        // Initialize session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
-
+        $_SESSION = $this->get_session_data();
         // Execute password_change_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('password_change_user', 1);
-
+            ->execute('password_change_user', 1);
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee('Réinitialiser le mot de passe', 'h1');
         $result->assertSee('admin', 'h4');
         $result->assertDontSee('Fake Reset', 'h1');
@@ -167,21 +157,12 @@
      */
     public function testpassword_change_userWithNonExistingUser() 
     {
-        // Initialize session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
-
+        $_SESSION = $this->get_session_data();
         // Execute password_change_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('password_change_user', 999999);
-
+            ->execute('password_change_user', 999999);
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('/user/admin/list_user'));
     }
 
@@ -190,21 +171,12 @@
      */
     public function testdelete_userWithoutSession() 
     {
-        // Initialize session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
-
+        $_SESSION = $this->get_session_data();
         // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
         $result = $this->controller(Admin::class)
-        ->execute('delete_user', 1);
-
+            ->execute('delete_user', 1);
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee('Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.', 'div');
     }
 
@@ -214,21 +186,14 @@
     public function testdelete_userWithSessionAndDefaultAction() 
     {
         // Initialize session 
+        $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 2;
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
 
         // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
         $result = $this->controller(Admin::class)
-        ->execute('delete_user', 1);
-
+            ->execute('delete_user', 1);
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee('Que souhaitez-vous faire ?', 'h4');
         $result->assertSeeLink('Annuler');
         $result->assertSeeLink('Désactiver cet utilisateur');
@@ -241,13 +206,11 @@
     public function testdelete_userWithSessionAndDefaultActionForADisabledUser()
     {
         // Initialize the session
+        $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 2;
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
 
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         $user_id = 1;
 
@@ -256,17 +219,13 @@
 
         // Execute delete_user method of Admin class (disable action parameter is passed)
         $result = $this->controller(Admin::class)
-        ->execute('delete_user', $user_id);
+            ->execute('delete_user', $user_id);
 
         // Enable user id 1
         $userModel->update($user_id, ['archive' => NULL]);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee('Cet utilisateur est déjà désactivé. Voulez-vous le supprimer définitivement ?', 'div');
     }
 
@@ -275,21 +234,13 @@
      */
     public function testdelete_userWithNonExistingUser()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
-
+        $_SESSION = $this->get_session_data();
         // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
         $result = $this->controller(Admin::class)
-        ->execute('delete_user', 999999);
+            ->execute('delete_user', 999999);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/admin/list_user'));
     }
 
@@ -298,21 +249,14 @@
      */
     public function testdelete_userWitFakeAction()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        $_SESSION = $this->get_session_data();
 
         // Execute delete_user method of Admin class (fake action parameter is passed)
         $result = $this->controller(Admin::class)
-        ->execute('delete_user', 1, 9);
+            ->execute('delete_user', 1, 9);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/admin/list_user'));
     }
 
@@ -322,29 +266,23 @@
     public function testdelete_userWitDisableAction()
     {
         // Initialize the session
+        $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 2;
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
 
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         $user_id = 1;
 
         // Execute delete_user method of Admin class (disable action parameter is passed)
         $result = $this->controller(Admin::class)
-        ->execute('delete_user', $user_id, 1);
+            ->execute('delete_user', $user_id, 1);
 
         // Enable user id 1
         $userModel->update($user_id, ['archive' => NULL]);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/admin/list_user'));
     }
 
@@ -354,13 +292,11 @@
     public function testdelete_userWitDeleteAction()
     {
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         // Initialize the session
+        $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 1;
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -372,14 +308,10 @@
 
         // Execute delete_user method of Admin class (delete action parameter is passed)
         $result = $this->controller(Admin::class)
-        ->execute('delete_user', $userId, 2);
+            ->execute('delete_user', $userId, 2);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/admin/list_user'));
         $this->assertNull($userModel->where("id", $userId)->first());
     }
@@ -389,21 +321,14 @@
      */
     public function testreactivate_userWithNonExistingUser()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        $_SESSION = $this->get_session_data();
 
         // Execute reactivate_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('reactivate_user', 999999);
+            ->execute('reactivate_user', 999999);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/admin/list_user'));
     }
 
@@ -412,13 +337,10 @@
      */
     public function testreactivate_userWithExistingUser()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        $_SESSION = $this->get_session_data();
 
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         $user_id = 1;
 
@@ -427,14 +349,10 @@
 
         // Execute reactivate_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('reactivate_user', $user_id);
+            ->execute('reactivate_user', $user_id);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('/user/admin/save_user/1'));
     }
 
@@ -443,26 +361,19 @@
      */
     public function testsave_userWithUserId() 
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        $_SESSION = $this->get_session_data();
 
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
-        ->execute('save_user', 1);
+            ->execute('save_user', 1);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
-        $result->assertSee('Modifier un utilisateur', 'h1');
+        $this->assert_reponse($result);
+        $result->assertSee(lang('user_lang.title_user_update'), 'h1');
         $result->assertSeeElement('#user_form');
-        $result->assertSee('Identifiant', 'label');
+        $result->assertSee(lang('user_lang.field_username'), 'label');
         $result->assertSeeInField('user_name', 'admin');
-        $result->assertSee('Adresse e-mail', 'label');
+        $result->assertSee(lang('user_lang.field_email'), 'label');
         $result->assertSeeInField('user_email', '');
         $result->assertSee('Type d\'utilisateur', 'label');
         $result->assertSeeElement('#user_usertype');
@@ -486,26 +397,18 @@
      */
     public function testsave_userWithoutUserId() 
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
-
+        $_SESSION = $this->get_session_data();
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
-        ->execute('save_user');
+            ->execute('save_user');
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee('Ajouter un utilisateur', 'h1');
         $result->assertSeeElement('#user_form');
-        $result->assertSee('Identifiant', 'label');
+        $result->assertSee(lang('user_lang.field_username'), 'label');
         $result->assertSeeInField('user_name', '');
-        $result->assertSee('Adresse e-mail', 'label');
+        $result->assertSee(lang('user_lang.field_email'), 'label');
         $result->assertSeeInField('user_email', '');
         $result->assertSee('Type d\'utilisateur', 'label');
         $result->assertSeeElement('#user_usertype');
@@ -528,29 +431,22 @@
     public function testsave_userWithUserIdWithSameSessionUserId() 
     {
         // Initialize the session
+        $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 1;
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
 
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
-        ->execute('save_user', 1);
+            ->execute('save_user', 1);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
-        $result->assertSee('Modifier un utilisateur', 'h1');
+        $this->assert_reponse($result);
+        $result->assertSee(lang('user_lang.title_user_update'), 'h1');
         $result->assertSeeElement('#user_form');
-        $result->assertSee('Identifiant', 'label');
+        $result->assertSee(lang('user_lang.field_username'), 'label');
         $result->assertSeeInField('user_name', 'admin');
-        $result->assertSee('Adresse e-mail', 'label');
+        $result->assertSee(lang('user_lang.field_email'), 'label');
         $result->assertSeeInField('user_email', '');
-        $result->assertSee('Administrateur', 'option');
-        $result->assertSee('Vous ne pouvez pas modifier votre propre type d\'utilisateur. Cette opération doit être faite par un autre administrateur.', 'div');
+        $result->assertSee(lang('user_lang.user_update_usertype_himself'), 'div');
         $result->assertSeeElement('#user_usertype');
         $result->assertSee('Administrateur', 'option');
         $result->assertSee('Enregistré', 'option');
@@ -572,13 +468,10 @@
      */
     public function testsave_userWithDisabledUserId()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        $_SESSION = $this->get_session_data();
 
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         $user_id = 1;
 
@@ -587,23 +480,19 @@
 
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
-        ->execute('save_user', 1);
+            ->execute('save_user', 1);
 
         // Enable user id 1
         $userModel->update($user_id, ['archive' => NULL]);
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
-        $result->assertSee('Modifier un utilisateur', 'h1');
-        $result->assertSee('Cet utilisateur est désactivé. Vous pouvez le réactiver en cliquant sur le lien correspondant.', 'div');
+        $this->assert_reponse($result);
+        $result->assertSee(lang('user_lang.title_user_update'), 'h1');
+        $result->assertSee(lang('user_lang.user_disabled_info'), 'div');
         $result->assertSeeElement('#user_form');
-        $result->assertSee('Identifiant', 'label');
+        $result->assertSee(lang('user_lang.field_username'), 'label');
         $result->assertSeeInField('user_name', 'admin');
-        $result->assertSee('Adresse e-mail', 'label');
+        $result->assertSee(lang('user_lang.field_email'), 'label');
         $result->assertSeeInField('user_email', '');
         $result->assertSee('Type d\'utilisateur', 'label');
         $result->assertSeeElement('#user_usertype');
@@ -628,13 +517,10 @@
      */
     public function testpassword_change_userPostedWhenChangingPassword()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        $_SESSION = $this->get_session_data();
 
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -655,7 +541,7 @@
 
         // Execute password_change_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('password_change_user', $userId);
+            ->execute('password_change_user', $userId);
 
         // Deletes inserted user
         $userModel->delete($userId, TRUE);
@@ -665,11 +551,7 @@
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('/user/admin/list_user'));
     }
 
@@ -678,13 +560,10 @@
      */
     public function testpassword_change_userPostedWhenChangingPasswordWithError()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        $_SESSION = $this->get_session_data();
 
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -705,7 +584,7 @@
 
         // Execute password_change_user method of Admin class
         $result = $this->controller(Admin::class)
-        ->execute('password_change_user', $userId);
+            ->execute('password_change_user', $userId);
 
         // Deletes inserted user
         $userModel->delete($userId, TRUE);
@@ -715,11 +594,7 @@
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee('Le mot de passe ne coïncide pas avec la confirmation du mot de passe.', 'div');        
     }
 
@@ -728,18 +603,14 @@
      */
     public function testsave_userPostedForANewUser()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        // Initialize session
+        $_SESSION = $this->get_session_data();
+        $_SESSION['user_id'] = 1;
 
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         $username = 'UserSaveUserUnitTest';
-
-        // Initialize session
-        $_SESSION['user_id'] = 1;
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -758,7 +629,7 @@
 
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
-        ->execute('save_user');
+            ->execute('save_user');
 
         // Get user from database
         $userDb = $userModel->where("username", $username)->first();
@@ -771,12 +642,8 @@
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
+        $this->assert_redirect($result);
         $this->assertNotNull($userDb);
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
         $result->assertRedirectTo(base_url('/user/admin/list_user'));
     }
 
@@ -788,10 +655,8 @@
         $username = 'UserSaveUserUnitTest';
 
         // Initialize session
+        $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 1;
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -810,18 +675,14 @@
 
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
-        ->execute('save_user');
+            ->execute('save_user');
 
         // Reset $_POST and $_REQUEST variables
         $_POST = array();
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee('Le mot de passe ne coïncide pas avec la confirmation du mot de passe.', 'div');
     }
 
@@ -830,16 +691,12 @@
      */
     public function testsave_userPostedForAnExistingUser()
     {
-        // Initialize the session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
-        $_SESSION['_ci_previous_url'] = 'url';
+        // Initialize session
+        $_SESSION = $this->get_session_data();
+        $_SESSION['user_id'] = 1;
 
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
-
-        // Initialize session
-        $_SESSION['user_id'] = 1;
+        $userModel = model(User_model::class);
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -861,7 +718,7 @@
 
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
-        ->execute('save_user', $userId);
+            ->execute('save_user', $userId);
 
         // Get user from database after update 
         $userDbUpdate = $userModel->where("username", $username)->first();
@@ -874,13 +731,9 @@
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
+        $this->assert_redirect($result);
         $this->assertEquals($userDbUpdate['fk_user_type'], self::REGISTERED_USER_TYPE);
         $this->assertEquals($userDbUpdate['email'], $userEmail);
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
         $result->assertRedirectTo(base_url('/user/admin/list_user'));
     }
 
@@ -897,7 +750,7 @@
             'password_confirm' => $userPassword,
         );
 
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         return $userModel->insert($user);
     }
