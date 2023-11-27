@@ -11,6 +11,11 @@
 
  use CodeIgniter\Test\CIUnitTestCase;
  use CodeIgniter\Test\ControllerTestTrait;
+
+use CodeIgniter\HTTP\Response;
+use CodeIgniter\HTTP\RedirectResponse;
+
+use User\Models\User_model;
  
  class AuthTest extends CIUnitTestCase
 {
@@ -29,7 +34,7 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertNotEmpty($response->getBody());
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -40,7 +45,7 @@
         $result->assertDontSeeElement('#fake_element');
         $result->assertSeeInField('username', '');
         $result->assertSeeInField('password', '');
-        $result->assertSeeLink('Se connecter');
+        $result->assertSeeLink(lang('common_lang.btn_login'));
     }
 
     /**
@@ -63,7 +68,7 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertNotEmpty($response->getBody());
         $this->assertEquals($_SESSION['after_login_redirect'], 'test');
         $result->assertOK();
@@ -95,9 +100,10 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertNotEmpty($response->getBody());
-        $this->assertEquals($_SESSION['message-danger'], 'L\'identifiant et le mot de passe ne sont pas valides');
+        $this->assertEquals($_SESSION['message-danger'],
+            lang('user_lang.msg_err_invalid_password'));
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
     }
@@ -109,7 +115,7 @@
     public function testloginPagePostedWithoutSessionWithUsernameAndPassword()
     {
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -151,7 +157,7 @@
     public function testloginPagePostedWithoutSessionWithUserEmailAndPassword()
     {
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -200,7 +206,7 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertEmpty($response->getBody());
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -218,7 +224,7 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertEmpty($response->getBody());
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -241,7 +247,7 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertNotEmpty($response->getBody());
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -252,7 +258,7 @@
         $result->assertDontSeeElement('#fake_element');
         $result->assertSeeInField('old_password', '');
         $result->assertSeeInField('new_password', '');
-        $result->assertSeeLink('Annuler');
+        $result->assertSeeLink(lang('common_lang.btn_cancel'));
     }
     
     /**
@@ -261,7 +267,7 @@
     public function testchange_passwordPagePostedWithSessionWithOldAndNewPasswords()
     {
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -299,7 +305,7 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertEmpty($response->getBody());
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -312,7 +318,7 @@
     public function testchange_passwordPagePostedWithSessionWithInvalidOldPassword()
     {
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -351,11 +357,12 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertNotEmpty($response->getBody());
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
-        $result->assertSee('L\'ancien mot de passe n\'est pas valide', 'div');
+        $result->assertSee(lang('user_lang.msg_err_invalid_old_password'),
+            'div');
     }
 
     /**
@@ -364,7 +371,7 @@
     public function testchange_passwordPagePostedWithSessionWithInvalidConfirmedPassword()
     {
         // Instantiate a new user model
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         // Inserts user into database
         $userType = self::GUEST_USER_TYPE;
@@ -403,11 +410,12 @@
 
         // Assertions
         $response = $result->response();
-        $this->assertInstanceOf(\CodeIgniter\HTTP\Response::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertNotEmpty($response->getBody());
         $result->assertOK();
         $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
-        $result->assertSee('Le mot de passe ne coïncide pas avec la confirmation du mot de passe.', 'div');
+        $result->assertSee(lang('user_lang.msg_err_password_not_matches'),
+            'div');
     }
 
     /**
@@ -442,7 +450,7 @@
             'password_confirm' => $userPassword,
         );
 
-        $userModel = new \User\Models\User_model();
+        $userModel = model(User_model::class);
 
         return $userModel->insert($user);
     }

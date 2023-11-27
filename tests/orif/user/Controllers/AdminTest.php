@@ -16,6 +16,7 @@ use CodeIgniter\HTTP\Response;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Test\TestResponse;
 use User\Models\User_model;
+use User\Models\User_type_model;
 
 class AdminTest extends CIUnitTestCase
 {
@@ -58,7 +59,8 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the list_user page is loaded correctly with an administrator session
+     * Asserts that the list_user page is loaded correctly with an
+     * administrator session
      */
     public function testlist_userWithAdministratorSession() 
     {
@@ -69,14 +71,17 @@ class AdminTest extends CIUnitTestCase
             ->execute('list_user');
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSeeLink('Nouveau');
+        $result->assertSeeLink(lang('common_lang.btn_new_m'));
         $result->assertSeeElement('#userslist');
         $result->assertSee(lang('user_lang.field_username'), 'th');
-        $result->assertSee('Type d\'utilisateur', 'th');
-        $result->assertSee('Activé', 'th');
+        $result->assertSee(lang('user_lang.field_usertype'), 'th');
+        $result->assertSee(lang('user_lang.field_user_active'), 'th');
         $result->assertDontSee('Fake User', 'th');
-        $result->assertSeeLink('admin');
-        $result->assertSeeLink('utilisateur');
+        $userModel = model(User_model::class);
+        $adminName = $userModel->select('username')->find(1)['username'];
+        $userName = $userModel->select('username')->find(2)['username'];
+        $result->assertSeeLink($adminName);
+        $result->assertSeeLink($userName);
     }
 
     /**
@@ -96,18 +101,21 @@ class AdminTest extends CIUnitTestCase
         $userModel->update($user_id, ['archive' => NULL]);
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSeeLink('Nouveau');
+        $result->assertSeeLink(lang('common_lang.btn_new_m'));
         $result->assertSeeElement('#userslist');
         $result->assertSee(lang('user_lang.field_username'), 'th');
-        $result->assertSee('Type d\'utilisateur', 'th');
-        $result->assertSee('Activé', 'th');
+        $result->assertSee(lang('user_lang.field_usertype'), 'th');
+        $result->assertSee(lang('user_lang.field_user_active'), 'th');
         $result->assertDontSee('Fake User', 'th');
-        $result->assertSeeLink('admin');
-        $result->assertSeeLink('utilisateur');
+        $adminName = $userModel->select('username')->find(1)['username'];
+        $userName = $userModel->select('username')->find(2)['username'];
+        $result->assertSeeLink($adminName);
+        $result->assertSeeLink($userName);
     }
 
     /**
-     * Asserts that the list_user page is loaded correctly without disabled users (after disabling user id 1)
+     * Asserts that the list_user page is loaded correctly without disabled
+     * users (after disabling user id 1)
      */
     public function testlist_userWithoutDisabledUsers() 
     {
@@ -123,17 +131,19 @@ class AdminTest extends CIUnitTestCase
         $userModel->update($user_id, ['archive' => NULL]);
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSeeLink('Nouveau');
+        $result->assertSeeLink(lang('common_lang.btn_new_m'));
         $result->assertSeeElement('#userslist');
         $result->assertSee(lang('user_lang.field_username'), 'th');
-        $result->assertSee('Type d\'utilisateur', 'th');
-        $result->assertSee('Activé', 'th');
+        $result->assertSee(lang('user_lang.field_usertype'), 'th');
+        $result->assertSee(lang('user_lang.field_user_active'), 'th');
         $result->assertDontSee('Fake User', 'th');
-        $result->assertDontSeeLink('admin');
+        $adminName = $userModel->select('username')->find(1)['username'];
+        $result->assertDontSeeLink($adminName);
     }
 
     /**
-     * Asserts that the password_change_user page is loaded correctly for the user id 1
+     * Asserts that the password_change_user page is loaded correctly for the
+     * user id 1
      */
     public function testpassword_change_user() 
     {
@@ -143,8 +153,10 @@ class AdminTest extends CIUnitTestCase
             ->execute('password_change_user', 1);
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee('Réinitialiser le mot de passe', 'h1');
-        $result->assertSee('admin', 'h4');
+        $result->assertSee(lang('user_lang.title_user_password_reset'), 'h1');
+        $userModel = model(User_model::class);
+        $adminName = $userModel->select('username')->find(1)['username'];
+        $result->assertSee($adminName, 'h4');
         $result->assertDontSee('Fake Reset', 'h1');
         $result->assertSeeElement('#password_new');
         $result->assertSeeElement('#password_confirm');
@@ -153,7 +165,8 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the password_change_user page redirects to the list_user view for a non existing user
+     * Asserts that the password_change_user page redirects to the list_user
+     * view for a non existing user
      */
     public function testpassword_change_userWithNonExistingUser() 
     {
@@ -167,21 +180,24 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the delete_user page displays a warning message for the user id 1 (no session)
+     * Asserts that the delete_user page displays a warning message for the
+     * user id 1 (no session)
      */
     public function testdelete_userWithoutSession() 
     {
         $_SESSION = $this->get_session_data();
-        // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
+        // Execute delete_user method of Admin class (no action parameter is
+        // passed to avoid deleting)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', 1);
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee('Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.', 'div');
+        $result->assertSee(lang('user_lang.user_delete_himself'), 'div');
     }
 
     /**
-     * Asserts that the delete_user page is loaded correctly for the user id 1 (with a session)
+     * Asserts that the delete_user page is loaded correctly for the user id 1
+     * (with a session)
      */
     public function testdelete_userWithSessionAndDefaultAction() 
     {
@@ -189,21 +205,24 @@ class AdminTest extends CIUnitTestCase
         $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 2;
 
-        // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
+        // Execute delete_user method of Admin class (no action parameter is
+        // passed to avoid deleting)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', 1);
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee('Que souhaitez-vous faire ?', 'h4');
-        $result->assertSeeLink('Annuler');
-        $result->assertSeeLink('Désactiver cet utilisateur');
-        $result->assertSeeLink('Supprimer cet utilisateur');
+        $result->assertSee(lang('user_lang.what_to_do'), 'h4');
+        $result->assertSeeLink(lang('common_lang.btn_cancel'));
+        $result->assertSeeLink(lang('user_lang.btn_disable_user'));
+        $result->assertSeeLink(lang('user_lang.btn_hard_delete_user'));
     }
 
     /**
-     * Asserts that the delete_user page is loaded correctly with a warning message
+     * Asserts that the delete_user page is loaded correctly with a warning
+     * message
      */
-    public function testdelete_userWithSessionAndDefaultActionForADisabledUser()
+    public function
+        testdelete_userWithSessionAndDefaultActionForADisabledUser()
     {
         // Initialize the session
         $_SESSION = $this->get_session_data();
@@ -217,7 +236,8 @@ class AdminTest extends CIUnitTestCase
         // Disable user id 1
         $userModel->update($user_id, ['archive' => '2023-04-25']);
 
-        // Execute delete_user method of Admin class (disable action parameter is passed)
+        // Execute delete_user method of Admin class (disable action parameter
+        // is passed)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', $user_id);
 
@@ -226,16 +246,18 @@ class AdminTest extends CIUnitTestCase
 
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee('Cet utilisateur est déjà désactivé. Voulez-vous le supprimer définitivement ?', 'div');
+        $result->assertSee(lang('user_lang.user_allready_disabled'), 'div');
     }
 
     /**
-     * Asserts that the delete_user page redirects to the list_user view when a non existing user is given
+     * Asserts that the delete_user page redirects to the list_user view when
+     * a non existing user is given
      */
     public function testdelete_userWithNonExistingUser()
     {
         $_SESSION = $this->get_session_data();
-        // Execute delete_user method of Admin class (no action parameter is passed to avoid deleting)
+        // Execute delete_user method of Admin class (no action parameter is
+        // passed to avoid deleting)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', 999999);
 
@@ -245,13 +267,15 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the delete_user page redirects to the list_user view when a fake action is given
+     * Asserts that the delete_user page redirects to the list_user view when
+     * a fake action is given
      */
     public function testdelete_userWitFakeAction()
     {
         $_SESSION = $this->get_session_data();
 
-        // Execute delete_user method of Admin class (fake action parameter is passed)
+        // Execute delete_user method of Admin class (fake action parameter is
+        // passed)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', 1, 9);
 
@@ -261,7 +285,9 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the delete_user page redirects to the list_user view when a disable action is given (session user id has to be different than user id to delete)
+     * Asserts that the delete_user page redirects to the list_user view when a
+     * disable action is given (session user id has to be different than user
+     * id to delete)
      */
     public function testdelete_userWitDisableAction()
     {
@@ -274,7 +300,8 @@ class AdminTest extends CIUnitTestCase
 
         $user_id = 1;
 
-        // Execute delete_user method of Admin class (disable action parameter is passed)
+        // Execute delete_user method of Admin class (disable action parameter
+        // is passed)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', $user_id, 1);
 
@@ -287,7 +314,8 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the delete_user page redirects to the list_user view when a delete action is given
+     * Asserts that the delete_user page redirects to the list_user view when a
+     * delete action is given
      */
     public function testdelete_userWitDeleteAction()
     {
@@ -304,9 +332,11 @@ class AdminTest extends CIUnitTestCase
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UsereUnitTestPassword';
         
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
 
-        // Execute delete_user method of Admin class (delete action parameter is passed)
+        // Execute delete_user method of Admin class (delete action parameter
+        // is passed)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', $userId, 2);
 
@@ -317,7 +347,8 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the reactivate_user page redirects to the list_user view when a non existing user is given
+     * Asserts that the reactivate_user page redirects to the list_user view
+     * when a non existing user is given
      */
     public function testreactivate_userWithNonExistingUser()
     {
@@ -333,7 +364,8 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the reactivate_user page redirects to the save_user view when an existing user is given
+     * Asserts that the reactivate_user page redirects to the save_user view
+     * when an existing user is given
      */
     public function testreactivate_userWithExistingUser()
     {
@@ -364,36 +396,49 @@ class AdminTest extends CIUnitTestCase
         $_SESSION = $this->get_session_data();
 
         // Execute save_user method of Admin class 
+        $userId = 1;
         $result = $this->controller(Admin::class)
-            ->execute('save_user', 1);
+            ->execute('save_user', $userId);
 
+        $userModel = model(User_model::class);
+        $adminName = $userModel->select('username')
+                                   ->find($userId)['username'];
         // Assertions
         $this->assert_reponse($result);
         $result->assertSee(lang('user_lang.title_user_update'), 'h1');
         $result->assertSeeElement('#user_form');
         $result->assertSee(lang('user_lang.field_username'), 'label');
-        $result->assertSeeInField('user_name', 'admin');
+        $result->assertSeeInField('user_name', $adminName);
         $result->assertSee(lang('user_lang.field_email'), 'label');
         $result->assertSeeInField('user_email', '');
-        $result->assertSee('Type d\'utilisateur', 'label');
+        $result->assertSee(lang('user_lang.field_usertype'), 'label');
         $result->assertSeeElement('#user_usertype');
-        $result->assertSee('Administrateur', 'option');
-        $result->assertSee('Enregistré', 'option');
-        $result->assertSee('Invité', 'option');
-        $result->assertDontSee('Mot de passe', 'label');
+        $userTypeModel = model(user_type_model::class);
+        $adminTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 4)->first()['name'];
+        $result->assertsee($adminTypeName, 'option');
+        $registerTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 2)->first()['name'];
+        $result->assertSee($registerTypeName, 'option');
+        $guestTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 1)->first()['name'];
+        $result->assertSee($guestTypeName, 'option');
+        $result->assertDontSee(lang('user_lang.field_password'), 'label');
         $result->assertDontSeeElement('#user_password');
-        $result->assertDontSee('Confirmer le mot de passe', 'label');
+        $result->assertDontSee(lang('user_lang.field_password_confirm'),
+            'label');
         $result->assertDontSeeElement('#user_password_again');
-        $result->assertSeeLink('Réinitialiser le mot de passe');
-        $result->assertSeeLink('Désactiver ou supprimer cet utilisateur');
+        $result->assertSeeLink(lang('user_lang.title_user_password_reset'));
+        $result->assertSeeLink(lang('user_lang.user_delete'));
         $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
-        $result->assertSeeLink('Annuler');
-        $result->assertSeeInField('save', 'Enregistrer');
+        $result->assertSeeLink(lang('common_lang.btn_cancel'));
+        $result->assertSeeInField('save', lang('common_lang.btn_save'));
     }
 
     /**
-     * Asserts that the form_user page is loaded correctly for a new user (no user id)
+     * Asserts that the form_user page is loaded correctly for a new user (no
+     * user id)
      */
     public function testsave_userWithoutUserId() 
     {
@@ -404,29 +449,37 @@ class AdminTest extends CIUnitTestCase
 
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee('Ajouter un utilisateur', 'h1');
+        $result->assertSee(lang('user_lang.title_user_new'), 'h1');
         $result->assertSeeElement('#user_form');
         $result->assertSee(lang('user_lang.field_username'), 'label');
         $result->assertSeeInField('user_name', '');
         $result->assertSee(lang('user_lang.field_email'), 'label');
         $result->assertSeeInField('user_email', '');
-        $result->assertSee('Type d\'utilisateur', 'label');
+        $result->assertSee(lang('user_lang.field_usertype'), 'label');
         $result->assertSeeElement('#user_usertype');
-        $result->assertSee('Administrateur', 'option');
-        $result->assertSee('Enregistré', 'option');
-        $result->assertSee('Invité', 'option');
-        $result->assertSee('Mot de passe', 'label');
+        $userTypeModel = model(user_type_model::class);
+        $adminTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 4)->first()['name'];
+        $result->assertsee($adminTypeName, 'option');
+        $registerTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 2)->first()['name'];
+        $result->assertSee($registerTypeName, 'option');
+        $guestTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 1)->first()['name'];
+        $result->assertSee($guestTypeName, 'option');
+        $result->assertSee(lang('user_lang.field_password'), 'label');
         $result->assertSeeElement('#user_password');
-        $result->assertSee('Confirmer le mot de passe', 'label');
+        $result->assertSee(lang('user_lang.field_password_confirm'), 'label');
         $result->assertSeeElement('#user_password_again');
         $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
-        $result->assertSeeLink('Annuler');
-        $result->assertSeeInField('save', 'Enregistrer');
+        $result->assertSeeLink(lang('common_lang.btn_cancel'));
+        $result->assertSeeInField('save', lang('common_lang.btn_save'));
     }
 
     /**
-     * Asserts that the form_user page is loaded correctly for the user id 1 with the session user id 1
+     * Asserts that the form_user page is loaded correctly for the user id 1
+     * with the session user id 1
      */
     public function testsave_userWithUserIdWithSameSessionUserId() 
     {
@@ -446,25 +499,35 @@ class AdminTest extends CIUnitTestCase
         $result->assertSeeInField('user_name', 'admin');
         $result->assertSee(lang('user_lang.field_email'), 'label');
         $result->assertSeeInField('user_email', '');
-        $result->assertSee(lang('user_lang.user_update_usertype_himself'), 'div');
+        $result->assertSee(lang('user_lang.user_update_usertype_himself'),
+            'div');
         $result->assertSeeElement('#user_usertype');
-        $result->assertSee('Administrateur', 'option');
-        $result->assertSee('Enregistré', 'option');
-        $result->assertSee('Invité', 'option');
-        $result->assertDontSee('Mot de passe', 'label');
+        $userTypeModel = model(user_type_model::class);
+        $adminTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 4)->first()['name'];
+        $result->assertsee($adminTypeName, 'option');
+        $registerTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 2)->first()['name'];
+        $result->assertSee($registerTypeName, 'option');
+        $guestTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 1)->first()['name'];
+        $result->assertSee($guestTypeName, 'option');
+        $result->assertDontSee(lang('user_lang.field_password'), 'label');
         $result->assertDontSeeElement('#user_password');
-        $result->assertDontSee('Confirmer le mot de passe', 'label');
+        $result->assertDontSee(lang('user_lang.field_password_confirm'),
+            'label');
         $result->assertDontSeeElement('#user_password_again');
-        $result->assertSeeLink('Réinitialiser le mot de passe');
-        $result->assertSeeLink('Désactiver ou supprimer cet utilisateur');
+        $result->assertSeeLink(lang('user_lang.title_user_password_reset'));
+        $result->assertSeeLink(lang('user_lang.user_delete'));
         $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
-        $result->assertSeeLink('Annuler');
-        $result->assertSeeInField('save', 'Enregistrer');
+        $result->assertSeeLink(lang('common_lang.btn_cancel'));
+        $result->assertSeeInField('save', lang('common_lang.btn_save'));
     }
 
     /**
-     * Asserts that the form_user page is loaded correctly for a disabled user id
+     * Asserts that the form_user page is loaded correctly for a disabled user
+     * id
      */
     public function testsave_userWithDisabledUserId()
     {
@@ -494,26 +557,35 @@ class AdminTest extends CIUnitTestCase
         $result->assertSeeInField('user_name', 'admin');
         $result->assertSee(lang('user_lang.field_email'), 'label');
         $result->assertSeeInField('user_email', '');
-        $result->assertSee('Type d\'utilisateur', 'label');
+        $result->assertSee(lang('user_lang.field_usertype'), 'label');
         $result->assertSeeElement('#user_usertype');
-        $result->assertSee('Administrateur', 'option');
-        $result->assertSee('Enregistré', 'option');
-        $result->assertSee('Invité', 'option');
-        $result->assertDontSee('Mot de passe', 'label');
+        $userTypeModel = model(user_type_model::class);
+        $adminTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 4)->first()['name'];
+        $result->assertsee($adminTypeName, 'option');
+        $registerTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 2)->first()['name'];
+        $result->assertSee($registerTypeName, 'option');
+        $guestTypeName = $userTypeModel->select('name')
+                ->where('access_level = ', 1)->first()['name'];
+        $result->assertSee($guestTypeName, 'option');
+        $result->assertDontSee(lang('user_lang.field_password'), 'label');
         $result->assertDontSeeElement('#user_password');
-        $result->assertDontSee('Confirmer le mot de passe', 'label');
+        $result->assertDontSee(lang('user_lang.field_password_confirm'),
+            'label');
         $result->assertDontSeeElement('#user_password_again');
-        $result->assertSeeLink('Réinitialiser le mot de passe');
-        $result->assertSeeLink('Réactiver cet utilisateur');
-        $result->assertSeeLink('Supprimer cet utilisateur');
+        $result->assertSeeLink(lang('user_lang.title_user_password_reset'));
+        $result->assertSeeLink(lang('user_lang.user_reactivate'));
+        $result->assertSeeLink(lang('user_lang.btn_hard_delete_user'));
         $result->assertSeeElement('.btn btn-secondary');
         $result->assertSeeElement('.btn btn-primary');
-        $result->assertSeeLink('Annuler');
-        $result->assertSeeInField('save', 'Enregistrer');
+        $result->assertSeeLink(lang('common_lang.btn_cancel'));
+        $result->assertSeeInField('save', lang('common_lang.btn_save'));
     }
 
     /**
-     * Asserts that the password_change_user page redirects to the list_user view after updating the password (POST)
+     * Asserts that the password_change_user page redirects to the list_user
+     * view after updating the password (POST)
      */
     public function testpassword_change_userPostedWhenChangingPassword()
     {
@@ -528,7 +600,8 @@ class AdminTest extends CIUnitTestCase
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UserUnitTestPassword';
         $userNewPassword = 'UserUnitTestNewPassword';
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -558,7 +631,8 @@ class AdminTest extends CIUnitTestCase
     /**
      * Asserts that the password_change_user page displays an error message
      */
-    public function testpassword_change_userPostedWhenChangingPasswordWithError()
+    public function
+        testpassword_change_userPostedWhenChangingPasswordWithError()
     {
         $_SESSION = $this->get_session_data();
 
@@ -571,7 +645,8 @@ class AdminTest extends CIUnitTestCase
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UserUnitTestPassword';
         $userNewPassword = 'UserUnitTestNewPassword';
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -595,11 +670,13 @@ class AdminTest extends CIUnitTestCase
 
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee('Le mot de passe ne coïncide pas avec la confirmation du mot de passe.', 'div');        
+        $result->assertSee(lang('user_lang.msg_err_password_not_matches'),
+            'div');
     }
 
     /**
-     * Asserts that the save_user page redirects to the list_user view after inserting a new user (POST)
+     * Asserts that the save_user page redirects to the list_user view after
+     * inserting a new user (POST)
      */
     public function testsave_userPostedForANewUser()
     {
@@ -648,7 +725,8 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the save_user page is loaded correctly displaying an error message
+     * Asserts that the save_user page is loaded correctly displaying an error
+     * message
      */
     public function testsave_userPostedForANewUserWithError()
     {
@@ -683,11 +761,13 @@ class AdminTest extends CIUnitTestCase
 
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee('Le mot de passe ne coïncide pas avec la confirmation du mot de passe.', 'div');
+        $result->assertSee(lang('user_lang.msg_err_password_not_matches'),
+            'div');
     }
 
     /**
-     * Asserts that the save_user page redirects to the list_user view after updating an existing user (POST)
+     * Asserts that the save_user page redirects to the list_user view after
+     * updating an existing user (POST)
      */
     public function testsave_userPostedForAnExistingUser()
     {
@@ -703,7 +783,8 @@ class AdminTest extends CIUnitTestCase
         $username = 'SaveUserUnitTest';
         $userEmail = 'usersaveuserunittest@test.com';
         $userPassword = 'UnitTestPassword';        
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
         
         // Prepare the POST request to update this user
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -732,7 +813,8 @@ class AdminTest extends CIUnitTestCase
 
         // Assertions
         $this->assert_redirect($result);
-        $this->assertEquals($userDbUpdate['fk_user_type'], self::REGISTERED_USER_TYPE);
+        $this->assertEquals($userDbUpdate['fk_user_type'],
+            self::REGISTERED_USER_TYPE);
         $this->assertEquals($userDbUpdate['email'], $userEmail);
         $result->assertRedirectTo(base_url('/user/admin/list_user'));
     }
@@ -740,7 +822,8 @@ class AdminTest extends CIUnitTestCase
     /**
      * Insert a new user into database
      */
-    private static function insertUser($userType, $username, $userEmail, $userPassword) {
+    private static function insertUser($userType, $username, $userEmail,
+        $userPassword) {
         $user = array(
             'id' => 0,
             'fk_user_type' => $userType,
