@@ -1,8 +1,9 @@
 # Liste de test
 - La connexion avec un compte local fonctionne quand on met des identifiants
-valides.
+valides. (`testloginPagePostedWithoutSessionWithUsernameAndPassword`)
 - La connexion avec un compte local ne fonctionne pas quand on met des
 identifiants invalides.
+(`testloginPagePostedWithoutSessionWithUsernameAndIncorrectPassword`)
 
 - L’ajout d’un nouvel utilisateur fonctionne quand on est connecté avec un
 compte administrateur. (`testsave_userWithUserId`)
@@ -38,6 +39,19 @@ connecté avec un compte administrateur.
 (`testpassword_change_user`)
 - Modifier le mot de passe ne fonctionne pas quand on n’est pas connecté à un
 compte. 
+- Modifier le mot de passe ne fonctionne pas quand on ne met pas deux fois le
+  même mot de passe.
+  (`testpassword_change_userPostedWhenChangingPasswordWithError`)
 
 - Se déconnecter (`testlogout`)
 
+
+
+## azure
+- La création du compte avec azure fonctionne.
+    - Envoye de mail
+    - validation avec le code
+- La connexion avec un compte azure fonctionne quand on met des identifiants
+valides. 
+- La connexion avec un compte azure ne fonctionne pas quand on met des
+identifiants invalides.

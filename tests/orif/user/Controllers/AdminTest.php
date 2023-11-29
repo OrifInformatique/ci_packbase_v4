@@ -17,14 +17,21 @@ use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Test\TestResponse;
 use User\Models\User_model;
 use User\Models\User_type_model;
+use Test\UtilityFunction;
 
 class AdminTest extends CIUnitTestCase
 {
     use ControllerTestTrait;
 
-    const ADMINISTRATOR_USER_TYPE = 1;
-    const REGISTERED_USER_TYPE = 2;
-    const GUEST_USER_TYPE = 3;
+    private function get_registered_user_type()
+    {
+        return Config('\User\Config\UserConfig')->access_lvl_registered;
+    }
+
+    private function get_guest_user_type()
+    {
+        return Config('\User\Config\UserConfig')->access_lvl_guest;
+    }
 
     private function get_session_data()
     {
@@ -65,7 +72,6 @@ class AdminTest extends CIUnitTestCase
     public function testlist_userWithAdministratorSession() 
     {
         $_SESSION = $this->get_session_data();
-
         // Execute list_user method of Admin class
         $result = $this->controller(Admin::class)
             ->execute('list_user');
@@ -204,7 +210,6 @@ class AdminTest extends CIUnitTestCase
         // Initialize session 
         $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 2;
-
         // Execute delete_user method of Admin class (no action parameter is
         // passed to avoid deleting)
         $result = $this->controller(Admin::class)
@@ -227,23 +232,17 @@ class AdminTest extends CIUnitTestCase
         // Initialize the session
         $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 2;
-
         // Instantiate a new user model
         $userModel = model(User_model::class);
-
         $user_id = 1;
-
         // Disable user id 1
         $userModel->update($user_id, ['archive' => '2023-04-25']);
-
         // Execute delete_user method of Admin class (disable action parameter
         // is passed)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', $user_id);
-
         // Enable user id 1
         $userModel->update($user_id, ['archive' => NULL]);
-
         // Assertions
         $this->assert_reponse($result);
         $result->assertSee(lang('user_lang.user_allready_disabled'), 'div');
@@ -260,7 +259,6 @@ class AdminTest extends CIUnitTestCase
         // passed to avoid deleting)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', 999999);
-
         // Assertions
         $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/admin/list_user'));
@@ -321,25 +319,20 @@ class AdminTest extends CIUnitTestCase
     {
         // Instantiate a new user model
         $userModel = model(User_model::class);
-
         // Initialize the session
         $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 1;
-
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'UserUnitTest';
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UsereUnitTestPassword';
-        
         $userId = self::insertUser($userType, $username, $userEmail,
             $userPassword);
-
         // Execute delete_user method of Admin class (delete action parameter
         // is passed)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', $userId, 2);
-
         // Assertions
         $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/admin/list_user'));
@@ -353,11 +346,9 @@ class AdminTest extends CIUnitTestCase
     public function testreactivate_userWithNonExistingUser()
     {
         $_SESSION = $this->get_session_data();
-
         // Execute reactivate_user method of Admin class
         $result = $this->controller(Admin::class)
             ->execute('reactivate_user', 999999);
-
         // Assertions
         $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/admin/list_user'));
@@ -394,35 +385,31 @@ class AdminTest extends CIUnitTestCase
     public function testsave_userWithUserId() 
     {
         $_SESSION = $this->get_session_data();
-
         // Execute save_user method of Admin class 
         $userId = 1;
         $result = $this->controller(Admin::class)
-            ->execute('save_user', $userId);
-
+                       ->execute('save_user', $userId);
         $userModel = model(User_model::class);
-        $adminName = $userModel->select('username')
-                                   ->find($userId)['username'];
-        // Assertions
-        $this->assert_reponse($result);
-        $result->assertSee(lang('user_lang.title_user_update'), 'h1');
-        $result->assertSeeElement('#user_form');
-        $result->assertSee(lang('user_lang.field_username'), 'label');
-        $result->assertSeeInField('user_name', $adminName);
-        $result->assertSee(lang('user_lang.field_email'), 'label');
-        $result->assertSeeInField('user_email', '');
-        $result->assertSee(lang('user_lang.field_usertype'), 'label');
-        $result->assertSeeElement('#user_usertype');
+        $adminName = $userModel->select('username')->find($userId)['username'];
         $userTypeModel = model(user_type_model::class);
         $adminTypeName = $userTypeModel->select('name')
                 ->where('access_level = ', 4)->first()['name'];
-        $result->assertsee($adminTypeName, 'option');
         $registerTypeName = $userTypeModel->select('name')
                 ->where('access_level = ', 2)->first()['name'];
-        $result->assertSee($registerTypeName, 'option');
         $guestTypeName = $userTypeModel->select('name')
                 ->where('access_level = ', 1)->first()['name'];
+        $this->assert_reponse($result);
+        $result->assertSee(lang('user_lang.title_user_update'), 'h1');
+        $result->assertSee(lang('user_lang.field_username'), 'label');
+        $result->assertSee(lang('user_lang.field_email'), 'label');
+        $result->assertSee(lang('user_lang.field_usertype'), 'label');
+        $result->assertsee($adminTypeName, 'option');
+        $result->assertSee($registerTypeName, 'option');
         $result->assertSee($guestTypeName, 'option');
+        $result->assertSeeElement('#user_form');
+        $result->assertSeeInField('user_name', $adminName);
+        $result->assertSeeInField('user_email', '');
+        $result->assertSeeElement('#user_usertype');
         $result->assertDontSee(lang('user_lang.field_password'), 'label');
         $result->assertDontSeeElement('#user_password');
         $result->assertDontSee(lang('user_lang.field_password_confirm'),
@@ -595,7 +582,7 @@ class AdminTest extends CIUnitTestCase
         $userModel = model(User_model::class);
 
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'UserChangePasswordUnitTest';
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UserUnitTestPassword';
@@ -640,7 +627,7 @@ class AdminTest extends CIUnitTestCase
         $userModel = model(User_model::class);
 
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'UserChangePasswordUnitTest';
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UserUnitTestPassword';
@@ -697,8 +684,8 @@ class AdminTest extends CIUnitTestCase
         $_REQUEST['user_name'] = $username;
         $_POST['user_email'] = 'usersaveuserunittest@test.com';
         $_REQUEST['user_email'] = 'usersaveuserunittest@test.com';
-        $_POST['user_usertype'] = self::GUEST_USER_TYPE;
-        $_REQUEST['user_usertype'] = self::GUEST_USER_TYPE;
+        $_POST['user_usertype'] = $this->get_guest_user_type();
+        $_REQUEST['user_usertype'] = $this->get_guest_user_type();
         $_POST['user_password'] = 'UserUnitTestPassword';
         $_REQUEST['user_password'] = 'UserUnitTestPassword';
         $_POST['user_password_again'] = 'UserUnitTestPassword';
@@ -744,8 +731,8 @@ class AdminTest extends CIUnitTestCase
         $_REQUEST['user_name'] = $username;
         $_POST['user_email'] = 'usersaveuserunittest@test.com';
         $_REQUEST['user_email'] = 'usersaveuserunittest@test.com';
-        $_POST['user_usertype'] = self::GUEST_USER_TYPE;
-        $_REQUEST['user_usertype'] = self::GUEST_USER_TYPE;
+        $_POST['user_usertype'] = $this->get_guest_user_type();
+        $_REQUEST['user_usertype'] = $this->get_guest_user_type();
         $_POST['user_password'] = 'UserUnitTestPassword';
         $_REQUEST['user_password'] = 'UserUnitTestPassword';
         $_POST['user_password_again'] = 'UserUnitTestPasswordError';
@@ -779,7 +766,7 @@ class AdminTest extends CIUnitTestCase
         $userModel = model(User_model::class);
 
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'SaveUserUnitTest';
         $userEmail = 'usersaveuserunittest@test.com';
         $userPassword = 'UnitTestPassword';        
@@ -794,8 +781,8 @@ class AdminTest extends CIUnitTestCase
         $_REQUEST['user_name'] = $username;
         $_POST['user_email'] = $userEmail;
         $_REQUEST['user_email'] = $userEmail;
-        $_POST['user_usertype'] = self::REGISTERED_USER_TYPE;
-        $_REQUEST['user_usertype'] = self::REGISTERED_USER_TYPE;
+        $_POST['user_usertype'] = $this->get_registered_user_type();
+        $_REQUEST['user_usertype'] = $this->get_registered_user_type();
 
         // Execute save_user method of Admin class 
         $result = $this->controller(Admin::class)
@@ -814,7 +801,7 @@ class AdminTest extends CIUnitTestCase
         // Assertions
         $this->assert_redirect($result);
         $this->assertEquals($userDbUpdate['fk_user_type'],
-            self::REGISTERED_USER_TYPE);
+            $this->get_registered_user_type());
         $this->assertEquals($userDbUpdate['email'], $userEmail);
         $result->assertRedirectTo(base_url('/user/admin/list_user'));
     }

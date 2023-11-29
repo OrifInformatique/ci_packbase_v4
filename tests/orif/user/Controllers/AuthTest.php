@@ -7,21 +7,46 @@
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
 
- namespace User\Controllers;
+namespace User\Controllers;
 
- use CodeIgniter\Test\CIUnitTestCase;
- use CodeIgniter\Test\ControllerTestTrait;
+use CodeIgniter\Test\CIUnitTestCase;
+use CodeIgniter\Test\ControllerTestTrait;
 
+use CodeIgniter\Test\TestResponse;
 use CodeIgniter\HTTP\Response;
 use CodeIgniter\HTTP\RedirectResponse;
 
 use User\Models\User_model;
  
- class AuthTest extends CIUnitTestCase
+class AuthTest extends CIUnitTestCase
 {
     use ControllerTestTrait;
 
-    const GUEST_USER_TYPE = 3;
+    private function get_guest_user_type()
+    {
+        return Config('\User\Config\UserConfig')->access_lvl_guest;
+    }
+
+    private function get_response_and_assert(TestResponse $result): Response
+    {
+        $result->assertOK();
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        return $result->response();
+    }
+
+    private function assert_reponse(TestResponse $result): void
+    {
+        $response = $this->get_response_and_assert($result);
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertNotEmpty($response->getBody());
+    }
+
+    private function assert_redirect(TestResponse $result): void
+    {
+        $response = $this->get_response_and_assert($result);
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertEmpty($response->getBody());
+    }
 
     /**
      * Asserts that the login page is loaded correctly (no session)
@@ -30,14 +55,9 @@ use User\Models\User_model;
     {
         // Execute login method of Auth class
         $result = $this->controller(Auth::class)
-        ->execute('login');
-
+            ->execute('login');
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSeeElement('#username');
         $result->assertSeeElement('#password');
         $result->assertSeeElement('#btn_cancel');
@@ -49,7 +69,8 @@ use User\Models\User_model;
     }
 
     /**
-     * Asserts that the session variable after_login_redirect is correctly set when posting the login page
+     * Asserts that the session variable after_login_redirect is correctly set
+     * when posting the login page
      */
     public function testloginPagePostedAfterLoginRedirectWithoutSession()
     {
@@ -67,19 +88,18 @@ use User\Models\User_model;
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
+        $this->assert_reponse($result);
         $this->assertEquals($_SESSION['after_login_redirect'], 'test');
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
     }
     
     /**
-     * Asserts that the session variable is correctly set when posting the login page (simulates a click on button login)
-     * Username and incorrect password are specified (meaning that a warning message is displayed)
+     * Asserts that the session variable is correctly set when posting the
+     * login page (simulates a click on button login)
+     * Username and incorrect password are specified (meaning that a warning
+     * message is displayed)
      */
-    public function testloginPagePostedWithoutSessionWithUsernameAndIncorrectPassword()
+    public function
+        testloginPagePostedWithoutSessionWithUsernameAndIncorrectPassword()
     {
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -99,17 +119,14 @@ use User\Models\User_model;
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
+        $this->assert_reponse($result);
         $this->assertEquals($_SESSION['message-danger'],
             lang('user_lang.msg_err_invalid_password'));
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
     }
 
     /**
-     * Asserts that the session variables are correctly set when posting the login page (simulates a click on button login)
+     * Asserts that the session variables are correctly set when posting the
+     * login page (simulates a click on button login)
      * Username and password are specified (meaning that the login works)
      */
     public function testloginPagePostedWithoutSessionWithUsernameAndPassword()
@@ -118,11 +135,12 @@ use User\Models\User_model;
         $userModel = model(User_model::class);
 
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'UserUnitTest';
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UserUnitTestPassword';
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -151,7 +169,8 @@ use User\Models\User_model;
     }
 
     /**
-     * Asserts that the session variables are correctly set when posting the login page (simulates a click on button login)
+     * Asserts that the session variables are correctly set when posting the
+     * login page (simulates a click on button login)
      * User email and password are specified (meaning that the login works)
      */
     public function testloginPagePostedWithoutSessionWithUserEmailAndPassword()
@@ -160,11 +179,12 @@ use User\Models\User_model;
         $userModel = model(User_model::class);
 
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'UserEmailUnitTest';
         $userEmail = 'useremailunittest@unittest.com';
         $userPassword = 'UserEmailUnitTestPassword';
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -205,11 +225,7 @@ use User\Models\User_model;
         ->execute('login');
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url());
     }
 
@@ -223,11 +239,7 @@ use User\Models\User_model;
         ->execute('change_password');
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url('user/auth/login'));
     }
 
@@ -238,7 +250,8 @@ use User\Models\User_model;
     {
         // Initialize session
         $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = config('\User\Config\UserConfig')->access_lvl_guest;
+        $_SESSION['user_access'] = config('\User\Config\UserConfig')
+            ->access_lvl_guest;
         $_SESSION['user_id'] = 1;
 
         // Execute change_password method of Auth class
@@ -246,11 +259,7 @@ use User\Models\User_model;
         ->execute('change_password');
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSeeElement('#old_password');
         $result->assertSeeElement('#new_password');
         $result->assertSeeElement('#confirm_password');
@@ -262,19 +271,22 @@ use User\Models\User_model;
     }
     
     /**
-     * Asserts that the change_password page redirects to the base url when the password is changed successfully
+     * Asserts that the change_password page redirects to the base url when the
+     * password is changed successfully
      */
-    public function testchange_passwordPagePostedWithSessionWithOldAndNewPasswords()
+    public function
+        testchange_passwordPagePostedWithSessionWithOldAndNewPasswords()
     {
         // Instantiate a new user model
         $userModel = model(User_model::class);
 
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'UserUnitTest';
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UserUnitTestPassword';
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -304,28 +316,27 @@ use User\Models\User_model;
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_redirect($result);
         $result->assertRedirectTo(base_url());
     }
 
     /**
-     * Asserts that the change_password page redirects to the base url when the old password is invalid
+     * Asserts that the change_password page redirects to the base url when the
+     * old password is invalid
      */
-    public function testchange_passwordPagePostedWithSessionWithInvalidOldPassword()
+    public function
+        testchange_passwordPagePostedWithSessionWithInvalidOldPassword()
     {
         // Instantiate a new user model
         $userModel = model(User_model::class);
 
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'UserUnitTest';
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UserUnitTestPassword';
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -342,7 +353,8 @@ use User\Models\User_model;
         $_SESSION['logged_in'] = true;
         $_SESSION["username"] = $username;
         $_SESSION['user_id'] = $userId;
-        $_SESSION['user_access'] = config('\User\Config\UserConfig')->access_lvl_guest;
+        $_SESSION['user_access'] = config('\User\Config\UserConfig')
+            ->access_lvl_guest;
 
         // Execute change_password method of Auth class
         $result = $this->controller(Auth::class)
@@ -356,29 +368,28 @@ use User\Models\User_model;
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee(lang('user_lang.msg_err_invalid_old_password'),
             'div');
     }
 
     /**
-     * Asserts that the change_password page redirects to the base url when the confirmed password is invalid
+     * Asserts that the change_password page redirects to the base url when the
+     * confirmed password is invalid
      */
-    public function testchange_passwordPagePostedWithSessionWithInvalidConfirmedPassword()
+    public function
+        testchange_passwordPagePostedWithSessionWithInvalidConfirmedPassword()
     {
         // Instantiate a new user model
         $userModel = model(User_model::class);
 
         // Inserts user into database
-        $userType = self::GUEST_USER_TYPE;
+        $userType = $this->get_guest_user_type();
         $username = 'UserUnitTest';
         $userEmail = 'userunittest@test.com';
         $userPassword = 'UserUnitTestPassword';
-        $userId = self::insertUser($userType, $username, $userEmail, $userPassword);
+        $userId = self::insertUser($userType, $username, $userEmail,
+            $userPassword);
 
         // Prepare the POST request
         $_SERVER['REQUEST_METHOD'] = 'post';
@@ -395,7 +406,8 @@ use User\Models\User_model;
         $_SESSION['logged_in'] = true;
         $_SESSION["username"] = $username;
         $_SESSION['user_id'] = $userId;
-        $_SESSION['user_access'] = config('\User\Config\UserConfig')->access_lvl_guest;
+        $_SESSION['user_access'] = config('\User\Config\UserConfig')
+            ->access_lvl_guest;
 
         // Execute change_password method of Auth class
         $result = $this->controller(Auth::class)
@@ -409,11 +421,7 @@ use User\Models\User_model;
         $_REQUEST = array();
 
         // Assertions
-        $response = $result->response();
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertNotEmpty($response->getBody());
-        $result->assertOK();
-        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $this->assert_reponse($result);
         $result->assertSee(lang('user_lang.msg_err_password_not_matches'),
             'div');
     }
@@ -437,10 +445,16 @@ use User\Models\User_model;
         $this->assertEmpty($_SESSION);
     }
 
+    public function test_login_with_azure_account()
+    {
+
+    }
+
     /**
      * Insert a new user into database
      */
-    private static function insertUser($userType, $username, $userEmail, $userPassword) {
+    private static function insertUser($userType, $username, $userEmail,
+        $userPassword) {
         $user = array(
             'id' => 0,
             'fk_user_type' => $userType,
