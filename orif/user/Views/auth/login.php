@@ -24,9 +24,9 @@
                             <label for="username" class="control-label">Microsoft Login</label>
                         </div>
                         <div class="col-sm-8">
-                            <button type="submit" name="btn_login_microsoft" style="border: none; background: none;">
+                            <a href="<?= url_to('Auth::azure_login_begin') ?>">
                                 <img src="https://learn.microsoft.com/en-us/azure/active-directory/develop/media/howto-add-branding-in-apps/ms-symbollockup_signin_light.svg" alt="Submit" />
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
