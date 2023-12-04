@@ -16,6 +16,7 @@ use CodeIgniter\Test\TestResponse;
 use CodeIgniter\HTTP\Response;
 use CodeIgniter\HTTP\RedirectResponse;
 
+
 use User\Models\User_model;
  
 class AuthTest extends CIUnitTestCase
@@ -445,10 +446,105 @@ class AuthTest extends CIUnitTestCase
         $this->assertEmpty($_SESSION);
     }
 
-    public function test_login_with_azure_account()
+    private function assert_azure_page(string $html, string $which_false='')
+        :void
     {
+        $is_with_client_id = $which_false === 'CLIENT_ID' ? 0 : 1;
+        $this->assertEquals($is_with_client_id,
+            preg_match('/.*'.getenv('CLIENT_ID').'.*/', $html));
+        $is_with_tenant_id = $which_false === 'TENANT_ID' ? 0 : 1;
+        $this->assertEquals($is_with_tenant_id,
+            preg_match('/.*'.getenv('TENANT_ID').'.*/', $html));
+        $is_with_graph = $which_false === 'GRAPH_USER_SCOPES' ? 0 : 1;
+        $this->assertEquals($is_with_graph,
+            preg_match('/.*'.getenv('GRAPH_USER_SCOPES').'.*/', $html));
+        $is_with_redirect = $which_false === 'REDIRECT_URI' ? 0 : 1;
+        $this->assertEquals($is_with_redirect,
+            preg_match('/.*'.preg_quote(getenv('REDIRECT_URI'), '/').'.*/',
+            $html));
 
     }
+    public function test_login_begin_with_azure_account(): void
+    {
+        $result = $this->controller(Auth::class)->execute('azure_login_begin');
+        $this->assert_redirect($result);
+        $redirectUrl = $result->getRedirectUrl();
+        $html = file_get_contents($redirectUrl, false);
+        $this->assertEquals(1, preg_match('/.*signup.*/', $html));
+        $this->assert_azure_page($html);
+    }
+
+    public function test_azure_login_begin_client_id_fake(): void
+    {
+        $azureData = $this->get_azure_data();
+        $azureData['CLIENT_ID'] = 'fake';
+        $result = $this->controller(Auth::class)->execute('azure_login_begin',
+            $azureData);
+        $this->assert_redirect($result);
+        $redirectUrl = $result->getRedirectUrl();
+        $html = file_get_contents($redirectUrl, false);
+        $this->assertEquals(1, preg_match('/.*login.*/', $html));
+    }
+
+    public function test_azure_begin_tenant_id_fake(): void
+    {
+        $azureData = $this->get_azure_data();
+        $azureData['TENANT_ID'] = 'fake';
+        $result = $this->controller(Auth::class)->execute('azure_login_begin',
+            $azureData);
+        $this->assert_redirect($result);
+        $redirectUrl = $result->getRedirectUrl();
+        $html = file_get_contents($redirectUrl, false);
+        $this->assertEquals(1, preg_match('/.*"iHttpErrorCode":400.*/',
+            $html));
+    }
+
+    public function test_azure_begin_graph_user_scopes_fake(): void
+    {
+        $azureData = $this->get_azure_data();
+        $azureData['GRAPH_USER_SCOPES'] = 'fake';
+        $result = $this->controller(Auth::class)->execute('azure_login_begin',
+            $azureData);
+        $this->assert_redirect($result);
+        $redirectUrl = $result->getRedirectUrl();
+        $html = file_get_contents($redirectUrl, false);
+        $this->assert_azure_page($html, 'GRAPH_USER_SCOPES');
+    }
+
+    public function test_azure_begin_redirect_uri_fake(): void
+    {
+        $azureData = $this->get_azure_data();
+        $azureData['REDIRECT_URI'] = 'fake';
+        $result = $this->controller(Auth::class)->execute('azure_login_begin',
+            $azureData);
+        $this->assert_redirect($result);
+        $redirectUrl = $result->getRedirectUrl();
+        $html = file_get_contents($redirectUrl, false);
+        $this->assertEquals(1, preg_match('/.*"iHttpErrorCode":400.*/',
+            $html));
+    }
+
+    public function test_azure_login_code_fake(): void
+    {
+        $_GET["state"] = session_id(); 
+        $_GET["code"] = 'fake'; 
+        $azureData = $this->get_azure_data();
+        $result = $this->controller(Auth::class)->execute('azure_login',
+            $azureData);
+        $result->assertSee(lang('msg_err_azure_unauthorized'));
+        # d($result->response()->getBody());
+
+    }
+
+    private function get_azure_data(): array
+    {
+        $azureData['CLIENT_ID'] = getenv('CLIENT_ID');
+        $azureData['TENANT_ID'] = getenv('TENANT_ID');
+        $azureData['GRAPH_USER_SCOPES'] = getenv('GRAPH_USER_SCOPES');
+        $azureData['REDIRECT_URI'] = getenv('REDIRECT_URI');
+        return $azureData;
+    }
+
 
     /**
      * Insert a new user into database
@@ -469,3 +565,5 @@ class AuthTest extends CIUnitTestCase
         return $userModel->insert($user);
     }
 }
+
+
