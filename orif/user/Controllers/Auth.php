@@ -266,6 +266,8 @@ class Auth extends BaseController {
         // Setting up the session
         $_SESSION['logged_in'] = (bool)true;
         $_SESSION['azure_identification'] = (bool)true;
+        $_SESSION['after_login_redirect'] = $_SESSION['after_login_redirect'] 
+            ?? $this->request->getVar('after_login_redirect') ?? base_url();
 
         // Mail correspondances
         // Definition of ci_user_azure
