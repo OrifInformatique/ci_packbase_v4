@@ -50,8 +50,11 @@ compte.
 ## azure
 - La création du compte avec azure fonctionne.
     - Envoye de mail
-    - validation avec le code
+    - Validation avec le code
+    - Création du compte avec le bon nom d’utilisateur
+    (`test_azure_mail_with_correct_code_new_user`)
 - La connexion avec un compte azure fonctionne quand on met des identifiants
 valides. 
 - La connexion avec un compte azure ne fonctionne pas quand on met des
 identifiants invalides.
+- le serveur smtp fonctionne

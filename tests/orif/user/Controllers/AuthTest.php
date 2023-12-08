@@ -545,6 +545,49 @@ class AuthTest extends CIUnitTestCase
         return $azureData;
     }
 
+    public function test_azure_mail_without_code(): void
+    {
+        $_POST['user_verification_code'] = null;
+        $_SESSION['verification_code'] = null;
+        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $result->assertSee(lang('user_lang.user_validation_code'));
+        # d($result->response()->getBody());
+    }
+
+    public function test_azure_mail_with_fake_code(): void
+    {
+        $_POST['user_verification_code'] = 'fake1';
+        $_SESSION['verification_code'] = 'fake2';
+        $_SESSION['verification_attempts'] = 3;
+        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $result->assertSee(lang('user_lang.msg_err_validation_code'));
+    }
+
+    public function test_azure_mail_with_fake_code_all_attemps_done(): void
+    {
+        $_POST['user_verification_code'] = 'fake1';
+        $_SESSION['verification_code'] = 'fake2';
+        $_SESSION['verification_attempts'] = 1;
+        $_SESSION['after_login_redirect'] = base_url();
+        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $this->assert_redirect($result);
+    }
+
+    private function test_azure_mail_with_correct_code_existing_user(): void
+    {
+        $_POST['user_verification_code'] = 'correct';
+        $_SESSION['verification_code'] = 'correct';
+        # $_SESSION['verification_attempts'] = 3;
+        $_SESSION['after_login_redirect'] = base_url();
+        $_SESSION['new_user'] = false;
+        $_SESSION['form_email'] = "fake@azurefake.fake";
+        #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
+        $_SESSION['azure_mail'] = $_SESSION['form_email'];
+        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $userModel = model(User_model::class);
+        d($result->response()->getBody());
+    }
+
 
     /**
      * Insert a new user into database
@@ -564,6 +607,8 @@ class AuthTest extends CIUnitTestCase
 
         return $userModel->insert($user);
     }
+
+
 }
 
 
