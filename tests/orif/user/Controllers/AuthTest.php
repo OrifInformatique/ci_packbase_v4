@@ -466,6 +466,10 @@ class AuthTest extends CIUnitTestCase
     }
     public function test_login_begin_with_azure_account(): void
     {
+        if (!getenv('CLIENT_ID')) {
+            $this->trigger_cannot_github_action();
+            return;
+        }
         $result = $this->controller(Auth::class)->execute('azure_login_begin');
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
@@ -476,13 +480,13 @@ class AuthTest extends CIUnitTestCase
 
     private function trigger_cannot_github_action(): void
     {
-        $message = 'This test cannot be performed with github action';
-        trigger_error($message, E_USER_WARNING);
+        $warning = 'This test cannot be performed with github action.';
+        d($warning);
     }
 
     public function test_azure_login_begin_client_id_fake(): void
     {
-        if (null === getenv('CLIENT_ID')) {
+        if (!getenv('CLIENT_ID')) {
             $this->trigger_cannot_github_action();
             return;
         }
@@ -498,7 +502,7 @@ class AuthTest extends CIUnitTestCase
 
     public function test_azure_begin_tenant_id_fake(): void
     {
-        if (null === getenv('CLIENT_ID')) {
+        if (!getenv('CLIENT_ID')) {
             $this->trigger_cannot_github_action();
             return;
         }
@@ -515,7 +519,7 @@ class AuthTest extends CIUnitTestCase
 
     public function test_azure_begin_graph_user_scopes_fake(): void
     {
-        if (null === getenv('CLIENT_ID')) {
+        if (!getenv('CLIENT_ID')) {
             $this->trigger_cannot_github_action();
             return;
         }
@@ -531,7 +535,7 @@ class AuthTest extends CIUnitTestCase
 
     public function test_azure_begin_redirect_uri_fake(): void
     {
-        if (null === getenv('CLIENT_ID')) {
+        if (!getenv('CLIENT_ID')) {
             $this->trigger_cannot_github_action();
             return;
         }
@@ -548,7 +552,7 @@ class AuthTest extends CIUnitTestCase
 
     public function test_azure_login_code_fake(): void
     {
-        if (null === getenv('CLIENT_ID')) {
+        if (!getenv('CLIENT_ID')) {
             $this->trigger_cannot_github_action();
             return;
         }
