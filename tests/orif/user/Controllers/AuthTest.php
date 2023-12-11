@@ -474,8 +474,18 @@ class AuthTest extends CIUnitTestCase
         $this->assert_azure_page($html);
     }
 
+    private function trigger_cannot_github_action(): void
+    {
+        $message = 'This test cannot be performed with github action';
+        trigger_error($message, E_USER_WARNING);
+    }
+
     public function test_azure_login_begin_client_id_fake(): void
     {
+        if (null === getenv('CLIENT_ID')) {
+            $this->trigger_cannot_github_action();
+            return;
+        }
         $azureData = $this->get_azure_data();
         $azureData['CLIENT_ID'] = 'fake';
         $result = $this->controller(Auth::class)->execute('azure_login_begin',
@@ -488,6 +498,10 @@ class AuthTest extends CIUnitTestCase
 
     public function test_azure_begin_tenant_id_fake(): void
     {
+        if (null === getenv('CLIENT_ID')) {
+            $this->trigger_cannot_github_action();
+            return;
+        }
         $azureData = $this->get_azure_data();
         $azureData['TENANT_ID'] = 'fake';
         $result = $this->controller(Auth::class)->execute('azure_login_begin',
@@ -501,6 +515,10 @@ class AuthTest extends CIUnitTestCase
 
     public function test_azure_begin_graph_user_scopes_fake(): void
     {
+        if (null === getenv('CLIENT_ID')) {
+            $this->trigger_cannot_github_action();
+            return;
+        }
         $azureData = $this->get_azure_data();
         $azureData['GRAPH_USER_SCOPES'] = 'fake';
         $result = $this->controller(Auth::class)->execute('azure_login_begin',
@@ -513,6 +531,10 @@ class AuthTest extends CIUnitTestCase
 
     public function test_azure_begin_redirect_uri_fake(): void
     {
+        if (null === getenv('CLIENT_ID')) {
+            $this->trigger_cannot_github_action();
+            return;
+        }
         $azureData = $this->get_azure_data();
         $azureData['REDIRECT_URI'] = 'fake';
         $result = $this->controller(Auth::class)->execute('azure_login_begin',
@@ -526,6 +548,10 @@ class AuthTest extends CIUnitTestCase
 
     public function test_azure_login_code_fake(): void
     {
+        if (null === getenv('CLIENT_ID')) {
+            $this->trigger_cannot_github_action();
+            return;
+        }
         $_GET["state"] = session_id(); 
         $_GET["code"] = 'fake'; 
         $azureData = $this->get_azure_data();
