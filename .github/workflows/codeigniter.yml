@@ -2,15 +2,15 @@ name: CodeIgniter
 
 on:
   push:
-    branches: [ "unit_test" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "unit_test" ]
+    branches: [ "master" ]
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  codeigniter-test:
 
     runs-on: ubuntu-latest
 
