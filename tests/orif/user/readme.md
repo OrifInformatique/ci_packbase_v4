@@ -51,6 +51,7 @@ compte.
 - La création du compte avec azure fonctionne.
     - Envoyer de mail (non testable en l’état)
     - Page de saisi de code reçu par mail, Validation avec le code
+        - affiche la page (`test_azure_mail_existed_user_variable_created`)
         - Première tentative de code (`test_azure_mail_without_code`)
         - Échoue à mettre un code correct (`test_azure_mail_with_fake_code`)
         - Échoue 3x à mettre un code correct
@@ -64,12 +65,11 @@ valides. (non testable en l’état)
 - La connexion avec un compte azure ne fonctionne pas quand on met des
 identifiants invalides. 
 - La connexion ne doit pas fonctionner quand le .env n’a pas les bonnes valeurs
-    - quand code (.env) incorrect (`test_azure_login_code_fake`)
     (non testable depuis github action)
     - secret client incorrect (`CLIENT_ID` .env)
     (`test_azure_login_begin_client_id_fake`)
     (non testable depuis github action)
-    -`redirect_uri` incorrect (`test_azure_begin_redirect_uri_fake`)
+    - `redirect_uri` incorrect (`test_azure_begin_redirect_uri_fake`)
     (non testable depuis github action)
     - `graph_user_scope` incorrect
     (`test_azure_begin_graph_user_scopes_fake`)
@@ -77,5 +77,7 @@ identifiants invalides.
     - `tenant_id` incorrect (`test_azure_begin_tenant_id_fake`)
     (non testable depuis github action)
 - La connexion doit continue à l’étape d’après si le .env est correct
+- La connexion ne doit pas fonctionner quand code (id de la session qui a
+appelé azure) est incorrect (`test_azure_login_code_fake`)
 (`test_login_begin_with_azure_account`)
 - le serveur SMTP fonctionne (non testable depuis github action)
