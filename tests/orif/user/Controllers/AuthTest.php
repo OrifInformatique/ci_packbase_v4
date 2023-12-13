@@ -498,7 +498,6 @@ class AuthTest extends CIUnitTestCase
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
-        # dd($html);
         $this->assertEquals(1, preg_match('/.*login.*/', $html));
     }
 
@@ -532,8 +531,6 @@ class AuthTest extends CIUnitTestCase
         $html = file_get_contents($redirectUrl, false);
         $this->assertEquals(1, preg_match('/.*Sign in to your account.*/',
             $html));
-        # dd($html);
-        # $this->assert_azure_page($html, $azureData, 'GRAPH_USER_SCOPES');
     }
 
     public function test_azure_begin_redirect_uri_fake(): void
@@ -562,8 +559,6 @@ class AuthTest extends CIUnitTestCase
         $_GET["code"] = 'fake'; 
         $result = $this->controller(Auth::class)->execute('azure_login');
         $result->assertSee(lang('user_lang.msg_err_azure_unauthorized'));
-        # dd($result->response()->getBody());
-
     }
 
     private function get_azure_data(): array
@@ -581,7 +576,6 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['verification_code'] = null;
         $result = $this->controller(Auth::class)->execute('processMailForm');
         $result->assertSee(lang('user_lang.user_validation_code'));
-        # d($result->response()->getBody());
     }
 
     public function test_azure_mail_with_fake_code(): void
@@ -602,22 +596,6 @@ class AuthTest extends CIUnitTestCase
         $result = $this->controller(Auth::class)->execute('processMailForm');
         $this->assert_redirect($result);
     }
-
-    private function test_azure_mail_with_correct_code_existing_user(): void
-    {
-        $_POST['user_verification_code'] = 'correct';
-        $_SESSION['verification_code'] = 'correct';
-        # $_SESSION['verification_attempts'] = 3;
-        $_SESSION['after_login_redirect'] = base_url();
-        $_SESSION['new_user'] = false;
-        $_SESSION['form_email'] = "fake@azurefake.fake";
-        #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
-        $_SESSION['azure_mail'] = $_SESSION['form_email'];
-        $result = $this->controller(Auth::class)->execute('processMailForm');
-        $userModel = model(User_model::class);
-        d($result->response()->getBody());
-    }
-
 
     /**
      * Insert a new user into database
