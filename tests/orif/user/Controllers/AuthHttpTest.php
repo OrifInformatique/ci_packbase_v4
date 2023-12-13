@@ -49,7 +49,7 @@ class AuthHttpTest extends CIUnitTestCase
         $_SESSION['new_user'] = true;
         $_SESSION['azure_mail'] = "$userName@azurefake.fake";
         $_SESSION['form_email'] = "fake@azurefake.fake";
-        $url = substr(url_to('processMailForm'), strlen(base_url()));
+        $url = substr(url_to('processMailForm'), strlen(site_url()));
         $result = $this->withSession()->call('get', $url);
         $userModel = model(User_model::class);
         $name = $userModel->select('username')->where('username=', $userName)
@@ -72,7 +72,7 @@ class AuthHttpTest extends CIUnitTestCase
         #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
         $azureMail = 'fake@azurefake.fake';
         $_SESSION['azure_mail'] = $azureMail;
-        $url = substr(url_to('processMailForm'), strlen(base_url()));
+        $url = substr(url_to('processMailForm'), strlen(site_url()));
         $result = $this->withSession()->post($url);
         # d($result->response()->getBody());
         $result->assertSee(lang('user_lang.user_validation_code'));
@@ -94,7 +94,7 @@ class AuthHttpTest extends CIUnitTestCase
         #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
         $azureMail = 'fake@azurefake.fake';
         $_SESSION['azure_mail'] = $azureMail;
-        $url = substr(url_to('processMailForm'), strlen(base_url()));
+        $url = substr(url_to('processMailForm'), strlen(site_url()));
         $result = $this->withSession()->call('get', $url);
         # d($result->response()->getBody());
         $azureMailInDb = $userModel->select('azure_mail')

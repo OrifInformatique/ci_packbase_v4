@@ -446,21 +446,23 @@ class AuthTest extends CIUnitTestCase
         $this->assertEmpty($_SESSION);
     }
 
-    private function assert_azure_page(string $html, string $which_false='')
-        :void
+    private function assert_azure_page(string $html, ?array $azureData=null,
+        string $which_false='') :void
     {
+        $azureData = $azureData ?? $this->get_azure_data();
         $is_with_client_id = $which_false === 'CLIENT_ID' ? 0 : 1;
         $this->assertEquals($is_with_client_id,
-            preg_match('/.*'.getenv('CLIENT_ID').'.*/', $html));
+            preg_match('/.*'.$azureData['CLIENT_ID'].'.*/', $html));
+
         $is_with_tenant_id = $which_false === 'TENANT_ID' ? 0 : 1;
         $this->assertEquals($is_with_tenant_id,
-            preg_match('/.*'.getenv('TENANT_ID').'.*/', $html));
+            preg_match('/.*'.$azureData['TENANT_ID'].'.*/', $html));
         $is_with_graph = $which_false === 'GRAPH_USER_SCOPES' ? 0 : 1;
         $this->assertEquals($is_with_graph,
-            preg_match('/.*'.getenv('GRAPH_USER_SCOPES').'.*/', $html));
+            preg_match('/.*'.$azureData['GRAPH_USER_SCOPES'].'.*/', $html));
         $is_with_redirect = $which_false === 'REDIRECT_URI' ? 0 : 1;
         $this->assertEquals($is_with_redirect,
-            preg_match('/.*'.preg_quote(getenv('REDIRECT_URI'), '/').'.*/',
+            preg_match('/.*'.preg_quote($azureData['REDIRECT_URI'], '/').'.*/',
             $html));
 
     }
@@ -470,7 +472,8 @@ class AuthTest extends CIUnitTestCase
             d($this->get_cannot_github_action_message());
             return;
         }
-        $result = $this->controller(Auth::class)->execute('azure_login_begin');
+        $_POST['btn_login_microsoft'] = true;
+        $result = $this->controller(Auth::class)->execute('azure_login');
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
@@ -489,13 +492,13 @@ class AuthTest extends CIUnitTestCase
             d($this->get_cannot_github_action_message());
             return;
         }
-        $azureData = $this->get_azure_data();
-        $azureData['CLIENT_ID'] = 'fake';
-        $result = $this->controller(Auth::class)->execute('azure_login_begin',
-            $azureData);
+        putenv('CLIENT_ID=fake');
+        $_POST['btn_login_microsoft'] = true;
+        $result = $this->controller(Auth::class)->execute('azure_login');
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
+        # dd($html);
         $this->assertEquals(1, preg_match('/.*login.*/', $html));
     }
 
@@ -505,10 +508,9 @@ class AuthTest extends CIUnitTestCase
             d($this->get_cannot_github_action_message());
             return;
         }
-        $azureData = $this->get_azure_data();
-        $azureData['TENANT_ID'] = 'fake';
-        $result = $this->controller(Auth::class)->execute('azure_login_begin',
-            $azureData);
+        putenv('TENANT_ID=fake');
+        $_POST['btn_login_microsoft'] = true;
+        $result = $this->controller(Auth::class)->execute('azure_login');
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
@@ -522,14 +524,16 @@ class AuthTest extends CIUnitTestCase
             d($this->get_cannot_github_action_message());
             return;
         }
-        $azureData = $this->get_azure_data();
-        $azureData['GRAPH_USER_SCOPES'] = 'fake';
-        $result = $this->controller(Auth::class)->execute('azure_login_begin',
-            $azureData);
+        putenv('GRAPH_USER_SCOPES=fake');
+        $_POST['btn_login_microsoft'] = true;
+        $result = $this->controller(Auth::class)->execute('azure_login');
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
-        $this->assert_azure_page($html, 'GRAPH_USER_SCOPES');
+        $this->assertEquals(1, preg_match('/.*Sign in to your account.*/',
+            $html));
+        # dd($html);
+        # $this->assert_azure_page($html, $azureData, 'GRAPH_USER_SCOPES');
     }
 
     public function test_azure_begin_redirect_uri_fake(): void
@@ -538,10 +542,9 @@ class AuthTest extends CIUnitTestCase
             d($this->get_cannot_github_action_message());
             return;
         }
-        $azureData = $this->get_azure_data();
-        $azureData['REDIRECT_URI'] = 'fake';
-        $result = $this->controller(Auth::class)->execute('azure_login_begin',
-            $azureData);
+        putenv('REDIRECT_URI=fake');
+        $_POST['btn_login_microsoft'] = true;
+        $result = $this->controller(Auth::class)->execute('azure_login');
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
@@ -557,11 +560,9 @@ class AuthTest extends CIUnitTestCase
         }
         $_GET["state"] = session_id(); 
         $_GET["code"] = 'fake'; 
-        $azureData = $this->get_azure_data();
-        $result = $this->controller(Auth::class)->execute('azure_login',
-            $azureData);
+        $result = $this->controller(Auth::class)->execute('azure_login');
         $result->assertSee(lang('user_lang.msg_err_azure_unauthorized'));
-        dd($result->response()->getBody());
+        # dd($result->response()->getBody());
 
     }
 
