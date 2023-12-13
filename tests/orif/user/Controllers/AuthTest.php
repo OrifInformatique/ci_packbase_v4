@@ -560,8 +560,8 @@ class AuthTest extends CIUnitTestCase
         $azureData = $this->get_azure_data();
         $result = $this->controller(Auth::class)->execute('azure_login',
             $azureData);
-        $result->assertSee(lang('msg_err_azure_unauthorized'));
-        # d($result->response()->getBody());
+        $result->assertSee(lang('user_lang.msg_err_azure_unauthorized'));
+        dd($result->response()->getBody());
 
     }
 
