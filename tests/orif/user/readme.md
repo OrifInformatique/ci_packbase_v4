@@ -77,7 +77,8 @@ identifiants invalides.
     - `tenant_id` incorrect (`test_azure_begin_tenant_id_fake`)
     (non testable depuis github action)
 - La connexion doit continue à l’étape d’après si le .env est correct
+(`test_login_begin_with_azure_account`)
 - La connexion ne doit pas fonctionner quand code (id de la session qui a
 appelé azure) est incorrect (`test_azure_login_code_fake`)
-(`test_login_begin_with_azure_account`)
+
 - le serveur SMTP fonctionne (non testable depuis github action)
