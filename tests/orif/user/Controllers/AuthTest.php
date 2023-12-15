@@ -477,7 +477,7 @@ class AuthTest extends CIUnitTestCase
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
-        $this->assertEquals(1, preg_match('/.*signup.*/', $html));
+        $this->assertEquals(1, preg_match('/.*login.*/', $html));
         $this->assert_azure_page($html);
     }
 
