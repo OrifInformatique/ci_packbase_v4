@@ -15,6 +15,7 @@ permissions:
 jobs:
   codeigniter-test:
 
+    environment: unit_test
     runs-on: ubuntu-latest
 
     steps:
