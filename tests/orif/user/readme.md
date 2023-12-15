@@ -63,7 +63,7 @@ compte.
 - La connexion avec un compte azure fonctionne quand on met des identifiants
 valides. (non testable en l’état)
 - La connexion avec un compte azure ne fonctionne pas quand on met des
-identifiants invalides. 
+identifiants invalides. (non testable le visiteur reste bloqué chez Microsoft)
 - La connexion ne doit pas fonctionner quand le .env n’a pas les bonnes valeurs
     (non testable depuis github action)
     - secret client incorrect (`CLIENT_ID` .env)
