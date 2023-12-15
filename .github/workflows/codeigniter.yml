@@ -6,7 +6,8 @@ on:
   pull_request:
     # branches: [ "master" ]
   release:
-    # types: [published]
+    types: [published]
+  workflow_dispatch: # to run manually
 
 permissions:
   contents: read

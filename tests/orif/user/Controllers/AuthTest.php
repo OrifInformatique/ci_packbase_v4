@@ -483,7 +483,9 @@ class AuthTest extends CIUnitTestCase
 
     private function get_cannot_github_action_message(): string
     {
-        return 'This test cannot be performed with github action.';
+        # https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions
+        return 'This test cannot be performed with github action without use '
+            . 'secrets in github actions.';
     }
 
     public function test_azure_login_begin_client_id_fake(): void
