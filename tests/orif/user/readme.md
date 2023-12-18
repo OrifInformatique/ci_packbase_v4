@@ -45,7 +45,78 @@ compte.
 
 - Se déconnecter (`testlogout`)
 
+## admin test
+- Asserts that the `list_user` page is loaded correctly with disabled users
+(`testlist_userWithDisabledUsers`) 
+- Asserts that the `list_user` page is loaded correctly without disabled
+(after disabling user id 1) (`testlist_userWithoutDisabledUsers`)
+- Asserts that the `password_change_user` page redirects to the `list_user` view
+for a non existing user (`testpassword_change_userWithNonExistingUser`)
+- Asserts that the `delete_user` page is loaded correctly for the user id 1
+(with a session) (`testdelete_userWithSessionAndDefaultAction`) 
+- Asserts that the `delete_user` page is loaded correctly with a warning
+message (`testdelete_userWithSessionAndDefaultActionForADisabledUser`)
+- Asserts that the `delete_user` page redirects to the `list_user` view when a
+non existing user is given (`testdelete_userWithNonExistingUser`)
+- Asserts that the `delete_user` page redirects to the `list_user` view when
+fake action is given (`testdelete_userWitFakeAction`)
+- Asserts that the `reactivate_user` page redirects to the `list_user` view
+when a non existing user is given (`testreactivate_userWithNonExistingUser`)
+- Asserts that the `form_user` page is loaded correctly for a new user (no
+user id) (`testsave_userWithoutUserId`)
+- Asserts that the `form_user` page is loaded correctly for a disabled user id
+(`testsave_userWithDisabledUserId`)
+- Asserts that the `password_change_user` page redirects to the `list_user` view
+after updating the password (POST)
+(`testpassword_change_userPostedWhenChangingPassword`)
+- Asserts that the `save_user` page redirects to the `list_user` view after
+inserting a new user (POST) (`testsave_userPostedForANewUser`)
+- Asserts that the `save_user` page is loaded correctly displaying an error
+message (`testsave_userPostedForANewUserWithError`)
+- Asserts that the `save_user` page redirects to the `list_user` view after
+updating an existing user (POST) (`testsave_userPostedForAnExistingUser`)
 
+## authtest
+- Asserts that the login page is loaded correctly (no session)
+(`testloginPageWithoutSession`)
+- Asserts that the session variable `after_login_redirect` is correctly set
+when posting the login page
+(testloginPagePostedAfterLoginRedirectWithoutSession)
+- Asserts that the session variables are correctly set when posting the login
+page (simulates a click on button login) email and password are specified
+(meaning that the login works)
+(`testloginPagePostedWithoutSessionWithUserEmailAndPassword`)
+- Asserts that the login page is redirected (`testloginPageWithSession`)
+- Asserts that the `change_password` page is redirected (no session)
+(`testchange_passwordPageWithoutSession`)
+- Asserts that the `change_password` page is loaded correctly (with session)
+(`testchange_passwordPageWithSession`)
+- Asserts that the `change_password` page redirects to the base url when the
+password is changed successfully
+(`testchange_passwordPagePostedWithSessionWithOldAndNewPasswords`)
+- Asserts that the `change_password` page redirects to the base url when the old
+password is invalid
+(`testchange_passwordPagePostedWithSessionWithInvalidOldPassword`)
+- Asserts that the `change_password` page redirects to the base url when the
+confirmed password is invalid
+(`testchange_passwordPagePostedWithSessionWithInvalidConfirmedPassword`)
+
+## `User_modelTest`
+- Tests that the `check_password_name` correctly checks the user password using
+the username (`testcheck_password_name`)
+- Tests that the `check_password_name` correctly checks the user password using
+the username when the user does not exist in the database
+(`testcheck_password_nameWithNonExistingUser`)
+- Tests that the `check_password_email` correctly checks the user password using
+the user email (`testcheck_password_email`)
+- Tests that the `check_password_email` correctly checks the user password using
+the username when the user does not exist in the database
+(`testcheck_password_emailWithInvalidEmail`)
+- Tests that the `check_password_email` correctly checks the user password using
+the username when the user does not exist in the database
+(`testcheck_password_emailWithNonExistingUserEmailAddress`)
+- Tests that the `get_access_level` correctly returns the user access level
+(`testget_access_level`)
 
 ## Azure
 - La création du compte avec azure fonctionne.
