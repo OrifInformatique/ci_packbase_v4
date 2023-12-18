@@ -73,7 +73,10 @@ class Auth extends BaseController {
             $_SESSION['verification_code'] = $this->sendVerificationMail($_SESSION['form_email']);
             
             $output = array(
-                'title' => lang('user_lang.title_email_validation'),
+                'title' => lang('user_lang.field_verification_code'),
+                'timer_start' => $_SESSION['timer_start'],
+                'timer_limit' => $_SESSION['timer_limit'],
+                'timer_end'   => $_SESSION['timer_end'],
             );
 
             return $this->display_view('\User\auth\verification_code_form', $output);
@@ -81,8 +84,8 @@ class Auth extends BaseController {
     
         // User verification code is not empty
         $user_verification_code = $this->request->getPost('user_verification_code');
-    
-        if ($user_verification_code == $_SESSION['verification_code']) {
+
+        if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']) {
 
             if ($_SESSION['new_user'] == true)  {
 
@@ -112,7 +115,7 @@ class Auth extends BaseController {
                 $this->user_model->update($ci_user['id'], $data);
             }
 
-        } else {
+        } elseif(time() < $_SESSION['timer_end']) {
             // Verification code does not match
             $_SESSION['verification_attempts'] -= 1;
     
@@ -120,7 +123,7 @@ class Auth extends BaseController {
                 // No more attempts, keep default user access
             } else {
                 $output = array(
-                    'title' => lang('user_lang.title_email_validation'),
+                    'title' => lang('user_lang.title_validation_code'),
                     'errorMsg' => lang('user_lang.msg_err_validation_code'),
                     'attemptsLeft' => $_SESSION['verification_attempts'],
                     'msg_attemptsLeft' => lang('user_lang.msg_err_attempts') . ' ' . $_SESSION['verification_attempts'],
@@ -129,14 +132,16 @@ class Auth extends BaseController {
                 return $this->display_view('\User\auth\verification_code_form', $output);
             }
         }
-    
+            
         // Reset session variables
-        $_SESSION['new_user'] = null;
         $_SESSION['form_email'] = null;
-        $_SESSION['azure_mail'] = null;
+        $_SESSION['new_user'] = null;
+        $_SESSION['azure_mail'] = null; 
         $_SESSION['verification_attempts'] = null;
         $_SESSION['verification_code'] = null;
-    
+        $_SESSION['timer_end'] = null;
+        $_SESSION['timer_limit'] = null;
+
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
     }
@@ -170,8 +175,13 @@ class Auth extends BaseController {
         $email->setTo($form_email);
         $email->setSubject('Code de vérification');
         $email->setMessage('Voici votre code de vérification: '.$verification_code);
-        
         $email->send();
+
+        // Set code's expiration timer
+        $_SESSION['timer_start'] = time();
+        $_SESSION['timer_limit'] = 300; // Written in seconds. 300 = 5 minutes
+        $_SESSION['timer_end'] = $_SESSION['timer_start'] + $_SESSION['timer_limit'];
+
         return $verification_code;
     }
 

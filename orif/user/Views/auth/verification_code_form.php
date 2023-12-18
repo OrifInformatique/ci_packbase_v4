@@ -33,14 +33,68 @@
                 <!-- Status messages -->
                 <?php if(!is_null($session->getFlashdata('message-danger'))){ ?>
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
-                <?php } ?>
-                <div class="alert alert-info">
-                    <?= lang('user_lang.user_validation_code'); ?>
+                    <?php } ?>
+                    <div class="alert alert-info">
+                        <?= lang('user_lang.user_validation_code'); ?>
+                        <br><br>
+                        <?= lang('user_lang.code_expiration_time'); ?> <span id="countdownTimer"></span>
+                        
+                        <!-- Countdown Timer Display -->
+                        
+                        <script>
+                            function startCountdown(duration, display) {
+                                var timer = duration, minutes, seconds;
+                                var countdownInterval = setInterval(function () {
+                                    minutes = parseInt(timer / 60, 10);
+                                    seconds = parseInt(timer % 60, 10);
+
+                                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                                    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                                    display.textContent = minutes + ":" + seconds;
+
+                                    if (--timer < 0) {
+                                        clearInterval(countdownInterval);
+                                        display.textContent = "Temps expiré";
+                                    }
+                                }, 1000);
+                            }
+
+                            window.onload = function () {
+                            var duration;
+
+                            let timerStart = <?= $_SESSION['timer_start']?>;
+                            console.log("timerStart " + timerStart);
+
+                            let timerEnd = <?= $_SESSION['timer_end']?>;
+                            console.log("timerEnd " + timerEnd);
+
+                            let currentTime = Date.now() / 1000; // milliseconds to seconds
+                            console.log("currentTime " + currentTime);
+
+                            let timeElapsed = currentTime - timerStart; // number of seconds elapsed from the time the verification code was created
+                            console.log("timeElapsed " + timeElapsed);
+
+                            // first time, 0 seconds elapsed.
+
+                            // What do i want to show ?
+                            // the time remaining from now to timer_end
+
+                            duration = timerEnd - currentTime - timeElapsed; // Time remaining before the expiration of the validation code
+
+                            alert(duration);
+
+                            var display = document.querySelector('#countdownTimer');
+                            startCountdown(duration, display);
+                            };
+
+                    </script>
+                    </div>
+                <div class="form-group">
+                    
                 </div>
                 <div class="form-group">
-
                     <input class="form-control" id="user_verification_code" name="user_verification_code" placeholder="<?= lang('user_lang.field_verification_code'); ?>" type="text" value="<?= set_value('username'); ?>" />
-                    
                 </div>             
                 <div class="form-group">
                     <div class="col-sm-12 text-right">
