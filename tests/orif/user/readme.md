@@ -136,20 +136,19 @@ valides. (non testable en l’état)
 - La connexion avec un compte azure ne fonctionne pas quand on met des
 identifiants invalides. (non testable le visiteur reste bloqué chez Microsoft)
 - La connexion ne doit pas fonctionner quand le .env n’a pas les bonnes valeurs
-    (non testable depuis github action)
+    (non testable depuis github action sans secrets)
     - secret client incorrect (`CLIENT_ID` .env)
     (`test_azure_login_begin_client_id_fake`)
-    (non testable depuis github action)
+    (non testable depuis github action sans secrets)
     - `redirect_uri` incorrect (`test_azure_begin_redirect_uri_fake`)
-    (non testable depuis github action)
+    (non testable depuis github action sans secrets)
     - `graph_user_scope` incorrect
     (`test_azure_begin_graph_user_scopes_fake`)
-    (non testable depuis github action)
+    (non testable depuis github action sans secrets)
     - `tenant_id` incorrect (`test_azure_begin_tenant_id_fake`)
-    (non testable depuis github action)
+    (non testable depuis github action sans secrets)
 - La connexion doit continue à l’étape d’après si le .env est correct
 (`test_login_begin_with_azure_account`)
 - La connexion ne doit pas fonctionner quand code (id de la session qui a
 appelé azure) est incorrect (`test_azure_login_code_fake`)
-
-- le serveur SMTP fonctionne (non testable depuis github action)
+- le serveur SMTP fonctionne (non testable depuis github action sans secrets)
