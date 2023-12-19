@@ -362,7 +362,7 @@ class Auth extends BaseController {
 
     public function login(): string|Response
     {
-        // If user is not already logged
+        // If user not yet logged in
         if(!(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)) {
 
             // Store the redirection URL in a session variable
@@ -435,6 +435,8 @@ class Auth extends BaseController {
             //Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
             return $this->display_view('\User\auth\login', $output);
+
+        // If user already logged in
         } else {
             return redirect()->to(base_url());
         }
