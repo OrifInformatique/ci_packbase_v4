@@ -28,6 +28,13 @@
                                     "id" => "verificationCode",
                                     "name" => "verificationCode");
                 echo form_open("user/auth/processMailForm", $attributes);
+                    // New form for resend_code
+                    
+                $attributes_resend = ['id' => 'resend_form'];
+                echo form_open("user/auth/processMailForm", $attributes_resend);
+                echo form_hidden('action', 'resend'); // Hidden field to identify the action
+                echo form_button(['id' => 'resend_code', 'name' => 'resend_code', 'content' => 'Resend Code', 'type' => 'submit']);
+                echo form_close();
             ?>
             <fieldset>
                 <!-- Status messages -->
@@ -42,8 +49,8 @@
                         <!-- Countdown Timer Display -->
                         
                         <script>
-                            function startCountdown(duration, display) {
-                                var timer = duration, minutes, seconds;
+                            function startCountdown(timeRemaining, display) {
+                                var timer = timeRemaining, minutes, seconds;
                                 var countdownInterval = setInterval(function () {
                                     minutes = parseInt(timer / 60, 10);
                                     seconds = parseInt(timer % 60, 10);
@@ -61,31 +68,17 @@
                             }
 
                             window.onload = function () {
-                            var duration;
-
-                            let timerStart = <?= $_SESSION['timer_start']?>;
-                            console.log("timerStart " + timerStart);
 
                             let timerEnd = <?= $_SESSION['timer_end']?>;
                             console.log("timerEnd " + timerEnd);
 
-                            let currentTime = Date.now() / 1000; // milliseconds to seconds
+                            let currentTime = Math.floor(Date.now() / 1000); // milliseconds to seconds
                             console.log("currentTime " + currentTime);
 
-                            let timeElapsed = currentTime - timerStart; // number of seconds elapsed from the time the verification code was created
-                            console.log("timeElapsed " + timeElapsed);
-
-                            // first time, 0 seconds elapsed.
-
-                            // What do i want to show ?
-                            // the time remaining from now to timer_end
-
-                            duration = timerEnd - currentTime - timeElapsed; // Time remaining before the expiration of the validation code
-
-                            alert(duration);
+                            var timeRemaining = timerEnd - currentTime; // Time remaining before the expiration of the validation code
 
                             var display = document.querySelector('#countdownTimer');
-                            startCountdown(duration, display);
+                            startCountdown(timeRemaining, display);
                             };
 
                     </script>
@@ -95,7 +88,11 @@
                 </div>
                 <div class="form-group">
                     <input class="form-control" id="user_verification_code" name="user_verification_code" placeholder="<?= lang('user_lang.field_verification_code'); ?>" type="text" value="<?= set_value('username'); ?>" />
-                </div>             
+                </div>
+                <!-- Resend code button -->
+                <div class="form-group">
+                    <input class="btn btn-secondary" id="resend_code" name="resend_code" value="resend code placeholder" type="button"/>
+                </div>         
                 <div class="form-group">
                     <div class="col-sm-12 text-right">
                         <a id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>

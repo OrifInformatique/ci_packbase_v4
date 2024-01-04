@@ -54,9 +54,14 @@ class Auth extends BaseController {
 
         // Check if the user verification code is empty
         // If empty: send code by mail
-        if (!isset($_POST['user_verification_code'])) {
 
-            $_SESSION['form_email'] = $this->request->getPost('user_email');
+        // If the user chose the resend code option
+
+        if (!isset($_POST['user_verification_code']) || $this->request->getPost('action') === 'resend') { // If the user chose the resend code 333333
+
+            if($this->request->getPost('action') != 'resend'){
+                $_SESSION['form_email'] = $this->request->getPost('user_email');
+            }
 
             $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
 
@@ -134,6 +139,7 @@ class Auth extends BaseController {
         }
             
         // Reset session variables
+        dd('reset session');
         $_SESSION['form_email'] = null;
         $_SESSION['new_user'] = null;
         $_SESSION['azure_mail'] = null; 
@@ -141,12 +147,13 @@ class Auth extends BaseController {
         $_SESSION['verification_code'] = null;
         $_SESSION['timer_end'] = null;
         $_SESSION['timer_limit'] = null;
+        $_SESSION['test'] = null;
 
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
     }
 
-    public function sendVerificationMail($form_email) { // gen code and send mail
+    public function sendVerificationMail($form_email) { // generate code and send mail
 
         // Random code generator
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -172,7 +179,7 @@ class Auth extends BaseController {
 
         // Sending code to user's  mail
         $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
-        $email->setTo($form_email);
+        $email->setTo($_SESSION['form_email']);
         $email->setSubject('Code de vérification');
         $email->setMessage('Voici votre code de vérification: '.$verification_code);
         $email->send();
