@@ -73,7 +73,7 @@
                                 startCountdown(timeRemaining, display);
                             };
 
-                    </script>
+                        </script>
                     </div>
                 <div class="form-group">
                     
@@ -85,7 +85,7 @@
                     <div class="col-sm-12 text-right">
 
                         <!-- TODO Resend code button -->        
-                        <a id="resend_code" name="resend_code" value="Resend Code" class="btn btn-secondary" href='C:\laragon\www\ci_packbase_v4\orif\user\Views\auth\mail_form.php'>
+                        <input id="resend_code" name="resend_code" type="submit" class="btn btn-secondary" value="placeholder resend_code" />
                         
                         <a id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
                         <input id="btn_submit" name="btn_submit" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
