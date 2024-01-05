@@ -28,16 +28,9 @@
                                     "id" => "verificationCode",
                                     "name" => "verificationCode");
                 echo form_open("user/auth/processMailForm", $attributes);
-                    // New form for resend_code
-                    
-                $attributes_resend = ['id' => 'resend_form'];
-                echo form_open("user/auth/processMailForm", $attributes_resend);
-                echo form_hidden('action', 'resend'); // Hidden field to identify the action
-                echo form_button(['id' => 'resend_code', 'name' => 'resend_code', 'content' => 'Resend Code', 'type' => 'submit']);
-                echo form_close();
             ?>
             <fieldset>
-                <!-- Status messages -->
+                <!-- S tatus messages -->
                 <?php if(!is_null($session->getFlashdata('message-danger'))){ ?>
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
                     <?php } ?>
@@ -68,17 +61,16 @@
                             }
 
                             window.onload = function () {
+                                let timerEnd = <?= $_SESSION['timer_end']?>;
+                                console.log("timerEnd " + timerEnd);
 
-                            let timerEnd = <?= $_SESSION['timer_end']?>;
-                            console.log("timerEnd " + timerEnd);
+                                let currentTime = Math.floor(Date.now() / 1000); // milliseconds to seconds
+                                console.log("currentTime " + currentTime);
 
-                            let currentTime = Math.floor(Date.now() / 1000); // milliseconds to seconds
-                            console.log("currentTime " + currentTime);
+                                var timeRemaining = timerEnd - currentTime; // Time remaining before the expiration of the validation code
 
-                            var timeRemaining = timerEnd - currentTime; // Time remaining before the expiration of the validation code
-
-                            var display = document.querySelector('#countdownTimer');
-                            startCountdown(timeRemaining, display);
+                                var display = document.querySelector('#countdownTimer');
+                                startCountdown(timeRemaining, display);
                             };
 
                     </script>
@@ -89,12 +81,12 @@
                 <div class="form-group">
                     <input class="form-control" id="user_verification_code" name="user_verification_code" placeholder="<?= lang('user_lang.field_verification_code'); ?>" type="text" value="<?= set_value('username'); ?>" />
                 </div>
-                <!-- Resend code button -->
-                <div class="form-group">
-                    <input class="btn btn-secondary" id="resend_code" name="resend_code" value="resend code placeholder" type="button"/>
-                </div>         
                 <div class="form-group">
                     <div class="col-sm-12 text-right">
+
+                        <!-- TODO Resend code button -->        
+                        <a id="resend_code" name="resend_code" value="Resend Code" class="btn btn-secondary" href='C:\laragon\www\ci_packbase_v4\orif\user\Views\auth\mail_form.php'>
+                        
                         <a id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
                         <input id="btn_submit" name="btn_submit" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
                     </div>

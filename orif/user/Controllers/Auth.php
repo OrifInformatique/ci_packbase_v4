@@ -41,7 +41,6 @@ class Auth extends BaseController {
         $this->user_model = new User_model();
 
         $this->db = \Config\Database::connect();
-        
     }
 
     function errorhandler($data) {
@@ -51,16 +50,15 @@ class Auth extends BaseController {
     }
 
     public function processMailForm() {
-
         // Check if the user verification code is empty
         // If empty: send code by mail
+        if (!isset($_POST['user_verification_code'])) { // If the user chose the resend code option
 
-        // If the user chose the resend code option
-
-        if (!isset($_POST['user_verification_code']) || $this->request->getPost('action') === 'resend') { // If the user chose the resend code 333333
-
-            if($this->request->getPost('action') != 'resend'){
+            // if original code, form email is user input
+            if(is_null($this->request->getVar('resend_code'))){
                 $_SESSION['form_email'] = $this->request->getPost('user_email');
+            } else {
+                dd($_SESSION['form_email']);
             }
 
             $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
@@ -344,6 +342,7 @@ class Auth extends BaseController {
                 $_SESSION['username'] = $userdata['displayName'];
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
                 $_SESSION['azure_mail'] = $user_azure_mail;
+                $_SESSION['form_email'] = NULL;
 
                 $correspondingUser = $this->user_model->where('email LIKE', $nameAndLastname . '%')->first();
 

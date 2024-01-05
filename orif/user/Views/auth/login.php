@@ -21,7 +21,7 @@
                 <div class="form-group">
                     <div class="row colbox">
                         <div class="col-sm-4">
-                            <label for="username" class="control-label">Microsoft Login</label>
+                            <label for="username" class="control-label">commentaire //microscoft logifsdgn </label>
                         </div>
                         <div class="col-sm-8">
                             <button type="submit" name="btn_login_microsoft" style="border: none; background: none;">
