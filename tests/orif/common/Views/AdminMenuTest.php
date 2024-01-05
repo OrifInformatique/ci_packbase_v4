@@ -39,6 +39,6 @@ class AdminMenuTest extends CIUnitTestCase
         // Assertions
         $response = $result->response();
         $body = $response->getBody();
-        $result->assertSee(lang('user_lang.title_user_list'), 'a');
+        $result->assertSee(lang('user_lang.title_user_list'), 'h1');
     }
 }
