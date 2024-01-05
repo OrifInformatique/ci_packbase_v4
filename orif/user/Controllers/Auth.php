@@ -341,9 +341,6 @@ class Auth extends BaseController {
             $user_azure_mail = $userdata["mail"];
             $ci_user_azure = $this->user_model->where('azure_mail', $user_azure_mail)->first();
 
-            // Seperate name and lastname from email for mail correspondances
-            $nameAndLastname = strstr($user_azure_mail, '@', true); // True = before '@' and without '@'
-
             // Azure mail not found in DB
             if (empty($ci_user_azure)){
 

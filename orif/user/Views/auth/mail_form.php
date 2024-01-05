@@ -45,7 +45,7 @@
                     <?= form_hidden('azure_mail',
                     [
                         'id' => 'azure_mail',
-                        'value' => $userdata['mail'] ?? $azure_mail ?? '',
+                        'value' => $azure_mail,
                     ]); ?>
                 <div>
 
