@@ -317,9 +317,6 @@ class Auth extends BaseController {
             $user_azure_mail = $userdata["mail"];
             $ci_user_azure = $this->user_model->where('azure_mail', $user_azure_mail)->first();
 
-            // Seperate name and lastname from email for mail correspondances
-            $nameAndLastname = strstr($user_azure_mail, '@', true); // True = before '@' and without '@'
-
             // Azure mail not found in DB
             if (empty($ci_user_azure)){
 
@@ -327,22 +324,8 @@ class Auth extends BaseController {
                 $_SESSION['username'] = $userdata['displayName'];
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
                 $_SESSION['azure_mail'] = $user_azure_mail;
-
-                $correspondingUser = $this->user_model->where('email LIKE', $nameAndLastname . '%')->first();
-
-                if ($correspondingUser == NULL){
-                    $correspondingEmail = '';
-                } else {
-                    $correspondingEmail = $correspondingUser['email'];
-                }
-
-                $output = array(
-                    'title' => lang('user_lang.title_page_login'),
-                    'correspondingEmail' => $correspondingEmail,
-                    'ci_user' => $ci_user_azure,
-                    'userdata' => $userdata);
-                    
-                return $this->display_view('\User\auth\mail_form', $output); 
+                
+                return redirect()->to(base_url("user/auth/prepare_mail_form"));
             
             // Azure mail found
             } else {
@@ -358,6 +341,26 @@ class Auth extends BaseController {
             $data['Exception'] = lang('user_lang.msg_err_azure_mismatch').'.';
             $this->errorhandler($data);
         }
+    }
+
+    public function prepare_mail_form(): string {
+        // Seperate name and lastname from email for mail correspondances
+        $nameAndLastname = strstr($_SESSION['azure_mail'], '@', true); // True = before '@' and without '@'
+
+        $correspondingUser = $this->user_model->where('email LIKE', $nameAndLastname . '%')->first();
+
+        if ($correspondingUser == NULL){
+            $correspondingEmail = '';
+        } else {
+            $correspondingEmail = $correspondingUser['email'];
+        }
+
+        $output = array(
+            'title' => lang('user_lang.title_page_login'),
+            'correspondingEmail' => $correspondingEmail,
+            'azure_mail' => $_SESSION['azure_mail']);
+
+        return $this->display_view('\User\auth\mail_form', $output);
     }
 
     public function login(): string|Response
