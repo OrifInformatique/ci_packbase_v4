@@ -13,7 +13,7 @@ http_response_code(401);
 <div id="message" class="wrap container alert alert-danger">
     <div class="row">
         <div class="col">
-            <h2><?= lang('user_lang.code_error_401')?></h2>
+            <h2><?= lang('user_lang.msg_err_401')?></h2>
         </div>
     </div>
     <div class="row">

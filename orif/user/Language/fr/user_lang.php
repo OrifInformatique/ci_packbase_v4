@@ -57,17 +57,6 @@ return[
 'msg_err_invalid_password'       => 'L\'identifiant et le mot de passe ne sont pas valides',
 'msg_err_invalid_old_password'   => 'L\'ancien mot de passe n\'est pas valide',
 'msg_err_password_not_matches'   => 'Le mot de passe ne coïncide pas avec la confirmation du mot de passe.',
-'msg_err_azure_unauthorized'     => 'La connexion avec Microsoft Azure est indisponible. Veuillez vérifier la validité du secret client',
-'msg_err_default'                => 'Une erreur est survenue',
-'msg_err_azure_no_token'         => 'Azure n\'a pas répondu',
-'msg_err_azure_mismatch'         => 'Les tokens ne correspondent pas',
-'msg_err_validation_code'        => 'Le code de vérification entré est erroné.',
-'msg_err_attempts'               => 'Tentatives restantes: ',
-
-// Error code messages
-'azure_error'                    => 'Azure',
-'code_error_401'                 => '401 - Non autorisé',
-'code_error_403'                 => '403 - Accès refusé',
 
 // Other texts
 'what_to_do'                     => 'Que souhaitez-vous faire ?',
@@ -82,9 +71,27 @@ return[
 'user_update_usertype_himself'   => 'Vous ne pouvez pas modifier votre propre type d\'utilisateur. Cette opération doit être faite par un autre administrateur.',
 'user_delete_himself'            => 'Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.',
 'page_my_password_change'        => 'Modification de mon mot de passe',
-'user_first_azure_connexion'     => 'Vous utilisez la connexion Microsoft pour la première fois. Afin d\'enregistrer votre compte, merci d\'indiquer votre adresse e-mail se terminant par @formation.orif.ch ou @orif.ch.',
-'user_validation_code'           => 'Un code de vérification a été envoyé sur votre adresse e-mail.<br>Merci d\'entrer ce code.',
-'code_expiration_time'           => 'Temps restant avant l\'expiration du code:',
-'time_expired'                   => 'Temps expiré'
 
+// Azure
+// Error code messages
+'azure_error'                    => 'Azure',
+'msg_err_401'                    => '401 - Non autorisé',
+'msg_err_403'                    => '403 - Accès refusé',
+'msg_err_azure_unauthorized'     => 'La connexion avec Microsoft Azure est indisponible. Veuillez vérifier la validité du secret client',
+'msg_err_default'                => 'Une erreur est survenue',
+'msg_err_azure_no_token'         => 'Azure n\'a pas répondu',
+'msg_err_azure_mismatch'         => 'Les tokens ne correspondent pas',
+'msg_err_validation_code'        => 'Le code de vérification entré est erroné.',
+'msg_err_attempts'               => 'Tentatives restantes: ',
+// Azure informations
+'user_first_azure_connexion'     => 'Vous utilisez la connexion Microsoft pour la première fois. Afin d\'enregistrer votre compte, merci d\'indiquer votre'
+                                        .'adresse e-mail se terminant par @formation.orif.ch ou @orif.ch.',
+// Azure views
+'button_ms_login'                => 'Microsoft login',
+'button_resend_code'             => 'Renvoyer le code',
+// Validation code
+'user_validation_code'           => 'Un code de vérification a été envoyé sur votre adresse e-mail.<br>Merci d\'entrer ce code.<br><br>'
+                                        .'Vous n\'avez rien reçu ? Cliquez sur "Renvoyer le code" s\'il vous plaît.',
+'code_expiration_time'           => 'Temps restant avant l\'expiration du code:',
+'time_expired'                   => 'Temps expiré',
 ];

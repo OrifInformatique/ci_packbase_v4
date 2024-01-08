@@ -43,201 +43,95 @@ class Auth extends BaseController {
         $this->db = \Config\Database::connect();
     }
 
-    function errorhandler($data) {
-        $data['title'] = 'Azure error';
-        echo $this->display_view('\User\errors\azureErrors', $data);
-        exit();
-    }
-
-    public function processMailForm() {
-
-        // Check if resend code (verification_code_form.php) button was pressed 
-        if (!is_null($this->request->getPost('resend_code'))){
-            // if yes, redirect to mail_form
-            dd('resend code');
-            return $this->display_view('\User\auth\mail_form.php');
-        }
-
-
-        // Check if the user verification code is empty
-        // If empty: send code by mail
-        if (!isset($_POST['user_verification_code'])) { // If the user chose the resend code option
-
-            // if original code, form email is user input
-            if(is_null($this->request->getVar('resend_code'))){
-                $_SESSION['form_email'] = $this->request->getPost('user_email');
-            } else {
-                dd($_SESSION['form_email']);
-            }
-
-            $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
-
-            if (isset($ci_user['email']) && !empty($ci_user['email'])) {
-                $_SESSION['new_user'] = false;
-            } else {
-                $_SESSION['new_user'] = true;
-            }
-            // In both cases, send verification code and redirect to verification code form view
-
-            $_SESSION['verification_attempts'] = 3;
-
-            // Set verification attempts and send verification code
-            $_SESSION['verification_code'] = $this->sendVerificationMail($_SESSION['form_email']);
-            
-            $output = array(
-                'title' => lang('user_lang.field_verification_code'),
-                'timer_start' => $_SESSION['timer_start'],
-                'timer_limit' => $_SESSION['timer_limit'],
-                'timer_end'   => $_SESSION['timer_end'],
-            );
-
-            return $this->display_view('\User\auth\verification_code_form', $output);
-        }
-    
-        // User verification code is not empty
-        $user_verification_code = $this->request->getPost('user_verification_code');
-
-        if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']) {
-
-            if ($_SESSION['new_user'] == true)  {
-
-                // A new user needs to be created in the db
-                
-                // Receive array $user from createNewUser()
-                $new_user = $this->createNewUser();
-                
-                // insert this new user
-                $this->user_model->insert($new_user);
-
-            } else {
-
-                // User already in DB => Update azure_mail in DB
-                
-                $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
-                
-                // Verification code matches
-                $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
-                $_SESSION['user_id'] = (int)$ci_user['id'];
-                $_SESSION['username'] = $ci_user['username'];
-    
-                $data = [
-                    'azure_mail' => $_SESSION['azure_mail']
-                ];
-                
-                $this->user_model->update($ci_user['id'], $data);
-            }
-
-        } elseif(time() < $_SESSION['timer_end']) {
-            // Verification code does not match
-            $_SESSION['verification_attempts'] -= 1;
-    
-            if ($_SESSION['verification_attempts'] <= 0) {
-                // No more attempts, keep default user access
-            } else {
-                $output = array(
-                    'title' => lang('user_lang.title_validation_code'),
-                    'errorMsg' => lang('user_lang.msg_err_validation_code'),
-                    'attemptsLeft' => $_SESSION['verification_attempts'],
-                    'msg_attemptsLeft' => lang('user_lang.msg_err_attempts') . ' ' . $_SESSION['verification_attempts'],
-                );
-    
-                return $this->display_view('\User\auth\verification_code_form', $output);
-            }
-        }
-            
-        // Reset session variables
-        dd('reset session');
-        $_SESSION['form_email'] = null;
-        $_SESSION['new_user'] = null;
-        $_SESSION['azure_mail'] = null; 
-        $_SESSION['verification_attempts'] = null;
-        $_SESSION['verification_code'] = null;
-        $_SESSION['timer_end'] = null;
-        $_SESSION['timer_limit'] = null;
-        $_SESSION['test'] = null;
-
-        // Send the user to the redirection URL
-        return redirect()->to($_SESSION['after_login_redirect']);
-    }
-
-    public function sendVerificationMail($form_email) { // generate code and send mail
-
-        // Random code generator
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        $verification_code = '';
-
-        for ($i =0; $i < 6; $i++) {
-            $verification_code .= $characters[rand(0, strlen($characters) - 1)];
-        }
-        
-        // setup
-        $email = \Config\Services::email();
-                
-        $emailConfig = [
-            'protocol' => getenv('PROTOCOL'),
-            'SMTPHost' => getenv('SMTP_HOST'),
-            'SMTPUser' => getenv('SMTP_ID'),
-            'SMTPPass' => getenv('SMTP_PASSWORD'),
-            'SMTPPort' => getenv('SMTP_PORT'),
-        ];
-
-        $email->initialize($emailConfig);
-
-        // Sending code to user's  mail
-        $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
-        $email->setTo($_SESSION['form_email']);
-        $email->setSubject('Code de vérification');
-        $email->setMessage('Voici votre code de vérification: '.$verification_code);
-        $email->send();
-
-        // Set code's expiration timer
-        $_SESSION['timer_start'] = time();
-        $_SESSION['timer_limit'] = 300; // Written in seconds. 300 = 5 minutes
-        $_SESSION['timer_end'] = $_SESSION['timer_start'] + $_SESSION['timer_limit'];
-
-        return $verification_code;
-    }
-
-    public function createNewUser() {
-        
-        $user_type_model = new User_type_model();
-        $user_config = config('\User\Config\UserConfig');
-
-        // Setting up default azure access level
-        $default_access_level = $user_config->azure_default_access_lvl;
-        $new_user_type =  $user_type_model->where("access_level = ".$default_access_level)->first();
-
-        // Generating username
-        $username_max_length = $user_config->username_max_length;
-        $new_username = explode('@', $_SESSION['azure_mail']);
-        $new_username = substr($new_username[0], 0, $username_max_length);
-
-        // Generating a random password
-        $password_max_lenght = $user_config->password_max_length;
-        $new_password = '';
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-={}[]|:;"<>,.?/~`';
-
-        for ($i = 0; $i < $password_max_lenght; $i++) {
-            $new_password .= $characters[rand(0, strlen($characters) - 1)];
-        }
-
-        $new_user = array(
-            'fk_user_type'      => $new_user_type['id'],
-            'username'          => $new_username,
-            'password'          => $new_password,
-            'password_confirm'  => $new_password,
-            'email'             => $_SESSION['form_email'],
-            'azure_mail'        => $_SESSION['azure_mail'],
-        );
-        
-        return $new_user;
-    }
-
     /**
      * Login user and create session variables
      *
      * @return void
+     */
+
+    public function login(): string|Response {
+        // If user is not already logged
+        if(!(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)) {
+
+            // Store the redirection URL in a session variable
+            if (!is_null($this->request->getVar('after_login_redirect'))) {
+                $_SESSION['after_login_redirect'] = $this->request->getVar('after_login_redirect');
+            }
+            // If no redirection URL is provided or the redirection URL is the
+            // login form, redirect to site's root after login
+            if (!isset($_SESSION['after_login_redirect'])
+                    || $_SESSION['after_login_redirect'] == current_url()) {
+
+                $_SESSION['after_login_redirect'] = base_url();
+            }
+
+            // Check if the form has been submitted, else check if Microsoft button submitted
+            if (!is_null($this->request->getVar('btn_login'))) {
+
+                // Define fields validation rules
+                $validation_rules=[
+                    'username'=>[
+                    'label' => 'user_lang.field_username',
+                    'rules' => 'trim|required|'
+                        . 'min_length['.config("\User\Config\UserConfig")->username_min_length.']|'
+                        . 'max_length['.config("\User\Config\UserConfig")->username_max_length.']'],
+                    'password'=>[
+                        'label' => 'user_lang.field_password',
+                        'rules' => 'trim|required|'
+                            . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
+                            . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'
+                    ]
+                ];
+                $this->validation->setRules($validation_rules);
+
+                // Check fields validation rules
+                if ($this->validation->withRequest($this->request)->run() == true) {
+                    $input = $this->request->getVar('username');
+                    $password = $this->request->getvar('password');
+                    $ismail = $this->user_model->check_password_email($input, $password);
+                    if ($ismail || $this->user_model->check_password_name($input, $password)) {
+                        // Login success
+                        $user = NULL;
+                        // User is either logging in through an email or an username
+                        // Even if an username is entered like an email, we're not grabbing it
+                        if ($ismail) {
+                            $user = $this->user_model->getWhere(['email'=>$input])->getRow();
+                        } else {
+                            $user = $this->user_model->getWhere(['username'=>$input])->getRow();
+                        }
+                
+                        $_SESSION['user_id'] = (int)$user->id;
+                        $_SESSION['username'] = (string)$user->username;
+                        $_SESSION['user_access'] = (int)$this->user_model->get_access_level($user);
+                        $_SESSION['logged_in'] = (bool)true;
+
+                        // Send the user to the redirection URL
+                        return redirect()->to($_SESSION['after_login_redirect']);
+
+                    } else {
+                        // Login failed
+                        $this->session->setFlashdata('message-danger', lang('user_lang.msg_err_invalid_password'));
+                    }
+                    $this->session->setFlashdata('message-danger', lang('user_lang.msg_err_invalid_password'));
+                }
+
+            // Check if microsoft login button submitted, else, display login page
+            } else if (!is_null($this->request->getPost('btn_login_microsoft'))) {
+                $this->azure_login();
+                exit();
+            }
+            //Display login page
+            $output = array('title' => lang('user_lang.title_page_login'));
+            return $this->display_view('\User\auth\login', $output);
+        } else {
+            return redirect()->to(base_url());
+        }
+    }
+
+    /**
+     * Initiate the communication with Microsoft Azure for the oAuth2.0 login system
+     *
+     * @return ???
      */
     public function azure_login() {
 
@@ -349,7 +243,7 @@ class Auth extends BaseController {
                 $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
                 $_SESSION['azure_mail'] = $user_azure_mail;
                 $_SESSION['form_email'] = NULL;
-                    
+                
                 return redirect()->to(base_url("user/auth/prepare_mail_form"));
             
             // Azure mail found
@@ -368,6 +262,11 @@ class Auth extends BaseController {
         }
     }
 
+    /**
+     * Prepares the mail form and checks if the Azure mail already registered in the DB
+     *
+     * @return ???
+     */
     public function prepare_mail_form(): string {
         // Seperate name and lastname from email for mail correspondances
         $nameAndLastname = strstr($_SESSION['azure_mail'], '@', true); // True = before '@' and without '@'
@@ -388,86 +287,188 @@ class Auth extends BaseController {
         return $this->display_view('\User\auth\mail_form', $output);
     }
 
-    public function login(): string|Response
-    {
-        // If user is not already logged
-        if(!(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)) {
+    // 
+    public function processMailForm() {
+        // Check if the user verification code is empty
+        // If empty: send code by mail
+        if (!isset($_POST['user_verification_code'])) { // If the user chose the resend code option
 
-            // Store the redirection URL in a session variable
-            if (!is_null($this->request->getVar('after_login_redirect'))) {
-                $_SESSION['after_login_redirect'] = $this->request->getVar('after_login_redirect');
-            }
-            // If no redirection URL is provided or the redirection URL is the
-            // login form, redirect to site's root after login
-            if (!isset($_SESSION['after_login_redirect'])
-                    || $_SESSION['after_login_redirect'] == current_url()) {
-
-                $_SESSION['after_login_redirect'] = base_url();
+            // if original code, form email is user input
+            if(is_null($this->request->getVar('resend_code'))){
+                $_SESSION['form_email'] = $this->request->getPost('user_email');
+            } else {
+                dd($_SESSION['form_email']);
             }
 
-            // Check if the form has been submitted, else check if Microsoft button submitted
-            if (!is_null($this->request->getVar('btn_login'))) {
+            $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
 
-                // Define fields validation rules
-                $validation_rules=[
-                    'username'=>[
-                    'label' => 'user_lang.field_username',
-                    'rules' => 'trim|required|'
-                        . 'min_length['.config("\User\Config\UserConfig")->username_min_length.']|'
-                        . 'max_length['.config("\User\Config\UserConfig")->username_max_length.']'],
-                    'password'=>[
-                        'label' => 'user_lang.field_password',
-                        'rules' => 'trim|required|'
-                            . 'min_length['.config("\User\Config\UserConfig")->password_min_length.']|'
-                            . 'max_length['.config("\User\Config\UserConfig")->password_max_length.']'
-                    ]
-                ];
-                $this->validation->setRules($validation_rules);
-
-                // Check fields validation rules
-                if ($this->validation->withRequest($this->request)->run() == true) {
-                    $input = $this->request->getVar('username');
-                    $password = $this->request->getvar('password');
-                    $ismail = $this->user_model->check_password_email($input, $password);
-                    if ($ismail || $this->user_model->check_password_name($input, $password)) {
-                        // Login success
-                        $user = NULL;
-                        // User is either logging in through an email or an username
-                        // Even if an username is entered like an email, we're not grabbing it
-                        if ($ismail) {
-                            $user = $this->user_model->getWhere(['email'=>$input])->getRow();
-                        } else {
-                            $user = $this->user_model->getWhere(['username'=>$input])->getRow();
-                        }
-                
-                        $_SESSION['user_id'] = (int)$user->id;
-                        $_SESSION['username'] = (string)$user->username;
-                        $_SESSION['user_access'] = (int)$this->user_model->get_access_level($user);
-                        $_SESSION['logged_in'] = (bool)true;
-
-                        // Send the user to the redirection URL
-                        return redirect()->to($_SESSION['after_login_redirect']);
-
-                    } else {
-                        // Login failed
-                        $this->session->setFlashdata('message-danger', lang('user_lang.msg_err_invalid_password'));
-                    }
-                    $this->session->setFlashdata('message-danger', lang('user_lang.msg_err_invalid_password'));
-                }
-
-            // Check if microsoft login button submitted, else, display login page
-            } else if (!is_null($this->request->getPost('btn_login_microsoft'))) {
-                $this->azure_login();
-                exit();
+            if (isset($ci_user['email']) && !empty($ci_user['email'])) {
+                $_SESSION['new_user'] = false;
+            } else {
+                $_SESSION['new_user'] = true;
             }
-            //Display login page
-            $output = array('title' => lang('user_lang.title_page_login'));
-            return $this->display_view('\User\auth\login', $output);
-        } else {
-            return redirect()->to(base_url());
+            // In both cases, send verification code and redirect to verification code form view
+
+            $_SESSION['verification_attempts'] = 3;
+
+            // Set verification attempts and send verification code
+            $_SESSION['verification_code'] = $this->sendVerificationMail($_SESSION['form_email']);
+            
+            $output = array(
+                'title' => lang('user_lang.field_verification_code'),
+                'timer_start' => $_SESSION['timer_start'],
+                'timer_limit' => $_SESSION['timer_limit'],
+                'timer_end'   => $_SESSION['timer_end'],
+            );
+
+            return $this->display_view('\User\auth\verification_code_form', $output);
         }
-    }
     
+        // User verification code is not empty
+        $user_verification_code = $this->request->getPost('user_verification_code');
+
+        if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']) {
+
+            if ($_SESSION['new_user'] == true)  {
+
+                // A new user needs to be created in the db
+                
+                // Receive array $user from createNewUser()
+                $new_user = $this->createNewUser();
+                
+                // insert this new user
+                $this->user_model->insert($new_user);
+
+            } else {
+
+                // User already in DB => Update azure_mail in DB
+                
+                $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
+                
+                // Verification code matches
+                $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
+                $_SESSION['user_id'] = (int)$ci_user['id'];
+                $_SESSION['username'] = $ci_user['username'];
+    
+                $data = [
+                    'azure_mail' => $_SESSION['azure_mail']
+                ];
+                
+                $this->user_model->update($ci_user['id'], $data);
+            }
+
+        } elseif(time() < $_SESSION['timer_end']) {
+            // Verification code does not match
+            $_SESSION['verification_attempts'] -= 1;
+    
+            if ($_SESSION['verification_attempts'] <= 0) {
+                // No more attempts, keep default user access
+            } else {
+                $output = array(
+                    'title' => lang('user_lang.title_validation_code'),
+                    'errorMsg' => lang('user_lang.msg_err_validation_code'),
+                    'attemptsLeft' => $_SESSION['verification_attempts'],
+                    'msg_attemptsLeft' => lang('user_lang.msg_err_attempts') . ' ' . $_SESSION['verification_attempts'],
+                );
+    
+                return $this->display_view('\User\auth\verification_code_form', $output);
+            }
+        }
+            
+        // Reset session variables
+        $_SESSION['form_email'] = null;
+        $_SESSION['new_user'] = null;
+        $_SESSION['azure_mail'] = null; 
+        $_SESSION['verification_attempts'] = null;
+        $_SESSION['verification_code'] = null;
+        $_SESSION['timer_end'] = null;
+        $_SESSION['timer_limit'] = null;
+        $_SESSION['test'] = null;
+
+        // Send the user to the redirection URL
+        return redirect()->to($_SESSION['after_login_redirect']);
+    }
+
+    public function sendVerificationMail($form_email) { // generate code and send mail
+
+        // Random code generator
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        $verification_code = '';
+
+        for ($i =0; $i < 6; $i++) {
+            $verification_code .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        
+        // setup
+        $email = \Config\Services::email();
+                
+        $emailConfig = [
+            'protocol' => getenv('PROTOCOL'),
+            'SMTPHost' => getenv('SMTP_HOST'),
+            'SMTPUser' => getenv('SMTP_ID'),
+            'SMTPPass' => getenv('SMTP_PASSWORD'),
+            'SMTPPort' => getenv('SMTP_PORT'),
+        ];
+
+        $email->initialize($emailConfig);
+
+        // Sending code to user's  mail
+        $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
+        $email->setTo($_SESSION['form_email']);
+        $email->setSubject('Code de vérification');
+        $email->setMessage('Voici votre code de vérification: '.$verification_code);
+        $email->send();
+
+        // Set code's expiration timer
+        $_SESSION['timer_start'] = time();
+        $_SESSION['timer_limit'] = 300; // Written in seconds. 300 = 5 minutes
+        $_SESSION['timer_end'] = $_SESSION['timer_start'] + $_SESSION['timer_limit'];
+
+        return $verification_code;
+    }
+
+    public function createNewUser() {
+        
+        $user_type_model = new User_type_model();
+        $user_config = config('\User\Config\UserConfig');
+
+        // Setting up default azure access level
+        $default_access_level = $user_config->azure_default_access_lvl;
+        $new_user_type =  $user_type_model->where("access_level = ".$default_access_level)->first();
+
+        // Generating username
+        $username_max_length = $user_config->username_max_length;
+        $new_username = explode('@', $_SESSION['azure_mail']);
+        $new_username = substr($new_username[0], 0, $username_max_length);
+
+        // Generating a random password
+        $password_max_lenght = $user_config->password_max_length;
+        $new_password = '';
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-={}[]|:;"<>,.?/~`';
+
+        for ($i = 0; $i < $password_max_lenght; $i++) {
+            $new_password .= $characters[rand(0, strlen($characters) - 1)];
+        }
+
+        $new_user = array(
+            'fk_user_type'      => $new_user_type['id'],
+            'username'          => $new_username,
+            'password'          => $new_password,
+            'password_confirm'  => $new_password,
+            'email'             => $_SESSION['form_email'],
+            'azure_mail'        => $_SESSION['azure_mail'],
+        );
+        
+        return $new_user;
+    }
+
+    function errorhandler($data) {
+        $data['title'] = 'Azure error';
+        echo $this->display_view('\User\errors\azureErrors', $data);
+        exit();
+    }
+
     /**
      * Logout and destroy session
      *
