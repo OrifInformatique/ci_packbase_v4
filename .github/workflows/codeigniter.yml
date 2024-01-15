@@ -55,6 +55,7 @@ jobs:
         database.tests.password: root
         database.tests.DBDriver: MySQLi
         database.tests.port: 3306
+        database.tests.DBPrefix:  
         CLIENT_ID: ${{ secrets.CLIENT_ID }}
         TENANT_ID: ${{ secrets.TENANT_ID }}
         CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
