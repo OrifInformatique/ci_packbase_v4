@@ -312,30 +312,6 @@ class Auth extends BaseController {
         $_SESSION['verification_attempts'] = 3;
 
         $this->generate_send_verification_code($_SESSION['form_email']);
-        
-        // ! These lines are not necessary anymore as resend_code restarts back from prepare_mail_form(), process in which the timer is reset anyway
-        // TODO Faire verify_verification_code() et check une seule fois si le code est valide.
-        // TODO si oui, continuer avec create_new_user(), si non, donner les droits du compte déja enregistré et enregistrer le mail azure
-        // // Check if the user verification code is empty
-        // // If empty: send code by mail
-        // if (!isset($_POST['user_verification_code'])) { // If the user chose the resend code option
-
-        //     // if original code, form email is user input
-        //     if(is_null($this->request->getVar('resend_code'))){
-        //         $_SESSION['form_email'] = $this->request->getPost('user_email');
-        //     } else {
-        //         dd($_SESSION['form_email']);
-        //     }
-
-    
-        // // User verification code is not empty
-        // $user_verification_code = $this->request->getPost('user_verification_code');
-
-        // // Check if the code is valid and not expired. Returns TRUE or FALSE
-        // $is_code_valid = $this->verify_verification_code($user_verification_code);
-
-
-            
     }
 
     /**
@@ -452,7 +428,7 @@ class Auth extends BaseController {
             }
         }
 
-        // Reset session variables
+        // Reset session variables either on success or on complete failure
         $_SESSION['form_email'] = null;
         $_SESSION['new_user'] = null;
         $_SESSION['azure_mail'] = null; 
