@@ -346,7 +346,7 @@ class Auth extends BaseController {
         $email->initialize($emailConfig);
 
         // Sending code to user's orif  mail
-        $email->setFrom('smtp@sectioninformatique.ch', 'ORIF: Verification du mail'); // 2nd paramater hard coded since variable not interpreted in SetFrom
+        $email->setFrom('smtp@sectioninformatique.ch', 'ORIF: Vérification du mail'); // 2nd paramater hard coded since variable not interpreted in SetFrom
         $email->setTo($form_email);
         $email->setSubject('Code de vérification');
         $email->setMessage('Voici votre code de vérification: '.$verification_code);

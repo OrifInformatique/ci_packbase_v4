@@ -75,19 +75,17 @@
 
                         </script>
                     </div>
-                <div class="form-group">
                     
-                </div>
                 <div class="form-group">
                     <input class="form-control" id="user_verification_code" name="user_verification_code" placeholder="<?= lang('user_lang.field_verification_code'); ?>" type="text" value="<?= set_value('username'); ?>" />
                 </div>
-                <div class="form-group">
-                    <div class="col-sm-12 text-right">
-
+                <div class="form-group row">
+                    <div class = "col">
                         <!-- Resend button
                         => Redirect to prepare mail form, which'll ask again for the 'non-azure' mail before sending a new validation code -->        
                         <a href='<?= base_url('user/auth/prepare_mail_form'); ?>' id="resend_code" name="resend_code" type="submit" class="btn btn-secondary" ><?= lang('user_lang.button_resend_code'); ?></a>
-                        
+                    </div>
+                    <div class="col text-right">
                         <a id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
                         <input id="btn_submit" name="btn_submit" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
                     </div>
