@@ -271,98 +271,175 @@ class Auth extends BaseController {
         // Seperate name and lastname from email for mail correspondances
         $nameAndLastname = strstr($_SESSION['azure_mail'], '@', true); // True = before '@' and without '@'
 
-        $correspondingUser = $this->user_model->where('email LIKE', $nameAndLastname . '%')->first();
+        $correspondingUser = $this->user_model->where('email LIKE', $nameAndLastname . '%')->first(); // Orif mail
 
+        // Check if orif mail already in DB
         if ($correspondingUser == NULL){
             $correspondingEmail = '';
-        } else {
+        } else { // No correspondance
             $correspondingEmail = $correspondingUser['email'];
         }
 
+        // send correspondance if found for the auto complete
         $output = array(
             'title' => lang('user_lang.title_page_login'),
             'correspondingEmail' => $correspondingEmail,
             'azure_mail' => $_SESSION['azure_mail']);
 
+        // Ask user for his orif mail
         return $this->display_view('\User\auth\mail_form', $output);
     }
 
-    // 
-    public function processMailForm() {
-        // Check if the user verification code is empty
-        // If empty: send code by mail
-        if (!isset($_POST['user_verification_code'])) { // If the user chose the resend code option
+    /**
+     * Prepares the mail form and checks if the Azure mail already registered in the DB
+     *
+     * @return ???
+     */
+    public function handle_mail_form() {
+        
+        // Get user email from mail form
+        $_SESSION['form_email'] = $this->request->getPost('user_email');
 
-            // if original code, form email is user input
-            if(is_null($this->request->getVar('resend_code'))){
-                $_SESSION['form_email'] = $this->request->getPost('user_email');
-            } else {
-                dd($_SESSION['form_email']);
-            }
-
-            $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
-
-            if (isset($ci_user['email']) && !empty($ci_user['email'])) {
-                $_SESSION['new_user'] = false;
-            } else {
-                $_SESSION['new_user'] = true;
-            }
-            // In both cases, send verification code and redirect to verification code form view
-
-            $_SESSION['verification_attempts'] = 3;
-
-            // Set verification attempts and send verification code
-            $_SESSION['verification_code'] = $this->sendVerificationMail($_SESSION['form_email']);
-            
-            $output = array(
-                'title' => lang('user_lang.field_verification_code'),
-                'timer_start' => $_SESSION['timer_start'],
-                'timer_limit' => $_SESSION['timer_limit'],
-                'timer_end'   => $_SESSION['timer_end'],
-            );
-
-            return $this->display_view('\User\auth\verification_code_form', $output);
+        // check if the orif mail input from mail form is already in DB
+        $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
+        if (isset($ci_user['email']) && !empty($ci_user['email'])) {
+            $_SESSION['new_user'] = false;
+        } else {
+            $_SESSION['new_user'] = true;
         }
-    
-        // User verification code is not empty
-        $user_verification_code = $this->request->getPost('user_verification_code');
 
-        if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']) {
+        // Set the number of attempts before sending the code via mail
+        $_SESSION['verification_attempts'] = 3;
+
+        $this->generate_send_verification_code($_SESSION['form_email']);
+        
+        // ! These lines are not necessary anymore as resend_code restarts back from prepare_mail_form(), process in which the timer is reset anyway
+        // TODO Faire verify_verification_code() et check une seule fois si le code est valide.
+        // TODO si oui, continuer avec create_new_user(), si non, donner les droits du compte déja enregistré et enregistrer le mail azure
+        // // Check if the user verification code is empty
+        // // If empty: send code by mail
+        // if (!isset($_POST['user_verification_code'])) { // If the user chose the resend code option
+
+        //     // if original code, form email is user input
+        //     if(is_null($this->request->getVar('resend_code'))){
+        //         $_SESSION['form_email'] = $this->request->getPost('user_email');
+        //     } else {
+        //         dd($_SESSION['form_email']);
+        //     }
+
+    
+        // // User verification code is not empty
+        // $user_verification_code = $this->request->getPost('user_verification_code');
+
+        // // Check if the code is valid and not expired. Returns TRUE or FALSE
+        // $is_code_valid = $this->verify_verification_code($user_verification_code);
+
+
+            
+    }
+
+    /**
+     * Generates, starts the expiration time and sends the verification code via SMTP (mail) to the user
+     *
+     * @return ???
+     */
+    public function generate_send_verification_code($form_email) { // generate code and send mail
+
+        // Random code generator
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        $verification_code = '';
+
+        for ($i =0; $i < 6; $i++) {
+            $verification_code .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        
+        // setup SMTP
+        $email = \Config\Services::email();
+                
+        $emailConfig = [
+            'protocol' => getenv('PROTOCOL'),
+            'SMTPHost' => getenv('SMTP_HOST'),
+            'SMTPUser' => getenv('SMTP_ID'),
+            'SMTPPass' => getenv('SMTP_PASSWORD'),
+            'SMTPPort' => getenv('SMTP_PORT'),
+        ];
+
+        $appTitle = lang('common_lang.app_title');
+
+        $email->initialize($emailConfig);
+
+        // Sending code to user's orif  mail
+        $email->setFrom('smtp@sectioninformatique.ch', 'ORIF: Verification du mail'); // 2nd paramater hard coded since variable not interpreted in SetFrom
+        $email->setTo($form_email);
+        $email->setSubject('Code de vérification');
+        $email->setMessage('Voici votre code de vérification: '.$verification_code);
+        $email->send();
+
+        // Set code's expiration timer
+        $_SESSION['timer_start'] = time();
+        $_SESSION['timer_limit'] = 300; // Written in seconds. 300 = 5 minutes
+        $_SESSION['timer_end'] = $_SESSION['timer_start'] + $_SESSION['timer_limit'];
+
+        $_SESSION['verification_code'] = $verification_code;
+
+        $data = array(
+            'title' => lang('user_lang.field_verification_code'),
+            'timer_start' => $_SESSION['timer_start'],
+            'timer_limit' => $_SESSION['timer_limit'],
+            'timer_end'   => $_SESSION['timer_end'],
+        );
+
+        echo $this->display_view('\User\auth\verification_code_form', $data);
+        exit();
+    }
+
+    public function verify_verification_code() {
+
+        $user_verification_code = $this->request->getPost('user_verification_code');
+        
+        if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']){
+            $is_code_valid = true; // The code if valid
+        } else {
+            $is_code_valid = false;
+        }; // Code is not valid (bad code or expired)
+
+        if ($is_code_valid == true) { // Code valid, check is 
 
             if ($_SESSION['new_user'] == true)  {
-
+                
                 // A new user needs to be created in the db
-                
-                // Receive array $user from createNewUser()
-                $new_user = $this->createNewUser();
-                
+               
+                // Receive array $user from create_new_user()
+                $new_user = $this->create_new_user();
+               
                 // insert this new user
                 $this->user_model->insert($new_user);
 
             } else {
 
                 // User already in DB => Update azure_mail in DB
-                
+               
                 $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
-                
+               
                 // Verification code matches
                 $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user);
                 $_SESSION['user_id'] = (int)$ci_user['id'];
                 $_SESSION['username'] = $ci_user['username'];
-    
+   
                 $data = [
                     'azure_mail' => $_SESSION['azure_mail']
                 ];
-                
+               
                 $this->user_model->update($ci_user['id'], $data);
             }
 
-        } elseif(time() < $_SESSION['timer_end']) {
-            // Verification code does not match
+        } else { // Code is not valid for any reason (false and/or expired)
+
             $_SESSION['verification_attempts'] -= 1;
-    
+  
             if ($_SESSION['verification_attempts'] <= 0) {
-                // No more attempts, keep default user access
+                // No more attempts, keep default user access, reset some session variables and redirect to after_login_redirect
             } else {
                 $output = array(
                     'title' => lang('user_lang.title_validation_code'),
@@ -370,11 +447,11 @@ class Auth extends BaseController {
                     'attemptsLeft' => $_SESSION['verification_attempts'],
                     'msg_attemptsLeft' => lang('user_lang.msg_err_attempts') . ' ' . $_SESSION['verification_attempts'],
                 );
-    
+   
                 return $this->display_view('\User\auth\verification_code_form', $output);
             }
         }
-            
+
         // Reset session variables
         $_SESSION['form_email'] = null;
         $_SESSION['new_user'] = null;
@@ -389,46 +466,7 @@ class Auth extends BaseController {
         return redirect()->to($_SESSION['after_login_redirect']);
     }
 
-    public function sendVerificationMail($form_email) { // generate code and send mail
-
-        // Random code generator
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        $verification_code = '';
-
-        for ($i =0; $i < 6; $i++) {
-            $verification_code .= $characters[rand(0, strlen($characters) - 1)];
-        }
-        
-        // setup
-        $email = \Config\Services::email();
-                
-        $emailConfig = [
-            'protocol' => getenv('PROTOCOL'),
-            'SMTPHost' => getenv('SMTP_HOST'),
-            'SMTPUser' => getenv('SMTP_ID'),
-            'SMTPPass' => getenv('SMTP_PASSWORD'),
-            'SMTPPort' => getenv('SMTP_PORT'),
-        ];
-
-        $email->initialize($emailConfig);
-
-        // Sending code to user's  mail
-        $email->setFrom('smtp@sectioninformatique.ch', 'packbase'); 
-        $email->setTo($_SESSION['form_email']);
-        $email->setSubject('Code de vérification');
-        $email->setMessage('Voici votre code de vérification: '.$verification_code);
-        $email->send();
-
-        // Set code's expiration timer
-        $_SESSION['timer_start'] = time();
-        $_SESSION['timer_limit'] = 300; // Written in seconds. 300 = 5 minutes
-        $_SESSION['timer_end'] = $_SESSION['timer_start'] + $_SESSION['timer_limit'];
-
-        return $verification_code;
-    }
-
-    public function createNewUser() {
+    public function create_new_user() {
         
         $user_type_model = new User_type_model();
         $user_config = config('\User\Config\UserConfig');
@@ -461,6 +499,10 @@ class Auth extends BaseController {
         );
         
         return $new_user;
+    }
+
+    public function reset_session() {
+        // 
     }
 
     function errorhandler($data) {

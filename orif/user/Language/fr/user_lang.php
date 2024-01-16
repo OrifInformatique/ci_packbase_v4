@@ -35,7 +35,7 @@ return[
 // Fields labels
 'field_username'                 => 'Identifiant',
 'field_password'                 => 'Mot de passe',
-'field_email'                    => 'Addresse e-mail',
+'field_email'                    => 'Adresse e-mail',
 'field_old_password'             => 'Ancien mot de passe',
 'field_new_password'             => 'Nouveau mot de passe',
 'field_password_confirm'         => 'Confirmer le mot de passe',
@@ -43,7 +43,6 @@ return[
 'field_user_active'              => 'Activé',
 'field_deleted_users_display'    => 'Afficher les utilisateurs désactivés',
 'field_login_input'              => 'Identifiant ou e-mail',
-'field_verification_code'        => 'Code de vérification',
 
 // Error messages
 'msg_err_user_not_exist'         => 'L\'utilisateur sélectionné n\'existe pas',
@@ -73,6 +72,7 @@ return[
 'page_my_password_change'        => 'Modification de mon mot de passe',
 
 // Azure
+
 // Error code messages
 'azure_error'                    => 'Azure',
 'msg_err_401'                    => '401 - Non autorisé',
@@ -90,6 +90,7 @@ return[
 'button_ms_login'                => 'Microsoft login',
 'button_resend_code'             => 'Renvoyer le code',
 // Validation code
+'field_verification_code'        => 'Code de vérification',
 'user_validation_code'           => 'Un code de vérification a été envoyé sur votre adresse e-mail.<br>Merci d\'entrer ce code.<br><br>'
                                         .'Vous n\'avez rien reçu ? Cliquez sur "Renvoyer le code" s\'il vous plaît.',
 'code_expiration_time'           => 'Temps restant avant l\'expiration du code:',

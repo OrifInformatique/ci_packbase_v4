@@ -27,7 +27,7 @@
                 $attributes = array("class" => "form-horizontal",
                                     "id" => "verificationCode",
                                     "name" => "verificationCode");
-                echo form_open("user/auth/processMailForm", $attributes);
+                echo form_open("user/auth/verify_verification_code", $attributes);
             ?>
             <fieldset>
                 <!-- S tatus messages -->
