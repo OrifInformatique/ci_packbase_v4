@@ -91,8 +91,8 @@ return[
 'button_resend_code'             => 'Renvoyer le code',
 // Validation code
 'field_verification_code'        => 'Code de vérification',
-'user_validation_code'           => 'Un code de vérification a été envoyé sur votre adresse e-mail.<br>Merci d\'entrer ce code.<br><br>'
-                                        .'Vous n\'avez rien reçu ? Cliquez sur "Renvoyer le code" s\'il vous plaît.',
+'user_validation_code'           => 'Un code de vérification a été envoyé sur votre adresse e-mail.<br>Merci d\'entrer ce code.',
 'code_expiration_time'           => 'Temps restant avant l\'expiration du code:',
 'time_expired'                   => 'Temps expiré',
+'resend_msg'                     => 'Vous n\'avez rien reçu ?',
 ];

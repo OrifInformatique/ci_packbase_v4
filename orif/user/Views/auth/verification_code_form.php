@@ -79,6 +79,7 @@
                 <div class="form-group">
                     <input class="form-control" id="user_verification_code" name="user_verification_code" placeholder="<?= lang('user_lang.field_verification_code'); ?>" type="text" value="<?= set_value('username'); ?>" />
                 </div>
+                <p style='color:#9e895a'><?= lang('user_lang.resend_msg'); ?></p>
                 <div class="form-group row">
                     <div class = "col">
                         <!-- Resend button
