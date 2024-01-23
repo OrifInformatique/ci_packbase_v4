@@ -141,7 +141,7 @@ class Auth extends BaseController {
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
         
-        // Authentication part begins
+        // Authentication part bFegins
         if (!isset($_GET["code"]) and !isset($_GET["error"])) {
             
             // First stage of the authentication process
@@ -226,7 +226,6 @@ class Auth extends BaseController {
             };
 
             // Setting up the session
-            $_SESSION['logged_in'] = (bool)true;
             $_SESSION['azure_identification'] = (bool)true;
 
             // Mail correspondances
@@ -240,7 +239,7 @@ class Auth extends BaseController {
 
                 $_SESSION['user_id'] = NULL;
                 $_SESSION['username'] = $userdata['displayName'];
-                $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl;
+                $_SESSION['user_access'] = config("\User\Config\UserConfig")->azure_default_access_lvl; // guest access
                 $_SESSION['azure_mail'] = $user_azure_mail;
                 $_SESSION['form_email'] = NULL;
                 
@@ -251,6 +250,7 @@ class Auth extends BaseController {
                 $_SESSION['user_id'] = $ci_user_azure['id'];
                 $_SESSION['username'] = $ci_user_azure['username'];
                 $_SESSION['user_access'] = (int)$this->user_model->get_access_level($ci_user_azure);
+                $_SESSION['logged_in'] = (bool)true;
 
                 return redirect()->to($_SESSION['after_login_redirect']);
             };
@@ -392,6 +392,8 @@ class Auth extends BaseController {
                 // insert this new user
                 $this->user_model->insert($new_user);
 
+                $_SESSION['logged_in'] = (bool)true;
+
             } else {
 
                 // User already in DB => Update azure_mail in DB
@@ -428,6 +430,7 @@ class Auth extends BaseController {
             }
         }
 
+        // todo redirect to reset sessions
         // Reset session variables either on success or on complete failure
         $_SESSION['form_email'] = null;
         $_SESSION['new_user'] = null;
