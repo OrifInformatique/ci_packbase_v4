@@ -430,7 +430,7 @@ class Auth extends BaseController {
             }
         }
 
-        // todo redirect to reset sessions
+        // todo redirect to reset sessions method
         // Reset session variables either on success or on complete failure
         $_SESSION['form_email'] = null;
         $_SESSION['new_user'] = null;
