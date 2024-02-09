@@ -16,8 +16,9 @@ use User\Models\User_type_model;
 use CodeIgniter\Email\Email;
 use CodeIgniter\HTTP\Response;
 use Config\UserConfig;
+use User\Controllers\Profile;
 
-class Auth extends BaseController {
+    class Auth extends BaseController {
 
     /**
      * Constructor
@@ -99,11 +100,20 @@ class Auth extends BaseController {
                         } else {
                             $user = $this->user_model->getWhere(['username'=>$input])->getRow();
                         }
-                
+                        
+                        // return redirect()->to('/user/auth/login');
                         $_SESSION['user_id'] = (int)$user->id;
+                        // $profile_controller = new Profile(); 
+                        // $profile_controller -> checkForceChangePassword();
+
                         $_SESSION['username'] = (string)$user->username;
                         $_SESSION['user_access'] = (int)$this->user_model->get_access_level($user);
                         $_SESSION['logged_in'] = (bool)true;
+                        
+                        // force user to change password if told so
+                        if  ($user->reset_password = 1) {
+                            return redirect()->to(base_url("user/auth/change_password"));
+                        }
 
                         // Send the user to the redirection URL
                         return redirect()->to($_SESSION['after_login_redirect']);
@@ -141,7 +151,7 @@ class Auth extends BaseController {
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
         
-        // Authentication part bFegins
+        // Authentication part begins
         if (!isset($_GET["code"]) and !isset($_GET["error"])) {
             
             // First stage of the authentication process
@@ -308,6 +318,15 @@ class Auth extends BaseController {
             $_SESSION['new_user'] = true;
         }
 
+        // WARNING !  THIS IS FOR DEBUG
+        $SKIP_VERIFICATION_CODE = getenv('SKIP_VERIFICATION_CODE');
+        if ($SKIP_VERIFICATION_CODE = true){
+            $_SESSION['verification_code'] = null;
+            $_SESSION['timer_end'] = null;
+            $_SESSION['SKIP_VERIFICATION_CODE'] = true;
+            return $this->verify_verification_code();
+        }
+
         // Set the number of attempts before sending the code via mail
         $_SESSION['verification_attempts'] = 3;
 
@@ -376,6 +395,8 @@ class Auth extends BaseController {
         
         if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']){
             $is_code_valid = true; // The code if valid
+        } elseif ($_SESSION['SKIP_VERIFICATION_CODE'] = true) {
+            $is_code_valid = true;
         } else {
             $is_code_valid = false;
         }; // Code is not valid (bad code or expired)
@@ -383,16 +404,20 @@ class Auth extends BaseController {
         if ($is_code_valid == true) { // Code valid, check is 
 
             if ($_SESSION['new_user'] == true)  {
-                
-                // A new user needs to be created in the db
-               
-                // Receive array $user from create_new_user()
-                $new_user = $this->create_new_user();
+
+                // A new user needs to be created in the db 
+                // Receive array $user from register_user()
+                $new_user = $this->register_user();
                
                 // insert this new user
                 $this->user_model->insert($new_user);
 
+                // Force user to change password on next 'normal' login
+
                 $_SESSION['logged_in'] = (bool)true;
+
+                // TODO: Afficher formulaire creation user avec infos pré-remplies (save_user)
+                // TODO : Route differente, remplacer after_login_redirect
 
             } else {
 
@@ -423,14 +448,62 @@ class Auth extends BaseController {
                     'title' => lang('user_lang.title_validation_code'),
                     'errorMsg' => lang('user_lang.msg_err_validation_code'),
                     'attemptsLeft' => $_SESSION['verification_attempts'],
-                    'msg_attemptsLeft' => lang('user_lang.msg_err_attempts') . ' ' . $_SESSION['verification_attempts'],
+                    'msg_attemptsLeft' => lang('user_lang.msg_err_attempts') 
+                    . ' ' . $_SESSION['verification_attempts'],
                 );
    
-                return $this->display_view('\User\auth\verification_code_form', $output);
+                return $this->display_view(
+                    '\User\auth\verification_code_form',
+                    $output
+                );
             }
         }
 
         // todo redirect to reset sessions method
+        return $this->reset_session();
+
+    }
+
+    public function register_user() {
+        
+        $user_type_model = new User_type_model();
+        $user_config = config('\User\Config\UserConfig');
+
+        // Setting up default azure access level
+        $default_access_level = $user_config->azure_default_access_lvl;
+        $new_user_type =  $user_type_model
+            ->where("access_level = ".$default_access_level)
+            ->first();
+
+        // Generating username
+        $username_max_length = $user_config->username_max_length;
+        $new_username = explode('@', $_SESSION['azure_mail']);
+        $new_username = substr($new_username[0], 0, $username_max_length);
+
+        // Generating a random password
+        $password_max_lenght = $user_config->password_max_length;
+        $new_password = '';
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyz'
+            .'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-={}[]|:;"<>,.?/~`';
+
+        for ($i = 0; $i < $password_max_lenght; $i++) {
+            $new_password .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        $reset_password = True;
+        $new_user = array(
+            'fk_user_type'      => $new_user_type['id'],
+            'username'          => $new_username,
+            'password'          => $new_password,
+            'password_confirm'  => $new_password,
+            'reset_password'    => $reset_password,
+            'email'             => $_SESSION['form_email'],
+            'azure_mail'        => $_SESSION['azure_mail'],
+        );
+        
+        return $new_user;
+    }
+
+    public function reset_session() {
         // Reset session variables either on success or on complete failure
         $_SESSION['form_email'] = null;
         $_SESSION['new_user'] = null;
@@ -441,47 +514,11 @@ class Auth extends BaseController {
         $_SESSION['timer_limit'] = null;
         $_SESSION['test'] = null;
 
+        
+        
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
-    }
-
-    public function create_new_user() {
-        
-        $user_type_model = new User_type_model();
-        $user_config = config('\User\Config\UserConfig');
-
-        // Setting up default azure access level
-        $default_access_level = $user_config->azure_default_access_lvl;
-        $new_user_type =  $user_type_model->where("access_level = ".$default_access_level)->first();
-
-        // Generating username
-        $username_max_length = $user_config->username_max_length;
-        $new_username = explode('@', $_SESSION['azure_mail']);
-        $new_username = substr($new_username[0], 0, $username_max_length);
-
-        // Generating a random password
-        $password_max_lenght = $user_config->password_max_length;
-        $new_password = '';
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-={}[]|:;"<>,.?/~`';
-
-        for ($i = 0; $i < $password_max_lenght; $i++) {
-            $new_password .= $characters[rand(0, strlen($characters) - 1)];
-        }
-
-        $new_user = array(
-            'fk_user_type'      => $new_user_type['id'],
-            'username'          => $new_username,
-            'password'          => $new_password,
-            'password_confirm'  => $new_password,
-            'email'             => $_SESSION['form_email'],
-            'azure_mail'        => $_SESSION['azure_mail'],
-        );
-        
-        return $new_user;
-    }
-
-    public function reset_session() {
-        // 
+        // return redirect()->to('/user/profile/test');
     }
 
     function errorhandler($data) {
@@ -490,6 +527,50 @@ class Auth extends BaseController {
         exit();
     }
 
+    /**
+     * Displays a form to let user change his password
+     *
+     * @return void
+     */
+    public function change_password(): Response|string {
+
+        // Get user from DB, redirect if user doesn't exist
+        $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
+        if (is_null($user)) return redirect()->to('/user/auth/login');
+
+        // Empty errors message in output
+        $output['errors'] = [];
+        // Check if the form has been submitted, else just display the form
+        if (!is_null($this->request->getVar('btn_change_password'))) {
+            $old_password = $this->request->getVar('old_password');
+
+            if($this->user_model->check_password_name($user['username'], $old_password)) {
+                $user['password'] = $this->request->getVar('new_password');
+                $user['password_confirm'] = $this->request->getVar('confirm_password');
+
+                $this->user_model->update($user['id'], $user);
+
+                if ($this->user_model->errors()==null) {
+                    // No error happened, redirect
+                    $user['reset_password'] = 0; // false
+                    $this->user_model->update($user['id'], $user);
+                    return redirect()->to(base_url());
+                } else {
+                    // Display error messages
+                    $output['errors'] = $this->user_model->errors();
+                }
+
+            } else {
+                // Old password error
+                $output['errors'][] = lang('user_lang.msg_err_invalid_old_password');
+            }
+        }
+
+        // Display the password change form
+        $output['title'] = lang('user_lang.page_my_password_change');
+        return $this->display_view('\User\auth\change_password', $output);
+
+    }
     /**
      * Logout and destroy session
      *
@@ -505,54 +586,4 @@ class Auth extends BaseController {
         return redirect()->to(base_url());
     }
 
-    /**
-     * Displays a form to let user change his password
-     *
-     * @return void
-     */
-    public function change_password(): Response|string 
-    {
-        // Check if access is allowed
-        if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
-
-            // Get user from DB, redirect if user doesn't exist
-            $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
-            if (is_null($user)) return redirect()->to('/user/auth/login');
-
-            // Empty errors message in output
-            $output['errors'] = [];
-
-            // Check if the form has been submitted, else just display the form
-            if (!is_null($this->request->getVar('btn_change_password'))) {
-                $old_password = $this->request->getVar('old_password');
-
-                if($this->user_model->check_password_name($user['username'], $old_password)) {
-                    $user['password'] = $this->request->getVar('new_password');
-                    $user['password_confirm'] = $this->request->getVar('confirm_password');
-
-                    $this->user_model->update($user['id'], $user);
-
-                    if ($this->user_model->errors()==null) {
-                        // No error happened, redirect
-                        return redirect()->to(base_url());
-                    } else {
-                        // Display error messages
-                        $output['errors'] = $this->user_model->errors();
-                    }
-
-                } else {
-                    // Old password error
-                    $output['errors'][] = lang('user_lang.msg_err_invalid_old_password');
-                }
-            }
-
-            // Display the password change form
-            $output['title'] = lang('user_lang.page_my_password_change');
-            return $this->display_view('\User\auth\change_password', $output);
-
-        } else {
-            // Access is not allowed
-            return redirect()->to('/user/auth/login');
-        }
-    }
 }

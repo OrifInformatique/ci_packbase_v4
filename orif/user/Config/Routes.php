@@ -11,4 +11,6 @@ $routes->add('user/auth/(:any)','\User\Controllers\Auth::$1');
 $routes->add('user/admin/(:any)','\User\Controllers\Admin::$1');
 $routes->add('user/auth/processMailForm','Auth::processMailForm',
     ['as' => 'processMailForm']);
+$routes->add('user/profile/update','\User\Controllers\Profile::$1');
+$routes->add('user/profile/(:any)','\User\Controllers\Profile::$1');
 ?>

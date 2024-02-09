@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Admin controller
  *
  * @author      Orif (ViDi,HeMa)

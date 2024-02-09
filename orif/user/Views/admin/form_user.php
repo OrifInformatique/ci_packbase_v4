@@ -98,6 +98,15 @@ $validation=\Config\Services::validation();
                         'class' => 'form-control', 'id' => 'user_password_again'
                     ]); ?>
                 </div>
+
+                <!-- FORCE PASSWORD CHANGE ONCE ON NEXT LOGIN -->
+                <!-- TODO: make it checked when in DB, force_password change set to true -->
+                <div class="col-12">
+                    <!-- <input type="checkbox" id='force_password_change'> -->
+                    <label for="force_password_change"><?= lang("user_lang.force_password_change"); ?></label>
+
+                    <input type="checkbox" name="force_password_change" value="<?= lang("user_lang.force_password_change"); ?>" checked="checked"> <!-- checked="checked" should change depending of the DB-->
+                </div>
             </div>
         <?php } ?>
         
@@ -109,6 +118,7 @@ $validation=\Config\Services::validation();
                         <?= lang("user_lang.title_user_password_reset"); ?>
                     </a>
                 </div>
+
                 
                 <!-- ACTIVATE / DISABLE EXISTING USER -->
                 <?php if ($user['archive']) { ?>
