@@ -320,7 +320,7 @@ use User\Controllers\Profile;
 
         // WARNING !  THIS IS FOR DEBUG
         $SKIP_VERIFICATION_CODE = getenv('SKIP_VERIFICATION_CODE');
-        if ($SKIP_VERIFICATION_CODE = true){
+        if ($SKIP_VERIFICATION_CODE == 'true'){
             $_SESSION['verification_code'] = null;
             $_SESSION['timer_end'] = null;
             $_SESSION['SKIP_VERIFICATION_CODE'] = true;
@@ -514,8 +514,6 @@ use User\Controllers\Profile;
         $_SESSION['timer_limit'] = null;
         $_SESSION['test'] = null;
 
-        
-        
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
         // return redirect()->to('/user/profile/test');
@@ -554,6 +552,8 @@ use User\Controllers\Profile;
                     // No error happened, redirect
                     $user['reset_password'] = 0; // false
                     $this->user_model->update($user['id'], $user);
+
+                    //redirect elsewhere if force password
                     return redirect()->to(base_url());
                 } else {
                     // Display error messages
