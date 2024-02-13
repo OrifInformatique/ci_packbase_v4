@@ -23,9 +23,16 @@
                 <legend><?= lang('user_lang.page_my_password_change'); ?></legend>
 
                 <!-- ERROR MESSAGES -->
+                <?php foreach ($errors as $error) { ?>
+                    <div class="alert alert-danger" role="alert">
+                        <?= $error ?>
+                    </div>
+                <?php } ?>
 
-                <?php if (isset($reset_password) && $reset_password = 1) { ?>
-                    <div>perrout</div>                
+                <?php if (isset($reset_password) && $reset_password == 1) { ?>
+                    <div class="alert alert-danger" role="alert">
+                        <?= lang('user_lang.page_force_password_change') ;?>
+                    </div>
                 <?php } ?>
 
                 <div class="form-group">

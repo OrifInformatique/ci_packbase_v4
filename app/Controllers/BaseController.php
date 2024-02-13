@@ -110,6 +110,9 @@ abstract class BaseController extends Controller
                 // The usual redirect()->to() doesn't work here. Keep this kind of redirect.
                 return false;
             }
+           // elseif ($_SESSION['logged_in'] == true && $user[]) {
+
+           // }
             // check if page is accessible for all logged in users
             elseif ($required_level == "@") {
                 return true;

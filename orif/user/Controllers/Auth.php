@@ -111,12 +111,9 @@ use User\Controllers\Profile;
                         $_SESSION['logged_in'] = (bool)true;
                         
                         // force user to change password if told so
-                        if  ($user->reset_password = 1) {
-                            $data = [
-                                'reset_password' => 1
-                            ];
-                            return redirect()->to(base_url("user/auth/change_password", $data));
-                            return $this->display_view('\User\auth\change_password', $output);
+                        
+                        if  ($user->reset_password == 1) {
+                            return redirect()->to(base_url("user/profile/change_password"));
                         }
 
                         // Send the user to the redirection URL
@@ -572,6 +569,7 @@ use User\Controllers\Profile;
 
         // Display the password change form
         $output['title'] = lang('user_lang.page_my_password_change');
+        $output['reset_password'] = $user['reset_password'];
         return $this->display_view('\User\auth\change_password', $output);
 
     }
