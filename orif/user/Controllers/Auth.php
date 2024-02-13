@@ -112,7 +112,11 @@ use User\Controllers\Profile;
                         
                         // force user to change password if told so
                         if  ($user->reset_password = 1) {
-                            return redirect()->to(base_url("user/auth/change_password"));
+                            $data = [
+                                'reset_password' => 1
+                            ];
+                            return redirect()->to(base_url("user/auth/change_password", $data));
+                            return $this->display_view('\User\auth\change_password', $output);
                         }
 
                         // Send the user to the redirection URL
