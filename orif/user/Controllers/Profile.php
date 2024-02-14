@@ -16,6 +16,7 @@ use User\Models\User_model;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use CodeIgniter\HTTP\RedirectResponse;
 
 class Profile extends BaseController {
 
@@ -45,9 +46,13 @@ class Profile extends BaseController {
 
     }
 
-    public function change_password(): Response|string {
+    /**
+     * Displays a form to let user change his password
+     *
+     * @return void
+     */
+    public function change_password(): Response|string|RedirectResponse {
 
-        dd('test');
         // Get user from DB, redirect if user doesn't exist
         $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
         if (is_null($user)) return redirect()->to('/user/auth/login');
@@ -67,9 +72,9 @@ class Profile extends BaseController {
                 if ($this->user_model->errors()==null) {
                     // No error happened, redirect
                     $user['reset_password'] = 0; // false
+                    $_SESSION['reset_password'] = null;
                     $this->user_model->update($user['id'], $user);
 
-                    //redirect elsewhere if force password
                     return redirect()->to(base_url());
                 } else {
                     // Display error messages
@@ -83,8 +88,8 @@ class Profile extends BaseController {
         }
 
         // Display the password change form
+        $_SESSION['reset_password'] = $user['reset_password'];
         $output['title'] = lang('user_lang.page_my_password_change');
-        $output['reset_password'] = $user['reset_password'];
         return $this->display_view('\User\auth\change_password', $output);
 
     }

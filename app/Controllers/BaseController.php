@@ -95,6 +95,7 @@ abstract class BaseController extends Controller
             $_SESSION['logged_in'] = false;
         }
 
+
         if (is_null($required_level)) {
             // No required level is defined, use the controller's default level
             $required_level = $this->access_level;
@@ -107,12 +108,8 @@ abstract class BaseController extends Controller
         else {
             // check if user is logged in, if not access is not allowed
             if ($_SESSION['logged_in'] != true) {
-                // The usual redirect()->to() doesn't work here. Keep this kind of redirect.
                 return false;
             }
-           // elseif ($_SESSION['logged_in'] == true && $user[]) {
-
-           // }
             // check if page is accessible for all logged in users
             elseif ($required_level == "@") {
                 return true;
@@ -136,8 +133,18 @@ abstract class BaseController extends Controller
      *         $data : data array to send to the view
      */
     public function display_view(string|array $view_parts,
-        ?array $data = NULL): string
+        ?array $data = NULL): string|Response
     {
+
+        if (!isset($_SESSION['reset_password'])) {
+            $_SESSION['reset_password'] = false;
+        }
+        
+        // Force user to change his password is asked so
+        if ($_SESSION['logged_in'] == true && $_SESSION['reset_password'] == 1) {
+            $view_parts = '\User\auth\change_password';
+        }
+
         // The view to be constructed and displayed
         $viewToDisplay = '';
         

@@ -103,15 +103,11 @@ use User\Controllers\Profile;
                         
                         // return redirect()->to('/user/auth/login');
                         $_SESSION['user_id'] = (int)$user->id;
-                        // $profile_controller = new Profile(); 
-                        // $profile_controller -> checkForceChangePassword();
-
                         $_SESSION['username'] = (string)$user->username;
                         $_SESSION['user_access'] = (int)$this->user_model->get_access_level($user);
                         $_SESSION['logged_in'] = (bool)true;
                         
                         // force user to change password if told so
-                        
                         if  ($user->reset_password == 1) {
                             return redirect()->to(base_url("user/profile/change_password"));
                         }
@@ -514,6 +510,7 @@ use User\Controllers\Profile;
         $_SESSION['timer_end'] = null;
         $_SESSION['timer_limit'] = null;
         $_SESSION['test'] = null;
+        $_SESSION['reset_password'] = null; 
 
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
@@ -526,53 +523,6 @@ use User\Controllers\Profile;
         exit();
     }
 
-    /**
-     * Displays a form to let user change his password
-     *
-     * @return void
-     */
-    public function change_password(): Response|string {
-
-        // Get user from DB, redirect if user doesn't exist
-        $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
-        if (is_null($user)) return redirect()->to('/user/auth/login');
-
-        // Empty errors message in output
-        $output['errors'] = [];
-        // Check if the form has been submitted, else just display the form
-        if (!is_null($this->request->getVar('btn_change_password'))) {
-            $old_password = $this->request->getVar('old_password');
-
-            if($this->user_model->check_password_name($user['username'], $old_password)) {
-                $user['password'] = $this->request->getVar('new_password');
-                $user['password_confirm'] = $this->request->getVar('confirm_password');
-
-                $this->user_model->update($user['id'], $user);
-
-                if ($this->user_model->errors()==null) {
-                    // No error happened, redirect
-                    $user['reset_password'] = 0; // false
-                    $this->user_model->update($user['id'], $user);
-
-                    //redirect elsewhere if force password
-                    return redirect()->to(base_url());
-                } else {
-                    // Display error messages
-                    $output['errors'] = $this->user_model->errors();
-                }
-
-            } else {
-                // Old password error
-                $output['errors'][] = lang('user_lang.msg_err_invalid_old_password');
-            }
-        }
-
-        // Display the password change form
-        $output['title'] = lang('user_lang.page_my_password_change');
-        $output['reset_password'] = $user['reset_password'];
-        return $this->display_view('\User\auth\change_password', $output);
-
-    }
     /**
      * Logout and destroy session
      *
