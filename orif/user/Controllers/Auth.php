@@ -318,15 +318,6 @@ use User\Controllers\Profile;
             $_SESSION['new_user'] = true;
         }
 
-        // WARNING !  THIS IS FOR DEBUG
-        $SKIP_VERIFICATION_CODE = getenv('SKIP_VERIFICATION_CODE');
-        if ($SKIP_VERIFICATION_CODE = true){
-            $_SESSION['verification_code'] = null;
-            $_SESSION['timer_end'] = null;
-            $_SESSION['SKIP_VERIFICATION_CODE'] = true;
-            return $this->verify_verification_code();
-        }
-
         // Set the number of attempts before sending the code via mail
         $_SESSION['verification_attempts'] = 3;
 
@@ -395,8 +386,6 @@ use User\Controllers\Profile;
         
         if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']){
             $is_code_valid = true; // The code if valid
-        } elseif ($_SESSION['SKIP_VERIFICATION_CODE'] = true) {
-            $is_code_valid = true;
         } else {
             $is_code_valid = false;
         }; // Code is not valid (bad code or expired)
@@ -412,12 +401,7 @@ use User\Controllers\Profile;
                 // insert this new user
                 $this->user_model->insert($new_user);
 
-                // Force user to change password on next 'normal' login
-
                 $_SESSION['logged_in'] = (bool)true;
-
-                // TODO: Afficher formulaire creation user avec infos pré-remplies (save_user)
-                // TODO : Route differente, remplacer after_login_redirect
 
             } else {
 
@@ -435,6 +419,8 @@ use User\Controllers\Profile;
                 ];
                
                 $this->user_model->update($ci_user['id'], $data);
+                
+                $_SESSION['logged_in'] = (bool)true;
             }
 
         } else { // Code is not valid for any reason (false and/or expired)
