@@ -17,18 +17,26 @@
             $attributes = array("class" => "form-horizontal",
                                 "id" => "change_password",
                                 "name" => "change_password");
-            echo form_open("user/auth/change_password", $attributes);
+            echo form_open("user/profile/change_password", $attributes);
             ?>
             <fieldset>
                 <legend><?= lang('user_lang.page_my_password_change'); ?></legend>
 
                 <!-- ERROR MESSAGES -->
-                <?php foreach ($errors as $error) { ?>
+                <?php if(isset($errors)) {
+                    foreach ($errors as $error) { ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?= $error ?>
+                        </div>
+                    <?php } ?>
+                <?php } ?>
+
+                <?php if (isset($_SESSION['reset_password']) && $_SESSION['reset_password'] == 1) { ?>
                     <div class="alert alert-danger" role="alert">
-                        <?= $error ?>
+                        <?= lang('user_lang.page_force_password_change') ;?>
                     </div>
                 <?php } ?>
-                
+
                 <div class="form-group">
                     <div class="row colbox">
                         <div class="col-md-4">

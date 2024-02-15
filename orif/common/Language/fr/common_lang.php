@@ -9,10 +9,10 @@
 
 return[
 // Application name
-    'app_title'                      => 'Titre de l\'application',
+    'app_title'                      => 'Titre de l\'application <br>(à changer dans common_lang.php)',
 
 // Page titles
-    'page_prefix'                    => 'Packbase V4',
+    'page_prefix'                    => 'Packbase V4 <br>(à changer dans common_lang.php)',
 
 // Buttons
     'btn_admin'                      => 'Administration',

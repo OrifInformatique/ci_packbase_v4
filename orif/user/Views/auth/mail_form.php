@@ -16,7 +16,7 @@
                 $attributes = array("class" => "form-horizontal",
                                     "id" => "mail_form",
                                     "name" => "mail_form");
-                echo form_open("user/auth/processMailForm", $attributes);
+                echo form_open("user/auth/handle_mail_form", $attributes);
             ?>
             <fieldset>
                 <!-- Status messages -->
@@ -38,14 +38,14 @@
                 <div class="form-group">
                     <div class="col-sm-12 text-right">
                         <a id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
-                        <input id="btn_login" name="btn_login" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
+                        <input id="btn_next" name="btn_next" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_next'); ?>" />
                     </div>
                 </div>
                 <div>
                     <?= form_hidden('azure_mail',
                     [
                         'id' => 'azure_mail',
-                        'value' => $userdata['mail'] ?? $azure_mail ?? '',
+                        'value' => $azure_mail,
                     ]); ?>
                 <div>
 

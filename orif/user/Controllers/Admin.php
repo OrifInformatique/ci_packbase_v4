@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Admin controller
  *
  * @author      Orif (ViDi,HeMa)
@@ -114,20 +114,23 @@ class Admin extends BaseController
             }
         }
 
-        //usertiarray is an array contained all usertype name and id
+        //usertiarray is an array that containes all usertype name and id
         $usertiarray=$this->db->table('user_type')->select(['id','name'],)->get()->getResultArray();
         $usertypes=[];
+         
         foreach ($usertiarray as $row){
             $usertypes[$row['id']]=$row['name'];
         }
+
         $output = array(
-            'title'         => lang('user_lang.title_user_'.((bool)$user_id ? 'update' : 'new')),
-            'user'          => $this->user_model->withDeleted()->find($user_id),
-            'user_types'    => $usertypes,
-            'user_name'     => $oldName,
-            'user_usertype' => $oldUsertype,
-            'email'         => $user['email']??null,
-            'errors'        => $this->user_model->errors()==null?[]:$this->user_model->errors()
+            'title'                 => lang('user_lang.title_user_'.((bool)$user_id ? 'update' : 'new')),
+            'user'                  => $this->user_model->withDeleted()->find($user_id),
+            'user_types'            => $usertypes,
+            'user_name'             => $oldName,
+            'user_usertype'         => $oldUsertype,
+            'email'                 => $user['email']??null,
+            'errors'                => $this->user_model->errors()==null?[]:$this->user_model->errors(),
+            'force_password_change' => ''
         );
 
         return $this->display_view('\User\admin\form_user', $output);
@@ -206,6 +209,15 @@ class Admin extends BaseController
             // Save new password
             $user['password'] = $this->request->getPost('password_new');
             $user['password_confirm'] = $this->request->getPost('password_confirm');
+            
+            $force_password_change = $this->request->getPost('force_password_change');
+            // if force_password_change not checked in the view, the value is null.
+            if ($force_password_change){
+                $user['reset_password'] = 1;
+            } else {
+                $user['reset_password'] = 0;
+            }
+
             $this->user_model->update($user_id, $user);
 
             // If no error happened, redirect
@@ -214,11 +226,18 @@ class Admin extends BaseController
             }
         }
 
+        // get reset_password from DB
+        if ($user['reset_password'] = 1){
+            $force_password_change = 'checked';
+        } else {
+            $force_password_change = '';
+        }
         // Display password change form
         $output = array(
             'user' => $user,
             'title' => lang('user_lang.title_user_password_reset'),
-            'errors' => $this->user_model->errors()==null?[]:$this->user_model->errors()
+            'errors' => $this->user_model->errors()==null?[]:$this->user_model->errors(),
+            'force_password_change' => $force_password_change
         );
         return $this->display_view('\User\admin\password_change_user', $output);
     }
