@@ -195,8 +195,7 @@ use User\Controllers\Profile;
             } catch (\Exception $e) {
                 $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
-                echo $this->display_view('\User\errors\401error', $data);
-                exit();
+                return $this->display_view('\User\errors\401error', $data);
             };
 
             if ($json === false){
