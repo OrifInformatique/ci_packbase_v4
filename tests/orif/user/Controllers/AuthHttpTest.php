@@ -64,18 +64,16 @@ class AuthHttpTest extends CIUnitTestCase
         $noAzureMail = 'fake@fake.fake';
         $userModel = model(User_model::class);
         $userModel->update($userId, ['email' => $noAzureMail]);
-        d($userModel->find($userId));
-        $_POST['user_verification_code'] = null;
-        $_SESSION['verification_code'] = null;
-        # $_SESSION['verification_attempts'] = 3;
+
         $_SESSION['after_login_redirect'] = base_url();
         $_POST['user_email'] = $noAzureMail;
-        #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
+        
         $azureMail = 'fake@azurefake.fake';
         $_SESSION['azure_mail'] = $azureMail;
-        $url = substr(url_to('processMailForm'), strlen(site_url()));
+
+        $url = substr(url_to('handle_mail_form'), strlen(site_url()));
         $result = $this->withSession()->post($url);
-        # d($result->response()->getBody());
+        
         $result->assertSee(lang('user_lang.user_validation_code'));
     }
 
@@ -85,7 +83,7 @@ class AuthHttpTest extends CIUnitTestCase
         $noAzureMail = 'fake@fake.fake';
         $userModel = model(User_model::class);
         $userModel->update($userId, ['email' => $noAzureMail]);
-        d($userModel->findAll());
+        # d($userModel->findAll());
         $_POST['user_verification_code'] = 'correct';
         $_SESSION['verification_code'] = 'correct';
         # $_SESSION['verification_attempts'] = 3;

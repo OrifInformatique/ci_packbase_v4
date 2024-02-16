@@ -302,9 +302,9 @@ use User\Controllers\Profile;
     /**
      * Prepares the mail form and checks if the Azure mail already registered in the DB
      *
-     * @return ???
+     * @return html Display the form view to verify the expiration code.
      */
-    public function handle_mail_form() {
+    public function handle_mail_form(): string {
         
         // Get user email from mail form
         $_SESSION['form_email'] = $this->request->getPost('user_email');
@@ -320,15 +320,16 @@ use User\Controllers\Profile;
         // Set the number of attempts before sending the code via mail
         $_SESSION['verification_attempts'] = 3;
 
-        $this->generate_send_verification_code($_SESSION['form_email']);
+        return $this->generate_send_verification_code($_SESSION['form_email']);
     }
 
     /**
-     * Generates, starts the expiration time and sends the verification code via SMTP (mail) to the user
+     * Generates verification code, starts the expiration time and sends the verification code 
+     * via SMTP (mail) to the user. 
      *
-     * @return ???
+     * @return html Display the form view to verify the expiration code.
      */
-    public function generate_send_verification_code($form_email) { // generate code and send mail
+    public function generate_send_verification_code($form_email): string { // generate code and send mail
 
         // Random code generator
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -374,9 +375,8 @@ use User\Controllers\Profile;
             'timer_limit' => $_SESSION['timer_limit'],
             'timer_end'   => $_SESSION['timer_end'],
         );
-
-        echo $this->display_view('\User\auth\verification_code_form', $data);
-        exit();
+        
+        return $this->display_view('\User\auth\verification_code_form', $data);
     }
 
     public function verify_verification_code() {

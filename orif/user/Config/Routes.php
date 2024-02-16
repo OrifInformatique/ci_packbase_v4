@@ -16,4 +16,6 @@ $routes->add('user/profile/(:any)','\User\Controllers\Profile::$1');
 // Specific routes for unit tests
 $routes->add('user/auth/verify_verification_code','Auth::verify_verification_code',
     ['as' => 'verify_verification_code']);
+$routes->add('user/auth/handle_mail_form','Auth::handle_mail_form',
+    ['as' => 'handle_mail_form']);
 ?>
