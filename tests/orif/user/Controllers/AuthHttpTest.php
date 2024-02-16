@@ -49,7 +49,8 @@ class AuthHttpTest extends CIUnitTestCase
         $_SESSION['new_user'] = true;
         $_SESSION['azure_mail'] = "$userName@azurefake.fake";
         $_SESSION['form_email'] = "fake@azurefake.fake";
-        $url = substr(url_to('processMailForm'), strlen(site_url()));
+        $_SESSION['timer_end'] = time() + 300;
+        $url = substr(url_to('verify_verification_code'), strlen(site_url()));
         $result = $this->withSession()->call('get', $url);
         $userModel = model(User_model::class);
         $name = $userModel->select('username')->where('username=', $userName)

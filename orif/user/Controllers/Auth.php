@@ -498,12 +498,9 @@ use User\Controllers\Profile;
         $_SESSION['timer_end'] = null;
         $_SESSION['timer_limit'] = null;
         $_SESSION['test'] = null;
-
-        
         
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
-        // return redirect()->to('/user/profile/test');
     }
 
     function errorhandler($data) {
