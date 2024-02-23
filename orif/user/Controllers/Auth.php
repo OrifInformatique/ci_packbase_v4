@@ -162,7 +162,7 @@ use User\Controllers\Profile;
             $url .= "&approval_prompt=auto";
             $url .= "&client_id=" . $client_id;
             $url .= "&redirect_uri=" . urlencode($redirect_uri);
-            header("Location: " . $url);  // Redirection to Microsoft's login page
+            return redirect()->to($url); // Redirection to Microsoft's login page
 
         // Second stage of the authentication process
         } elseif (isset($_GET["error"])) {
