@@ -9,41 +9,41 @@
 
 return[
 // Page titles
-'title_user_list'                => 'Liste des utilisateurs',
-'title_user_update'              => 'Modifier un utilisateur',
-'title_user_new'                 => 'Ajouter un utilisateur',
-'title_user_delete'              => 'Supprimer un utilisateur',
-'title_user_password_reset'      => 'Réinitialiser le mot de passe',
-'title_page_login'               => 'Connexion',
-'title_administration'           => 'Administration',
-'title_register_account'         => 'Enregistrer votre compte',
-'title_email_validation'         => 'Validation de l\'e-mail',
+'title_user_list'                   => 'Liste des utilisateurs',
+'title_user_update'                 => 'Modifier un utilisateur',
+'title_user_new'                    => 'Ajouter un utilisateur',
+'title_user_delete'                 => 'Supprimer un utilisateur',
+'title_user_password_reset'         => 'Réinitialiser le mot de passe',
+'title_page_login'                  => 'Connexion',
+'title_administration'              => 'Administration',
+'title_register_account'            => 'Enregistrer votre compte',
+'title_email_validation'            => 'Validation de l\'e-mail',
 
 // Buttons
-'btn_admin'                      => 'Administration',
-'btn_login'                      => 'Se connecter',
-'btn_logout'                     => 'Se déconnecter',
-'btn_connect_with_local_account' => 'Connexion avec un compte local',
-'btn_change_my_password'         => 'Modifier mon mot de passe',
-'btn_back'                       => 'Retour',
-'btn_cancel'                     => 'Annuler',
-'btn_save'                       => 'Enregistrer',
-'btn_hard_delete_user'           => 'Supprimer cet utilisateur',
-'btn_disable_user'               => 'Désactiver cet utilisateur',
-'btn_next'                       => 'Suivant',
+'btn_admin'                         => 'Administration',
+'btn_login'                         => 'Se connecter',
+'btn_logout'                        => 'Se déconnecter',
+'btn_connect_with_local_account'    => 'Connexion avec un compte local',
+'btn_change_my_password'            => 'Modifier mon mot de passe',
+'btn_back'                          => 'Retour',
+'btn_cancel'                        => 'Annuler',
+'btn_save'                          => 'Enregistrer',
+'btn_hard_delete_user'              => 'Supprimer cet utilisateur',
+'btn_disable_user'                  => 'Désactiver cet utilisateur',
+'btn_next'                          => 'Suivant',
 
 // Fields labels
-'field_username'                 => 'Identifiant',
-'field_password'                 => 'Mot de passe',
-'field_email'                    => 'Adresse e-mail',
-'field_old_password'             => 'Ancien mot de passe',
-'field_new_password'             => 'Nouveau mot de passe',
-'field_password_confirm'         => 'Confirmer le mot de passe',
-'field_usertype'                 => 'Type d\'utilisateur',
-'field_user_active'              => 'Activé',
-'field_deleted_users_display'    => 'Afficher les utilisateurs désactivés',
-'field_login_input'              => 'Identifiant ou e-mail',
-'field_verification_code'        => 'Code de vérification',
+'field_username'                    => 'Identifiant',
+'field_password'                    => 'Mot de passe',
+'field_email'                       => 'Adresse e-mail',
+'field_old_password'                => 'Ancien mot de passe',
+'field_new_password'                => 'Nouveau mot de passe',
+'field_password_confirm'            => 'Confirmer le mot de passe',
+'field_usertype'                    => 'Type d\'utilisateur',
+'field_user_active'                 => 'Activé',
+'field_deleted_users_display'       => 'Afficher les utilisateurs désactivés',
+'field_login_input'                 => 'Identifiant ou e-mail',
+'force_password_change'             => 'Forcer le changement du mot de passe à la prochaine connexion',
 
 // Error messages
 'msg_err_user_not_exist'         => 'L\'utilisateur sélectionné n\'existe pas',
@@ -57,17 +57,6 @@ return[
 'msg_err_invalid_password'       => 'L\'identifiant et le mot de passe ne sont pas valides',
 'msg_err_invalid_old_password'   => 'L\'ancien mot de passe n\'est pas valide',
 'msg_err_password_not_matches'   => 'Le mot de passe ne coïncide pas avec la confirmation du mot de passe.',
-'msg_err_azure_unauthorized'     => 'La connexion avec Microsoft Azure est indisponible. Veuillez vérifier la validité du secret client',
-'msg_err_default'                => 'Une erreur est survenue',
-'msg_err_azure_no_token'         => 'Azure n\'a pas répondu',
-'msg_err_azure_mismatch'         => 'Les tokens ne correspondent pas',
-'msg_err_validation_code'        => 'Le code de vérification entré est erroné.',
-'msg_err_attempts'               => 'Tentatives restantes: ',
-
-// Error code messages
-'azure_error'                    => 'Azure',
-'code_error_401'                 => '401 - Non autorisé',
-'code_error_403'                 => '403 - Accès refusé',
 
 // Other texts
 'what_to_do'                     => 'Que souhaitez-vous faire ?',
@@ -82,7 +71,29 @@ return[
 'user_update_usertype_himself'   => 'Vous ne pouvez pas modifier votre propre type d\'utilisateur. Cette opération doit être faite par un autre administrateur.',
 'user_delete_himself'            => 'Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.',
 'page_my_password_change'        => 'Modification de mon mot de passe',
-'user_first_azure_connexion'     => 'Vous utilisez la connexion Microsoft pour la première fois. Afin d\'enregistrer votre compte, merci d\'indiquer votre adresse e-mail se terminant par @formation.orif.ch ou @orif.ch.',
-'user_validation_code'           => 'Un code de vérification a été envoyé sur votre adresse e-mail.<br>Merci d\'entrer ce code.'
 
+// Azure
+
+// Error code messages
+'azure_error'                    => 'Azure',
+'msg_err_401'                    => '401 - Non autorisé',
+'msg_err_403'                    => '403 - Accès refusé',
+'msg_err_azure_unauthorized'     => 'La connexion avec Microsoft Azure est indisponible. Veuillez vérifier la validité du secret client',
+'msg_err_default'                => 'Une erreur est survenue',
+'msg_err_azure_no_token'         => 'Azure n\'a pas répondu',
+'msg_err_azure_mismatch'         => 'Les tokens ne correspondent pas',
+'msg_err_validation_code'        => 'Le code de vérification entré est erroné.',
+'msg_err_attempts'               => 'Tentatives restantes: ',
+// Azure informations
+'user_first_azure_connexion'     => 'Vous utilisez la connexion Microsoft pour la première fois. Afin d\'enregistrer votre compte, merci d\'indiquer votre'
+                                        .'adresse e-mail se terminant par @formation.orif.ch ou @orif.ch.',
+// Azure views
+'button_ms_login'                => 'Microsoft login',
+'button_resend_code'             => 'Renvoyer le code',
+// Validation code
+'field_verification_code'        => 'Code de vérification',
+'user_validation_code'           => 'Un code de vérification a été envoyé sur votre adresse e-mail.<br>Merci d\'entrer ce code.',
+'code_expiration_time'           => 'Temps restant avant l\'expiration du code:',
+'time_expired'                   => 'Temps expiré',
+'resend_msg'                     => 'Vous n\'avez rien reçu ?',
 ];

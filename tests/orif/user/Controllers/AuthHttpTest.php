@@ -49,7 +49,8 @@ class AuthHttpTest extends CIUnitTestCase
         $_SESSION['new_user'] = true;
         $_SESSION['azure_mail'] = "$userName@azurefake.fake";
         $_SESSION['form_email'] = "fake@azurefake.fake";
-        $url = substr(url_to('processMailForm'), strlen(site_url()));
+        $_SESSION['timer_end'] = time() + 300;
+        $url = substr(url_to('verify_verification_code'), strlen(site_url()));
         $result = $this->withSession()->call('get', $url);
         $userModel = model(User_model::class);
         $name = $userModel->select('username')->where('username=', $userName)
@@ -63,18 +64,16 @@ class AuthHttpTest extends CIUnitTestCase
         $noAzureMail = 'fake@fake.fake';
         $userModel = model(User_model::class);
         $userModel->update($userId, ['email' => $noAzureMail]);
-        d($userModel->find($userId));
-        $_POST['user_verification_code'] = null;
-        $_SESSION['verification_code'] = null;
-        # $_SESSION['verification_attempts'] = 3;
+
         $_SESSION['after_login_redirect'] = base_url();
         $_POST['user_email'] = $noAzureMail;
-        #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
+        
         $azureMail = 'fake@azurefake.fake';
         $_SESSION['azure_mail'] = $azureMail;
-        $url = substr(url_to('processMailForm'), strlen(site_url()));
+
+        $url = substr(url_to('handle_mail_form'), strlen(site_url()));
         $result = $this->withSession()->post($url);
-        # d($result->response()->getBody());
+        
         $result->assertSee(lang('user_lang.user_validation_code'));
     }
 
@@ -84,22 +83,22 @@ class AuthHttpTest extends CIUnitTestCase
         $noAzureMail = 'fake@fake.fake';
         $userModel = model(User_model::class);
         $userModel->update($userId, ['email' => $noAzureMail]);
-        d($userModel->findAll());
+        
         $_POST['user_verification_code'] = 'correct';
         $_SESSION['verification_code'] = 'correct';
-        # $_SESSION['verification_attempts'] = 3;
+        $_SESSION['verification_attempts'] = 3;
         $_SESSION['after_login_redirect'] = base_url();
         $_SESSION['new_user'] = false;
         $_SESSION['form_email'] = $noAzureMail;
-        #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
+        $_SESSION['timer_end'] = time() + 300;
         $azureMail = 'fake@azurefake.fake';
         $_SESSION['azure_mail'] = $azureMail;
-        $url = substr(url_to('processMailForm'), strlen(site_url()));
+        
+        $url = substr(url_to('verify_verification_code'), strlen(site_url()));
         $result = $this->withSession()->call('get', $url);
-        # d($result->response()->getBody());
+        
         $azureMailInDb = $userModel->select('azure_mail')
                                ->find($userId)['azure_mail'];
         $this->assertEquals($azureMail, $azureMailInDb);
     }
-
 }
