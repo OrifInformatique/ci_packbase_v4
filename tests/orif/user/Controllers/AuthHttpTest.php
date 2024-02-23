@@ -83,22 +83,22 @@ class AuthHttpTest extends CIUnitTestCase
         $noAzureMail = 'fake@fake.fake';
         $userModel = model(User_model::class);
         $userModel->update($userId, ['email' => $noAzureMail]);
-        # d($userModel->findAll());
+        
         $_POST['user_verification_code'] = 'correct';
         $_SESSION['verification_code'] = 'correct';
-        # $_SESSION['verification_attempts'] = 3;
+        $_SESSION['verification_attempts'] = 3;
         $_SESSION['after_login_redirect'] = base_url();
         $_SESSION['new_user'] = false;
         $_SESSION['form_email'] = $noAzureMail;
-        #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
+        $_SESSION['timer_end'] = time() + 300;
         $azureMail = 'fake@azurefake.fake';
         $_SESSION['azure_mail'] = $azureMail;
-        $url = substr(url_to('processMailForm'), strlen(site_url()));
+        
+        $url = substr(url_to('verify_verification_code'), strlen(site_url()));
         $result = $this->withSession()->call('get', $url);
-        # d($result->response()->getBody());
+        
         $azureMailInDb = $userModel->select('azure_mail')
                                ->find($userId)['azure_mail'];
         $this->assertEquals($azureMail, $azureMailInDb);
     }
-
 }
