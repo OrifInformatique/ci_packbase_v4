@@ -516,9 +516,13 @@ use User\Controllers\Profile;
      */
     public function change_password(): Response|string {
 
-        // Get user from DB, redirect if user doesn't exist
-        $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
-        if (is_null($user)) return redirect()->to('/user/auth/login');
+        // Get user from DB, redirect if user is not defined or doesn't exist
+        if(isset($_SESSION['user_id'])) {
+            $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
+            if (is_null($user)) return redirect()->to('/user/auth/login');
+        } else {
+            return redirect()->to('/user/auth/login');
+        }
 
         // Empty errors message in output
         $output['errors'] = [];
