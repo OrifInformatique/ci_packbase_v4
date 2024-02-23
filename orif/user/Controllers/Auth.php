@@ -380,7 +380,12 @@ use User\Controllers\Profile;
     }
 
     public function verify_verification_code() {
+        // If verification code is not set, generate one and send it to user
+        if (!isset($_SESSION['verification_code']) || empty($_SESSION['verification_code'])){
+            return $this->generate_send_verification_code($_SESSION['form_email']);
+        }
 
+        // Get the verification code posted by the user
         $user_verification_code = $this->request->getPost('user_verification_code');
         
         if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']){

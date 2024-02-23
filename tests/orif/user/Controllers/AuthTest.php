@@ -578,7 +578,13 @@ class AuthTest extends CIUnitTestCase
     {
         $_POST['user_verification_code'] = null;
         $_SESSION['verification_code'] = null;
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $_SESSION['verification_attempts'] = 3;
+        $_SESSION['timer_end'] = time() + 300;
+        $_SESSION['new_user'] = true;
+        $_SESSION['azure_mail'] = "fake@azurefake.fake";
+        $_SESSION['form_email'] = "fake@fake.fake";
+        $_SESSION['after_login_redirect'] = base_url();
+        $result = $this->controller(Auth::class)->execute('verify_verification_code');
         $result->assertSee(lang('user_lang.user_validation_code'));
     }
 
@@ -587,7 +593,12 @@ class AuthTest extends CIUnitTestCase
         $_POST['user_verification_code'] = 'fake1';
         $_SESSION['verification_code'] = 'fake2';
         $_SESSION['verification_attempts'] = 3;
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $_SESSION['timer_end'] = time() + 300;
+        $_SESSION['new_user'] = true;
+        $_SESSION['azure_mail'] = "fake@azurefake.fake";
+        $_SESSION['form_email'] = "fake@fake.fake";
+        $_SESSION['after_login_redirect'] = base_url();
+        $result = $this->controller(Auth::class)->execute('verify_verification_code');
         $result->assertSee(lang('user_lang.msg_err_validation_code'));
     }
 
@@ -596,8 +607,12 @@ class AuthTest extends CIUnitTestCase
         $_POST['user_verification_code'] = 'fake1';
         $_SESSION['verification_code'] = 'fake2';
         $_SESSION['verification_attempts'] = 1;
+        $_SESSION['timer_end'] = time() + 300;
+        $_SESSION['new_user'] = true;
+        $_SESSION['azure_mail'] = "fake@azurefake.fake";
+        $_SESSION['form_email'] = "fake@fake.fake";
         $_SESSION['after_login_redirect'] = base_url();
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $result = $this->controller(Auth::class)->execute('verify_verification_code');
         $this->assert_redirect($result);
     }
 
