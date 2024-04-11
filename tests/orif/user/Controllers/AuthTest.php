@@ -70,7 +70,7 @@ class AuthTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the session variable after_login_redirect is correctly set
+
      * when posting the login page
      */
     public function testloginPagePostedAfterLoginRedirectWithoutSession()
@@ -233,16 +233,24 @@ class AuthTest extends CIUnitTestCase
     /**
      * Asserts that the change_password page is redirected (no session)
      */
-    public function testchange_passwordPageWithoutSession()
-    {
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
-        ->execute('change_password');
+    
+    // Change password page is not accessible without session anymore
+  
+    // public function testchange_passwordPageWithoutSession()
+    // {
+    //     // Give proper access level
+    //     $_SESSION['logged_in'] = true;
+    //     $_SESSION['user_access'] = config("\User\Config\UserConfig")
+    //       ->access_lvl_registered; // guest access
+    //     $_SESSION['user_id'] = 1;
+    //     // Execute change_password method of Auth class
+    //     $result = $this->controller(Profile::class)
+    //       ->execute('change_password');
 
-        // Assertions
-        $this->assert_redirect($result);
-        $result->assertRedirectTo(base_url('user/auth/login'));
-    }
+    //     // Assertions
+    //     $this->assert_redirect($result);
+    //     $result->assertRedirectTo(base_url('user/auth/login'));
+    // }
 
     /**
      * Asserts that the change_password page is loaded correctly (with session)
@@ -250,13 +258,14 @@ class AuthTest extends CIUnitTestCase
     public function testchange_passwordPageWithSession()
     {
         // Initialize session
+        // Give proper access level
         $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = config('\User\Config\UserConfig')
-            ->access_lvl_guest;
+        $_SESSION['user_access'] = config("\User\Config\UserConfig")
+          ->access_lvl_registered; // guest access
         $_SESSION['user_id'] = 1;
 
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
+        // Execute change_password method of Profile class
+        $result = $this->controller(Profile::class)
         ->execute('change_password');
 
         // Assertions
@@ -302,11 +311,11 @@ class AuthTest extends CIUnitTestCase
 
         // Initialize the session
         $_SESSION['logged_in'] = true;
-        $_SESSION["username"] = $username;
+        $_SESSION['username'] = $username;
         $_SESSION['user_id'] = $userId;
 
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
+        // Execute change_password method of Profile class
+        $result = $this->controller(Profile::class)
             ->execute('change_password');
 
         // Deletes inserted user
@@ -357,8 +366,8 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['user_access'] = config('\User\Config\UserConfig')
             ->access_lvl_guest;
 
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
+        // Execute change_password method of Profile class
+        $result = $this->controller(Profile::class)
             ->execute('change_password');
 
         // Deletes inserted user
@@ -410,8 +419,8 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['user_access'] = config('\User\Config\UserConfig')
             ->access_lvl_guest;
 
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
+        // Execute change_password method of Profile class
+        $result = $this->controller(Profile::class)
             ->execute('change_password');
 
         // Deletes inserted user
@@ -474,9 +483,10 @@ class AuthTest extends CIUnitTestCase
         }
         $_POST['btn_login_microsoft'] = true;
         $result = $this->controller(Auth::class)->execute('azure_login');
+        dd($result->getRedirectUrl());
         $this->assert_redirect($result);
         $redirectUrl = $result->getRedirectUrl();
-        $html = file_get_contents($redirectUrl, false);
+        $html = file_get_contents($redirectUrl, false); // parameter false ?
         $this->assertEquals(1, preg_match('/.*login.*/', $html));
         # do not work on github action with secret
         # $this->assertEquals(1, preg_match('/.*signup.*/', $html));
@@ -574,20 +584,36 @@ class AuthTest extends CIUnitTestCase
         return $azureData;
     }
 
+    /**
+     * Assert that we can use the validation code form
+     * before any actual code is sent by the user
+     */
+
     public function test_azure_mail_without_code(): void
     {
         $_POST['user_verification_code'] = null;
         $_SESSION['verification_code'] = null;
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $form_email = 'fake@fake.fake';
+        $result = $this->controller(Auth::class)
+          ->execute('generate_send_verification_code', $form_email);
         $result->assertSee(lang('user_lang.user_validation_code'));
     }
+  
+    /**
+     * Assert that inserting an invalid validation code while 
+     * the timer hasn't yet expired generates
+     * an error message
+     */
 
     public function test_azure_mail_with_fake_code(): void
     {
         $_POST['user_verification_code'] = 'fake1';
         $_SESSION['verification_code'] = 'fake2';
-        $_SESSION['verification_attempts'] = 3;
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $_SESSION['verification_attempts'] = 3; // 3 attempts left
+        $_SESSION['timer_end'] = time() + 300; // force timer_end to be greater than time()
+        $form_email = 'fake@fake.fake';
+        $result = $this->controller(Auth::class)
+          ->execute('verify_verification_code', $form_email);
         $result->assertSee(lang('user_lang.msg_err_validation_code'));
     }
 
@@ -596,8 +622,11 @@ class AuthTest extends CIUnitTestCase
         $_POST['user_verification_code'] = 'fake1';
         $_SESSION['verification_code'] = 'fake2';
         $_SESSION['verification_attempts'] = 1;
+        $_SESSION['timer_end'] = time() - 300; // force timer_end to be expired
         $_SESSION['after_login_redirect'] = base_url();
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $form_email = 'fake@fake.fake';
+        $result = $this->controller(Auth::class)
+          ->execute('verify_verification_code', $form_email);
         $this->assert_redirect($result);
     }
 

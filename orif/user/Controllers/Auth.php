@@ -192,7 +192,7 @@ use User\Controllers\Profile;
             } catch (\Exception $e) {
                 $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
-                echo $this->display_view('\User\errors\401error', $data);
+                return $this->display_view('\User\errors\401error', $data);
                 exit();
             };
 
@@ -315,19 +315,10 @@ use User\Controllers\Profile;
             $_SESSION['new_user'] = true;
         }
 
-        // WARNING !  THIS IS FOR DEBUG
-        $SKIP_VERIFICATION_CODE = getenv('SKIP_VERIFICATION_CODE');
-        if ($SKIP_VERIFICATION_CODE == 'true'){
-            $_SESSION['verification_code'] = null;
-            $_SESSION['timer_end'] = null;
-            $_SESSION['SKIP_VERIFICATION_CODE'] = true;
-            return $this->verify_verification_code();
-        }
-
         // Set the number of attempts before sending the code via mail
         $_SESSION['verification_attempts'] = 3;
 
-        $this->generate_send_verification_code($_SESSION['form_email']);
+        return $this->generate_send_verification_code($_SESSION['form_email']);
     }
 
     /**
@@ -382,8 +373,8 @@ use User\Controllers\Profile;
             'timer_end'   => $_SESSION['timer_end'],
         );
 
-        echo $this->display_view('\User\auth\verification_code_form', $data);
-        exit();
+        // echo doesn't work with unit tests
+        return $this->display_view('\User\auth\verification_code_form', $data);
     }
 
     public function verify_verification_code() {
@@ -392,8 +383,6 @@ use User\Controllers\Profile;
         
         if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']){
             $is_code_valid = true; // The code if valid
-        } elseif ($_SESSION['SKIP_VERIFICATION_CODE'] = true) {
-            $is_code_valid = true;
         } else {
             $is_code_valid = false;
         }; // Code is not valid (bad code or expired)

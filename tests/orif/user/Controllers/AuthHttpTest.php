@@ -49,8 +49,9 @@ class AuthHttpTest extends CIUnitTestCase
         $_SESSION['new_user'] = true;
         $_SESSION['azure_mail'] = "$userName@azurefake.fake";
         $_SESSION['form_email'] = "fake@azurefake.fake";
-        $url = substr(url_to('processMailForm'), strlen(site_url()));
-        $result = $this->withSession()->call('get', $url);
+        $urlTEST = substr(url_to('azure_login'), strlen(site_url()));
+        d($urlTEST);
+        $result = $this->withSession()->call('get', $urlTEST);
         $userModel = model(User_model::class);
         $name = $userModel->select('username')->where('username=', $userName)
                                               ->findAll()[0]['username'];
