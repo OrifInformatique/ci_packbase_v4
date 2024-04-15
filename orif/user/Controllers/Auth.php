@@ -125,7 +125,7 @@ use User\Controllers\Profile;
             // Check if microsoft login button submitted, else, display login page
             } else if (!is_null($this->request->getPost('btn_login_microsoft'))) {
                 $this->azure_login();
-                exit();
+                //exit();
             }
             //Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
@@ -137,8 +137,6 @@ use User\Controllers\Profile;
 
     /**
      * Initiate the communication with Microsoft Azure for the oAuth2.0 login system
-     *
-     * @return ???
      */
     public function azure_login() {
 
@@ -147,7 +145,7 @@ use User\Controllers\Profile;
         $ad_tenant = getenv('TENANT_ID');
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
-        
+
         // Authentication part begins
         if (!isset($_GET["code"]) and !isset($_GET["error"])) {
             
@@ -159,7 +157,11 @@ use User\Controllers\Profile;
             $url .= "&approval_prompt=auto";
             $url .= "&client_id=" . $client_id;
             $url .= "&redirect_uri=" . urlencode($redirect_uri);
-            header("Location: " . $url);  // Redirection to Microsoft's login page
+
+            return $this->response->redirect($url)->send();
+
+            // header("Location:" . $url);  // Redirection to Microsoft's login page
+            // exit;
 
         // Second stage of the authentication process
         } elseif (isset($_GET["error"])) {
@@ -192,6 +194,7 @@ use User\Controllers\Profile;
             } catch (\Exception $e) {
                 $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
+                d('test debug Exception');
                 return $this->display_view('\User\errors\401error', $data);
                 exit();
             };
@@ -421,6 +424,8 @@ use User\Controllers\Profile;
                 ];
                
                 $this->user_model->update($ci_user['id'], $data);
+
+                $_SESSION['logged_in'] = (bool)true;
             }
 
         } else { // Code is not valid for any reason (false and/or expired)
