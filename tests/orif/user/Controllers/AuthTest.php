@@ -28,6 +28,9 @@ class AuthTest extends CIUnitTestCase
         return Config('\User\Config\UserConfig')->access_lvl_guest;
     }
 
+    /**
+     * Custom assertions
+     */
     private function get_response_and_assert(TestResponse $result): Response
     {
         $result->assertOK();
@@ -70,7 +73,7 @@ class AuthTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the session variable after_login_redirect is correctly set
+
      * when posting the login page
      */
     public function testloginPagePostedAfterLoginRedirectWithoutSession()
@@ -231,13 +234,21 @@ class AuthTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the change_password page is redirected (no session)
+     * Asserts that the change_password page is redirected when the user
+     * is not found in the database but is logged-in and has the correct
+     * access level
      */
+    
     public function testchange_passwordPageWithoutSession()
     {
+        // Give proper access level
+        $_SESSION['user_id'] = -1;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_access'] = config("\User\Config\UserConfig")
+          ->access_lvl_registered; // guest access
         // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
-        ->execute('change_password');
+        $result = $this->controller(Profile::class)
+          ->execute('change_password');
 
         // Assertions
         $this->assert_redirect($result);
@@ -250,13 +261,14 @@ class AuthTest extends CIUnitTestCase
     public function testchange_passwordPageWithSession()
     {
         // Initialize session
+        // Give proper access level
         $_SESSION['logged_in'] = true;
-        $_SESSION['user_access'] = config('\User\Config\UserConfig')
-            ->access_lvl_guest;
+        $_SESSION['user_access'] = config("\User\Config\UserConfig")
+          ->access_lvl_registered; // guest access
         $_SESSION['user_id'] = 1;
 
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
+        // Execute change_password method of Profile class
+        $result = $this->controller(Profile::class)
         ->execute('change_password');
 
         // Assertions
@@ -302,11 +314,11 @@ class AuthTest extends CIUnitTestCase
 
         // Initialize the session
         $_SESSION['logged_in'] = true;
-        $_SESSION["username"] = $username;
+        $_SESSION['username'] = $username;
         $_SESSION['user_id'] = $userId;
 
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
+        // Execute change_password method of Profile class
+        $result = $this->controller(Profile::class)
             ->execute('change_password');
 
         // Deletes inserted user
@@ -357,8 +369,8 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['user_access'] = config('\User\Config\UserConfig')
             ->access_lvl_guest;
 
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
+        // Execute change_password method of Profile class
+        $result = $this->controller(Profile::class)
             ->execute('change_password');
 
         // Deletes inserted user
@@ -410,8 +422,8 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['user_access'] = config('\User\Config\UserConfig')
             ->access_lvl_guest;
 
-        // Execute change_password method of Auth class
-        $result = $this->controller(Auth::class)
+        // Execute change_password method of Profile class
+        $result = $this->controller(Profile::class)
             ->execute('change_password');
 
         // Deletes inserted user
@@ -466,21 +478,30 @@ class AuthTest extends CIUnitTestCase
             $html));
 
     }
+
+    /**
+    * Asserts that user is logging in with azure
+    */
     public function test_login_begin_with_azure_account(): void
     {
-        if (!getenv('CLIENT_ID')) {
-            d($this->get_cannot_github_action_message());
-            return;
-        }
-        $_POST['btn_login_microsoft'] = true;
-        $result = $this->controller(Auth::class)->execute('azure_login');
-        $this->assert_redirect($result);
-        $redirectUrl = $result->getRedirectUrl();
-        $html = file_get_contents($redirectUrl, false);
-        $this->assertEquals(1, preg_match('/.*login.*/', $html));
-        # do not work on github action with secret
-        # $this->assertEquals(1, preg_match('/.*signup.*/', $html));
-        # $this->assert_azure_page($html);
+      if (!getenv('CLIENT_ID')) {
+        d($this->get_cannot_github_action_message());
+        return;
+      }
+      $_POST['btn_login_microsoft'] = true;
+
+      $result = $this->controller(Auth::class)
+        ->execute('login');
+      
+      $this->assert_reponse($result);
+
+      $redirectUrl = $result->getRedirectUrl();
+      $html = file_get_contents($redirectUrl, false);
+      $this->assertEquals(1, preg_match('/.*login.*/', $html));
+
+      // do not work on github action with secret
+      $this->assertEquals(1, preg_match('/.*signup.*/', $html));
+      $this->assert_azure_page($html);
     }
 
     private function get_cannot_github_action_message(): string
@@ -490,6 +511,10 @@ class AuthTest extends CIUnitTestCase
             . 'secrets in github actions.';
     }
 
+    /**
+    * Asserts that the user is redirected to microsoft login page even
+    * in the case of a fake CLIENT ID
+    */
     public function test_azure_login_begin_client_id_fake(): void
     {
         if (!getenv('CLIENT_ID')) {
@@ -498,8 +523,8 @@ class AuthTest extends CIUnitTestCase
         }
         putenv('CLIENT_ID=fake');
         $_POST['btn_login_microsoft'] = true;
-        $result = $this->controller(Auth::class)->execute('azure_login');
-        $this->assert_redirect($result);
+        $result = $this->controller(Auth::class)->execute('login');
+        $this->assert_reponse($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
         $this->assertEquals(1, preg_match('/.*login.*/', $html));
@@ -513,8 +538,8 @@ class AuthTest extends CIUnitTestCase
         }
         putenv('TENANT_ID=fake');
         $_POST['btn_login_microsoft'] = true;
-        $result = $this->controller(Auth::class)->execute('azure_login');
-        $this->assert_redirect($result);
+        $result = $this->controller(Auth::class)->execute('login');
+        $this->assert_reponse($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
         $this->assertEquals(1, preg_match('/.*"iHttpErrorCode":400.*/',
@@ -529,8 +554,8 @@ class AuthTest extends CIUnitTestCase
         }
         putenv('GRAPH_USER_SCOPES=fake');
         $_POST['btn_login_microsoft'] = true;
-        $result = $this->controller(Auth::class)->execute('azure_login');
-        $this->assert_redirect($result);
+        $result = $this->controller(Auth::class)->execute('login');
+        $this->assert_reponse($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
         $this->assertEquals(1, preg_match('/.*Sign in to your account.*/',
@@ -545,8 +570,8 @@ class AuthTest extends CIUnitTestCase
         }
         putenv('REDIRECT_URI=fake');
         $_POST['btn_login_microsoft'] = true;
-        $result = $this->controller(Auth::class)->execute('azure_login');
-        $this->assert_redirect($result);
+        $result = $this->controller(Auth::class)->execute('login');
+        $this->assert_reponse($result);
         $redirectUrl = $result->getRedirectUrl();
         $html = file_get_contents($redirectUrl, false);
         $this->assertEquals(1, preg_match('/.*"iHttpErrorCode":400.*/',
@@ -574,20 +599,36 @@ class AuthTest extends CIUnitTestCase
         return $azureData;
     }
 
+    /**
+     * Assert that we can use the validation code form
+     * before any actual code is sent by the user
+     */
+
     public function test_azure_mail_without_code(): void
     {
         $_POST['user_verification_code'] = null;
         $_SESSION['verification_code'] = null;
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $form_email = 'fake@fake.fake';
+        $result = $this->controller(Auth::class)
+          ->execute('generate_send_verification_code', $form_email);
         $result->assertSee(lang('user_lang.user_validation_code'));
     }
+  
+    /**
+     * Assert that inserting an invalid validation code while 
+     * the timer hasn't yet expired generates
+     * an error message
+     */
 
     public function test_azure_mail_with_fake_code(): void
     {
         $_POST['user_verification_code'] = 'fake1';
         $_SESSION['verification_code'] = 'fake2';
-        $_SESSION['verification_attempts'] = 3;
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $_SESSION['verification_attempts'] = 3; // 3 attempts left
+        $_SESSION['timer_end'] = time() + 300; // force timer_end to be greater than time()
+        $form_email = 'fake@fake.fake';
+        $result = $this->controller(Auth::class)
+          ->execute('verify_verification_code', $form_email);
         $result->assertSee(lang('user_lang.msg_err_validation_code'));
     }
 
@@ -596,14 +637,95 @@ class AuthTest extends CIUnitTestCase
         $_POST['user_verification_code'] = 'fake1';
         $_SESSION['verification_code'] = 'fake2';
         $_SESSION['verification_attempts'] = 1;
+        $_SESSION['timer_end'] = time() - 300; // force timer_end to be expired
         $_SESSION['after_login_redirect'] = base_url();
-        $result = $this->controller(Auth::class)->execute('processMailForm');
+        $form_email = 'fake@fake.fake';
+        $result = $this->controller(Auth::class)
+          ->execute('verify_verification_code', $form_email);
         $this->assert_redirect($result);
+    }
+
+    /**
+    * Asserts that when the user correctly inserts the validation code,
+    * a new user is successfully created if the user is completly missing from
+    * the DB 
+    */
+    public function test_azure_mail_with_correct_code_new_user(): void
+    {
+        $firstName = 'Firstname';
+        $lastName = 'Lastname';
+        $userName = "$firstName.$lastName";
+        $_POST['user_verification_code'] = 'correct';
+        $_SESSION['verification_code'] = 'correct';
+        $_SESSION['verification_attempts'] = 3;
+        $_SESSION['timer_end'] = time() + 300; // force timer_end to be greater than time()
+        $_SESSION['after_login_redirect'] = base_url();
+        // $is_code_valid should be set to true at this point in the method
+        $_SESSION['new_user'] = true;
+        $_SESSION['azure_mail'] = "$userName@azurefake.fake";
+        $_SESSION['form_email'] = "fake@azurefake.fake";
+    
+        $form_email = 'fake@fake.fake';
+        $result = $this->controller(Auth::class)
+          ->execute('verify_verification_code', $form_email);
+        $userModel = model(User_model::class);
+        $name = $userModel->select('username')->where('username=', $userName)
+                                              ->findAll()[0]['username'];
+
+        $this->assertEquals($userName, $name);
+    }
+
+    /**
+    * Asserts that the validation code is successfuly sent when the user
+    * is already in the DB but doesn't have an azure_email. (Only an email)
+    */
+
+    public function test_azure_mail_existed_user_variable_created(): void
+    {
+        $userId = 2;
+        $noAzureMail = 'fake@fake.fake';
+        $userModel = model(User_model::class);
+        $userModel->update($userId, ['email' => $noAzureMail]);
+        $form_email = 'fake@fake.fake';
+        $_POST['user_email'] = $form_email; // no azure_mail in DB
+        // $_SESSION['new_user'] should be set to false by now
+
+        $result = $this->controller(Auth::class)
+          ->execute('handle_mail_form', $form_email);
+        
+        $result->assertSee(lang('user_lang.user_validation_code'));
+    }
+
+    /**
+    * Asserts that the azure_mail is successfully updated with the email
+    * when the user is not a new one (already registered in the DB)
+    * and correctly inputs the validation code
+    */
+    public function test_azure_mail_with_correct_code_existing_user(): void
+    {
+        $userId = 2;
+        $userModel = model(User_model::class);
+        $_POST['user_verification_code'] = 'correct';
+        $_SESSION['verification_code'] = 'correct';
+        $_SESSION['verification_attempts'] = 3;
+        $_SESSION['timer_end'] = time() + 300; // force timer_end to be greater than time()
+        $_SESSION['after_login_redirect'] = base_url();
+        $_SESSION['new_user'] = false;
+        $_SESSION['azure_mail'] = "azure@azurefake.fake";
+        $_SESSION['form_email'] = "fake@azurefake.fake";
+
+        $result = $this->controller(Auth::class)
+          ->execute('verify_verification_code');
+        
+        $azureMailInDb = $userModel->select('azure_mail')
+                               ->find($userId)['azure_mail'];
+        $this->assertEquals($_SESSION['azure_mail'], $azureMailInDb);
     }
 
     /**
      * Insert a new user into database
      */
+
     private static function insertUser($userType, $username, $userEmail,
         $userPassword) {
         $user = array(
@@ -620,7 +742,5 @@ class AuthTest extends CIUnitTestCase
         return $userModel->insert($user);
     }
 
-
+    # Create a test for the secret_client ?
 }
-
-

@@ -13,7 +13,7 @@ http_response_code(403);
 <div id="message" class="container alert alert-danger">
     <div class="row">
         <div class="col">
-            <h2><?= lang('user_lang.code_error_403')?></h2>
+            <h2><?= lang('user_lang.msg_err_403')?></h2>
         </div>
     </div>
     <div class="row">

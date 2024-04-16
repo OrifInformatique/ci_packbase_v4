@@ -42,9 +42,7 @@ class AdminMenuTest extends CIUnitTestCase
             $result = $this->withSession()->get($adminTab['pageLink']);
 
             // Assertions
-            $response = $result->response();
-            $body = $response->getBody();
-            $result->assertSee(lang($adminTab['title']));
+            $result->assertSee(lang($adminTab['label']));
         }
     }
 }
