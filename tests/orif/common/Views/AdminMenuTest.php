@@ -36,9 +36,13 @@ class AdminMenuTest extends CIUnitTestCase
         $_SESSION['_ci_previous_url'] = 'url';
 
         $result = $this->withSession()->get('user/admin/list_user');
+
+        // $response = $result->response();
+        // d($response);
+        // $body = $response->getBody();
+        // d($body);
+    
         // Assertions
-        $response = $result->response();
-        $body = $response->getBody();
         $result->assertSee(lang('user_lang.title_user_list'), 'h1');
     }
 }
