@@ -28,6 +28,9 @@ class AuthTest extends CIUnitTestCase
         return Config('\User\Config\UserConfig')->access_lvl_guest;
     }
 
+    /**
+     * Custom assertions
+     */
     private function get_response_and_assert(TestResponse $result): Response
     {
         $result->assertOK();
@@ -481,8 +484,6 @@ class AuthTest extends CIUnitTestCase
     */
     public function test_login_begin_with_azure_account(): void
     {
-      // d(headers_list());
-      // dd(headers_sent());
       if (!getenv('CLIENT_ID')) {
         d($this->get_cannot_github_action_message());
         return;
@@ -501,9 +502,6 @@ class AuthTest extends CIUnitTestCase
       // do not work on github action with secret
       $this->assertEquals(1, preg_match('/.*signup.*/', $html));
       $this->assert_azure_page($html);
-
-      // $result = $this->controller(Auth::class)->execute('azure_login');
-      // $this->assert_redirect($result);
     }
 
     private function get_cannot_github_action_message(): string
@@ -666,9 +664,6 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['new_user'] = true;
         $_SESSION['azure_mail'] = "$userName@azurefake.fake";
         $_SESSION['form_email'] = "fake@azurefake.fake";
-        //$url = substr(url_to('azure_login'), strlen(site_url()));
-        //d($url);
-        //$result = $this->withSession()->call('get', $url);
     
         $form_email = 'fake@fake.fake';
         $result = $this->controller(Auth::class)
@@ -694,10 +689,6 @@ class AuthTest extends CIUnitTestCase
         $form_email = 'fake@fake.fake';
         $_POST['user_email'] = $form_email; // no azure_mail in DB
         // $_SESSION['new_user'] should be set to false by now
-        #$_SESSION['azure_mail'] = "$userName@azurefake.fake";
-
-        //$azureMail = 'fake@azurefake.fake';
-        //$_SESSION['azure_mail'] = $azureMail;
 
         $result = $this->controller(Auth::class)
           ->execute('handle_mail_form', $form_email);

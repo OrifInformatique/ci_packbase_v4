@@ -1,5 +1,7 @@
 <?php
 
+     * Asserts that the change_password page is redirected (no session)
+     * no session = not connected, which should return a redirection
 namespace User\Controllers;
 
 use CodeIgniter\Test\DatabaseTestTrait;
