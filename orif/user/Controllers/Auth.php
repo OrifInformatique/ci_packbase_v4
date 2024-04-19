@@ -125,7 +125,6 @@ use User\Controllers\Profile;
             // Check if microsoft login button submitted, else, display login page
             } else if (!is_null($this->request->getPost('btn_login_microsoft'))) {
                 $this->azure_login();
-                //exit();
             }
             //Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
@@ -407,7 +406,7 @@ use User\Controllers\Profile;
 
                 // TODO: Afficher formulaire creation user avec infos pré-remplies (save_user)
                 // TODO : Route differente, remplacer after_login_redirect
-
+        
             } else {
 
                 // User already in DB => Update azure_mail in DB
@@ -449,10 +448,8 @@ use User\Controllers\Profile;
                 );
             }
         }
-
-        // todo redirect to reset sessions method
+        // In all cases, go to reset_session
         return $this->reset_session();
-
     }
 
     public function register_user() {
@@ -508,7 +505,6 @@ use User\Controllers\Profile;
 
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
-        // return redirect()->to('/user/profile/test');
     }
 
     function errorhandler($data) {
