@@ -30,7 +30,7 @@
                 echo form_open("user/auth/verify_verification_code", $attributes);
             ?>
             <fieldset>
-                <!-- S tatus messages -->
+                <!-- Status messages -->
                 <?php if(!is_null($session->getFlashdata('message-danger'))){ ?>
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
                     <?php } ?>
@@ -75,7 +75,7 @@
 
                         </script>
                     </div>
-                    
+
                 <div class="form-group">
                     <input class="form-control" id="user_verification_code" name="user_verification_code" placeholder="<?= lang('user_lang.field_verification_code'); ?>" type="text" value="<?= set_value('username'); ?>" />
                 </div>

@@ -18,6 +18,7 @@ return[
 'title_administration'              => 'Administration',
 'title_register_account'            => 'Enregistrer votre compte',
 'title_email_validation'            => 'Validation de l\'e-mail',
+'title_user_info'                   => 'Vos informations personnelles',
 
 // Buttons
 'btn_admin'                         => 'Administration',
@@ -36,6 +37,7 @@ return[
 'field_username'                    => 'Identifiant',
 'field_password'                    => 'Mot de passe',
 'field_email'                       => 'Adresse e-mail',
+'field_microsoft_email'             => 'Adresse e-mail microsoft',
 'field_old_password'                => 'Ancien mot de passe',
 'field_new_password'                => 'Nouveau mot de passe',
 'field_password_confirm'            => 'Confirmer le mot de passe',
@@ -72,6 +74,7 @@ return[
 'user_delete_himself'               => 'Vous ne pouvez pas désactiver ou supprimer votre propre compte. Cette opération doit être faite par un autre administrateur.',
 'page_my_password_change'           => 'Modification de mon mot de passe',
 'page_force_password_change'        => 'Veuillez modifier votre mot de passe avant de poursuivre.',
+'page_username_choice'              => 'Il vous ait possible de choisir un identifiant différent.<br>',
 
 // Azure
 

@@ -42,6 +42,14 @@ class AdminTest extends CIUnitTestCase
         return $data;
     }
 
+    /**
+     * Custom assertions
+     */
+
+    /**
+     * Function which asserts if a response (HTTP) exists and that it
+     * has a header.        
+     */
     private function get_response_and_assert(TestResponse $result)
         : Response
     {
@@ -50,6 +58,12 @@ class AdminTest extends CIUnitTestCase
         return $result->response();
     }
 
+   /*
+   * Function which asserts that get_response_and_assert() returns an object
+   * that is an insance of the class `Response`.
+   *
+   * Assert the response (HTTP) has a body.
+   */
     private function assert_reponse(TestResponse $result): void
     {
         $response = $this->get_response_and_assert($result);
@@ -58,6 +72,10 @@ class AdminTest extends CIUnitTestCase
         
     }
 
+    /**
+     * Function which asserts that a response (HTTP) is an object of type
+     * RedirectResponse and that it has an empty body
+     */
     private function assert_redirect(TestResponse $result): void
     {
         $response = $this->get_response_and_assert($result);

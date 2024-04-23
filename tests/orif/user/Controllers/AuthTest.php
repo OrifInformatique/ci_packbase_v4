@@ -2,7 +2,7 @@
 /**
  * Unit tests AuthTest
  *
- * @author      Orif (CaLa)
+ * @author      Orif (CaLa, MoDa)
  * @link        https://github.com/OrifInformatique
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */
@@ -31,6 +31,11 @@ class AuthTest extends CIUnitTestCase
     /**
      * Custom assertions
      */
+
+    /**
+     * Function which asserts if a response (HTTP) exists and that it
+     * has a header.        
+     */
     private function get_response_and_assert(TestResponse $result): Response
     {
         $result->assertOK();
@@ -38,6 +43,12 @@ class AuthTest extends CIUnitTestCase
         return $result->response();
     }
 
+   /*
+   * Function which asserts that get_response_and_assert() returns an object
+   * that is an insance of the class `Response`.
+   *
+   * Assert the response (HTTP) has a body.
+   */
     private function assert_reponse(TestResponse $result): void
     {
         $response = $this->get_response_and_assert($result);
@@ -45,6 +56,10 @@ class AuthTest extends CIUnitTestCase
         $this->assertNotEmpty($response->getBody());
     }
 
+    /**
+     * Function which asserts that a response (HTTP) is an object of type
+     * RedirectResponse and that it has an empty body
+     */
     private function assert_redirect(TestResponse $result): void
     {
         $response = $this->get_response_and_assert($result);
@@ -73,9 +88,9 @@ class AuthTest extends CIUnitTestCase
     }
 
     /**
-
-     * when posting the login page
-     */
+      * Asserts that the user is redirected to the after_login_redirect path
+      * when accessing the login page without session
+      */
     public function testloginPagePostedAfterLoginRedirectWithoutSession()
     {
         // Prepare the POST request
@@ -238,7 +253,6 @@ class AuthTest extends CIUnitTestCase
      * is not found in the database but is logged-in and has the correct
      * access level
      */
-    
     public function testchange_passwordPageWithoutSession()
     {
         // Give proper access level
@@ -246,7 +260,6 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['logged_in'] = true;
         $_SESSION['user_access'] = config("\User\Config\UserConfig")
           ->access_lvl_registered; // guest access
-        // Execute change_password method of Auth class
         $result = $this->controller(Profile::class)
           ->execute('change_password');
 
@@ -440,7 +453,7 @@ class AuthTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that logout resets the session
+     * Asserts that logging out resets the session
      */
     public function testlogout()
     {
@@ -680,7 +693,7 @@ class AuthTest extends CIUnitTestCase
     * is already in the DB but doesn't have an azure_email. (Only an email)
     */
 
-    public function test_azure_mail_existed_user_variable_created(): void
+    public function test_azure_mail_user_registered_without_azure_mail(): void
     {
         $userId = 2;
         $noAzureMail = 'fake@fake.fake';
@@ -698,7 +711,7 @@ class AuthTest extends CIUnitTestCase
 
     /**
     * Asserts that the azure_mail is successfully updated with the email
-    * when the user is not a new one (already registered in the DB)
+    * when the user is already registered in the DB
     * and correctly inputs the validation code
     */
     public function test_azure_mail_with_correct_code_existing_user(): void

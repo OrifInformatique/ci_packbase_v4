@@ -17,6 +17,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use CodeIgniter\HTTP\RedirectResponse;
+use User\Models\User_type_model;
 
 class Profile extends BaseController {
 
@@ -91,6 +92,18 @@ class Profile extends BaseController {
         $_SESSION['reset_password'] = $user['reset_password'];
         $output['title'] = lang('user_lang.page_my_password_change');
         return $this->display_view('\User\auth\change_password', $output);
+
+    }
+
+    /**
+     * Displays a form to let user change his password
+     *
+     * @return void
+     */
+    public function update_form() {
+      $username = $this->request->getPost('username');
+      $password = $this->request->getPost('password_new');
+      $password_c = $this->request->getPost('password_confirm');
 
     }
 }

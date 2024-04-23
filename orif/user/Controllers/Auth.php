@@ -289,6 +289,7 @@ use User\Controllers\Profile;
             $correspondingEmail = $correspondingUser['email'];
         }
 
+        
         // send correspondance if found for the auto complete
         $output = array(
             'title' => lang('user_lang.title_page_login'),
@@ -394,19 +395,8 @@ use User\Controllers\Profile;
             if ($_SESSION['new_user'] == true)  {
 
                 // A new user needs to be created in the db 
-                // Receive array $user from register_user()
-                $new_user = $this->register_user();
+                return $this->register_user();
                
-                // insert this new user
-                $this->user_model->insert($new_user);
-
-                // Force user to change password on next 'normal' login
-
-                $_SESSION['logged_in'] = (bool)true;
-
-                // TODO: Afficher formulaire creation user avec infos pré-remplies (save_user)
-                // TODO : Route differente, remplacer after_login_redirect
-        
             } else {
 
                 // User already in DB => Update azure_mail in DB
@@ -452,6 +442,10 @@ use User\Controllers\Profile;
         return $this->reset_session();
     }
 
+    /**
+    * This method has been moved to Profile::update()
+    */
+
     public function register_user() {
         
         $user_type_model = new User_type_model();
@@ -468,27 +462,33 @@ use User\Controllers\Profile;
         $new_username = explode('@', $_SESSION['azure_mail']);
         $new_username = substr($new_username[0], 0, $username_max_length);
 
-        // Generating a random password
-        $password_max_lenght = $user_config->password_max_length;
-        $new_password = '';
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyz'
-            .'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-={}[]|:;"<>,.?/~`';
+        // Generate random password ?? why
 
-        for ($i = 0; $i < $password_max_lenght; $i++) {
-            $new_password .= $characters[rand(0, strlen($characters) - 1)];
-        }
-        $reset_password = True;
+        // Generating a random password
+        // $password_max_lenght = $user_config->password_max_length;
+        // $new_password = '';
+        // $characters = '0123456789abcdefghijklmnopqrstuvwxyz'
+        //     .'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-={}[]|:;"<>,.?/~`';
+
+        // for ($i = 0; $i < $password_max_lenght; $i++) {
+        //     $new_password .= $characters[rand(0, strlen($characters) - 1)];
+        // }
+
         $new_user = array(
             'fk_user_type'      => $new_user_type['id'],
             'username'          => $new_username,
-            'password'          => $new_password,
-            'password_confirm'  => $new_password,
-            'reset_password'    => $reset_password,
             'email'             => $_SESSION['form_email'],
             'azure_mail'        => $_SESSION['azure_mail'],
+            'title'             => lang('user_lang.title_user_info'),
         );
         
-        return $new_user;
+        // Insert new user in DB
+        // $this->user_model->insert($new_user);
+
+        return $this->display_view(
+            '\User\auth\azure_update_form',
+            $new_user
+        );
     }
 
     public function reset_session() {
