@@ -348,16 +348,27 @@ use User\Controllers\Profile;
             'SMTPHost' => getenv('SMTP_HOST'),
             'SMTPUser' => getenv('SMTP_ID'),
             'SMTPPass' => getenv('SMTP_PASSWORD'),
+            'SMTPPort' => getenv('SMTP_PORT'),
             'SMTPCrypto' => getenv('SMTP_CRYPTO'),
           ];
 
-        $appTitle = lang('common_lang.app_title');
         $email->initialize($emailConfig);
-        //Sending code to user's orif 
+
+        //Sending code to user's mail 
         $email->setFrom(getenv('SMTP_ID'), lang('common_lang.app_title'));
+        $email->setTo($form_email);
         $email->setSubject(lang('user_lang.mail_verification_code_subject'));
         $email->setMessage(lang('user_lang.mail_verification_code_text').$verification_code);
+
+        // Comment this line to debug mail sending
         $email->send();
+
+        // Uncomment this part to debug mail sending
+        /*
+        if(!$email->send(false)){
+            dd($email->printDebugger());
+        }
+        */
 
         // Set code's expiration timer
         $_SESSION['timer_start'] = time();
