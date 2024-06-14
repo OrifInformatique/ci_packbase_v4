@@ -97,4 +97,6 @@ return[
 'code_expiration_time'              => 'Temps restant avant l\'expiration du code:',
 'time_expired'                      => 'Temps expiré',
 'resend_msg'                        => 'Vous n\'avez rien reçu ?',
+'mail_verification_code_subject'    => 'Code de vérification',
+'mail_verification_code_text'       => 'Voici votre code de vérification: ',
 ];
