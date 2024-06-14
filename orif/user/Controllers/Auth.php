@@ -357,7 +357,7 @@ use User\Controllers\Profile;
         $email->setFrom(getenv('SMTP_ID'), lang('common_lang.app_title'));
         $email->setSubject(lang('user_lang.mail_verification_code_subject'));
         $email->setMessage(lang('user_lang.mail_verification_code_text').$verification_code);
-        $email->send(false);
+        $email->send();
 
         // Set code's expiration timer
         $_SESSION['timer_start'] = time();
