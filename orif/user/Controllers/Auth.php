@@ -355,7 +355,6 @@ use User\Controllers\Profile;
         $email->initialize($emailConfig);
         //Sending code to user's orif 
         $email->setFrom(getenv('SMTP_ID'), lang('common_lang.app_title'));
-        // 2nd paramater hard coded since variable not interpreted in SetFrom$email->setTo($form_email);
         $email->setSubject(lang('user_lang.mail_verification_code_subject'));
         $email->setMessage(lang('user_lang.mail_verification_code_text').$verification_code);
         $email->send(false);
