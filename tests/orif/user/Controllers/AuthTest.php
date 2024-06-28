@@ -718,8 +718,8 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['timer_end'] = time() + 300; // force timer_end to be greater than time()
         $_SESSION['after_login_redirect'] = base_url();
         $_SESSION['new_user'] = false;
-        $_SESSION['azure_mail'] = "azure@azurefake.fake";
-        $_SESSION['form_email'] = "fake@azurefake.fake";
+        $_SESSION['azure_mail'] = "fake@azurefake.fake";
+        $_SESSION['form_email'] = "fake@fake.fake";
 
         $result = $this->controller(Auth::class)
           ->execute('verify_verification_code');

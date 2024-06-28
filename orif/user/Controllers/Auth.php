@@ -159,7 +159,7 @@ use User\Controllers\Profile;
             $url .= "&redirect_uri=" . urlencode($redirect_uri);
             
             // Redirection to Microsoft's login page
-            return redirect()->to($url);
+            return $this->response->redirect($url)->send();
 
         // Second stage of the authentication process
         } elseif (isset($_GET["error"])) {
@@ -416,7 +416,6 @@ use User\Controllers\Profile;
             } else {
 
                 // User already in DB => Update azure_mail in DB
-               
                 $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
                
                 // Verification code matches
@@ -439,6 +438,7 @@ use User\Controllers\Profile;
   
             if ($_SESSION['verification_attempts'] <= 0) {
                 // No more attempts, keep default user access, reset some session variables and redirect to after_login_redirect
+                return $this->reset_session();
             } else {
                 $output = array(
                     'title' => lang('user_lang.title_validation_code'),
@@ -454,10 +454,6 @@ use User\Controllers\Profile;
                 );
             }
         }
-
-        // todo redirect to reset sessions method
-        return $this->reset_session();
-
     }
 
     public function register_user() {
