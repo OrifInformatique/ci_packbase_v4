@@ -720,13 +720,22 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['new_user'] = false;
         $_SESSION['azure_mail'] = "fake@azurefake.fake";
         $_SESSION['form_email'] = "fake@fake.fake";
+        $redirect_url = $_SESSION['after_login_redirect'];
 
         $result = $this->controller(Auth::class)
           ->execute('verify_verification_code');
         
+        /* Check that user's azure_mail has been updated in the DB */
         $azureMailInDb = $userModel->select('azure_mail')
                                ->find($userId)['azure_mail'];
         $this->assertEquals($_SESSION['azure_mail'], $azureMailInDb);
+
+        /* Check that the user is logged in */
+        $result->assertSessionHas('logged_in', true);
+
+        /* Check if user has been redirected correctly */
+        $result->assertRedirect();
+        $result->assertRedirectTo($redirect_url);
     }
 
     /**

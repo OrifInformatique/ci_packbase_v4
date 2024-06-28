@@ -430,6 +430,9 @@ use User\Controllers\Profile;
                 $this->user_model->update($ci_user['id'], $data);
                 
                 $_SESSION['logged_in'] = (bool)true;
+
+                // Send the user to the redirection URL
+                return redirect()->to($_SESSION['after_login_redirect']);
             }
 
         } else { // Code is not valid for any reason (false and/or expired)
