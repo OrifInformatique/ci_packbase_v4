@@ -103,16 +103,13 @@ use User\Controllers\Profile;
                         
                         // return redirect()->to('/user/auth/login');
                         $_SESSION['user_id'] = (int)$user->id;
-                        // $profile_controller = new Profile(); 
-                        // $profile_controller -> checkForceChangePassword();
-
                         $_SESSION['username'] = (string)$user->username;
                         $_SESSION['user_access'] = (int)$this->user_model->get_access_level($user);
                         $_SESSION['logged_in'] = (bool)true;
                         
                         // force user to change password if told so
-                        if  ($user->reset_password = 1) {
-                            return redirect()->to(base_url("user/auth/change_password"));
+                        if  ($user->reset_password == 1) {
+                            return redirect()->to(base_url("user/profile/change_password"));
                         }
 
                         // Send the user to the redirection URL
@@ -128,7 +125,7 @@ use User\Controllers\Profile;
             // Check if microsoft login button submitted, else, display login page
             } else if (!is_null($this->request->getPost('btn_login_microsoft'))) {
                 $this->azure_login();
-                exit();
+                //exit();
             }
             //Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
@@ -140,8 +137,6 @@ use User\Controllers\Profile;
 
     /**
      * Initiate the communication with Microsoft Azure for the oAuth2.0 login system
-     *
-     * @return ???
      */
     public function azure_login() {
 
@@ -150,7 +145,7 @@ use User\Controllers\Profile;
         $ad_tenant = getenv('TENANT_ID');
         $graphUserScopes = getenv('GRAPH_USER_SCOPES');
         $redirect_uri = getenv('REDIRECT_URI');
-        
+
         // Authentication part begins
         if (!isset($_GET["code"]) and !isset($_GET["error"])) {
             
@@ -162,7 +157,9 @@ use User\Controllers\Profile;
             $url .= "&approval_prompt=auto";
             $url .= "&client_id=" . $client_id;
             $url .= "&redirect_uri=" . urlencode($redirect_uri);
-            return redirect()->to($url); // Redirection to Microsoft's login page
+            
+            // Redirection to Microsoft's login page
+            return redirect()->to($url);
 
         // Second stage of the authentication process
         } elseif (isset($_GET["error"])) {
@@ -195,6 +192,7 @@ use User\Controllers\Profile;
             } catch (\Exception $e) {
                 $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
+
                 return $this->display_view('\User\errors\401error', $data);
             };
 
@@ -349,18 +347,26 @@ use User\Controllers\Profile;
             'SMTPUser' => getenv('SMTP_ID'),
             'SMTPPass' => getenv('SMTP_PASSWORD'),
             'SMTPPort' => getenv('SMTP_PORT'),
-        ];
-
-        $appTitle = lang('common_lang.app_title');
+            'SMTPCrypto' => getenv('SMTP_CRYPTO'),
+          ];
 
         $email->initialize($emailConfig);
 
-        // Sending code to user's orif  mail
-        $email->setFrom('smtp@sectioninformatique.ch', 'ORIF: Vérification du mail'); // 2nd paramater hard coded since variable not interpreted in SetFrom
+        //Sending code to user's mail 
+        $email->setFrom(getenv('SMTP_ID'), lang('common_lang.app_title'));
         $email->setTo($form_email);
-        $email->setSubject('Code de vérification');
-        $email->setMessage('Voici votre code de vérification: '.$verification_code);
+        $email->setSubject(lang('user_lang.mail_verification_code_subject'));
+        $email->setMessage(lang('user_lang.mail_verification_code_text').$verification_code);
+
+        // Comment this line to debug mail sending
         $email->send();
+
+        // Uncomment this part to debug mail sending
+        /*
+        if(!$email->send(false)){
+            dd($email->printDebugger());
+        }
+        */
 
         // Set code's expiration timer
         $_SESSION['timer_start'] = time();
@@ -503,7 +509,8 @@ use User\Controllers\Profile;
         $_SESSION['timer_end'] = null;
         $_SESSION['timer_limit'] = null;
         $_SESSION['test'] = null;
-        
+        $_SESSION['reset_password'] = null;
+
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
     }
@@ -514,54 +521,6 @@ use User\Controllers\Profile;
         exit();
     }
 
-    /**
-     * Displays a form to let user change his password
-     *
-     * @return void
-     */
-    public function change_password(): Response|string {
-
-        // Get user from DB, redirect if user is not defined or doesn't exist
-        if(isset($_SESSION['user_id'])) {
-            $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
-            if (is_null($user)) return redirect()->to('/user/auth/login');
-        } else {
-            return redirect()->to('/user/auth/login');
-        }
-
-        // Empty errors message in output
-        $output['errors'] = [];
-        // Check if the form has been submitted, else just display the form
-        if (!is_null($this->request->getVar('btn_change_password'))) {
-            $old_password = $this->request->getVar('old_password');
-
-            if($this->user_model->check_password_name($user['username'], $old_password)) {
-                $user['password'] = $this->request->getVar('new_password');
-                $user['password_confirm'] = $this->request->getVar('confirm_password');
-
-                $this->user_model->update($user['id'], $user);
-
-                if ($this->user_model->errors()==null) {
-                    // No error happened, redirect
-                    $user['reset_password'] = 0; // false
-                    $this->user_model->update($user['id'], $user);
-                    return redirect()->to(base_url());
-                } else {
-                    // Display error messages
-                    $output['errors'] = $this->user_model->errors();
-                }
-
-            } else {
-                // Old password error
-                $output['errors'][] = lang('user_lang.msg_err_invalid_old_password');
-            }
-        }
-
-        // Display the password change form
-        $output['title'] = lang('user_lang.page_my_password_change');
-        return $this->display_view('\User\auth\change_password', $output);
-
-    }
     /**
      * Logout and destroy session
      *

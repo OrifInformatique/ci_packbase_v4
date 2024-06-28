@@ -55,6 +55,14 @@ $validation=\Config\Services::validation();
         </div>
     </div>
 
+                <!-- FORCE PASSWORD CHANGE ONCE ON NEXT LOGIN -->
+                <div class="col-12">
+                    <!-- <input type="checkbox" id='force_password_change'> -->
+                    <label for="force_password_change"><?= lang("user_lang.force_password_change"); ?></label>
+
+                    <input type="checkbox" name="force_password_change" value="force" <?= $force_password_change; ?>>
+                </div>
+
     <!-- SUBMIT / CANCEL -->
     <div class="row">
         <div class="col-12 text-right">

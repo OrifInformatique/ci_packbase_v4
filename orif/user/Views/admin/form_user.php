@@ -100,12 +100,11 @@ $validation=\Config\Services::validation();
                 </div>
 
                 <!-- FORCE PASSWORD CHANGE ONCE ON NEXT LOGIN -->
-                <!-- TODO: make it checked when in DB, force_password change set to true -->
                 <div class="col-12">
                     <!-- <input type="checkbox" id='force_password_change'> -->
                     <label for="force_password_change"><?= lang("user_lang.force_password_change"); ?></label>
 
-                    <input type="checkbox" name="force_password_change" value="<?= lang("user_lang.force_password_change"); ?>" checked="checked"> <!-- checked="checked" should change depending of the DB-->
+                    <input type="checkbox" name="force_password_change" value="<?= lang("user_lang.force_password_change"); ?>" <?= $force_password_change; ?>>
                 </div>
             </div>
         <?php } ?>
