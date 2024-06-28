@@ -157,11 +157,9 @@ use User\Controllers\Profile;
             $url .= "&approval_prompt=auto";
             $url .= "&client_id=" . $client_id;
             $url .= "&redirect_uri=" . urlencode($redirect_uri);
-
+            
+            // Redirection to Microsoft's login page
             return $this->response->redirect($url)->send();
-
-            // header("Location:" . $url);  // Redirection to Microsoft's login page
-            // exit;
 
         // Second stage of the authentication process
         } elseif (isset($_GET["error"])) {
@@ -194,9 +192,8 @@ use User\Controllers\Profile;
             } catch (\Exception $e) {
                 $data['title'] = 'Azure error';
                 $data['Exception'] = $e;
-                d('test debug Exception');
+
                 return $this->display_view('\User\errors\401error', $data);
-                exit();
             };
 
             if ($json === false){
@@ -303,9 +300,9 @@ use User\Controllers\Profile;
     /**
      * Prepares the mail form and checks if the Azure mail already registered in the DB
      *
-     * @return ???
+     * @return html Display the form view to verify the expiration code.
      */
-    public function handle_mail_form() {
+    public function handle_mail_form(): string {
         
         // Get user email from mail form
         $_SESSION['form_email'] = $this->request->getPost('user_email');
@@ -325,11 +322,12 @@ use User\Controllers\Profile;
     }
 
     /**
-     * Generates, starts the expiration time and sends the verification code via SMTP (mail) to the user
+     * Generates verification code, starts the expiration time and sends the verification code 
+     * via SMTP (mail) to the user. 
      *
-     * @return ???
+     * @return html Display the form view to verify the expiration code.
      */
-    public function generate_send_verification_code($form_email) { // generate code and send mail
+    public function generate_send_verification_code($form_email): string { // generate code and send mail
 
         // Random code generator
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -383,13 +381,17 @@ use User\Controllers\Profile;
             'timer_limit' => $_SESSION['timer_limit'],
             'timer_end'   => $_SESSION['timer_end'],
         );
-
-        // echo doesn't work with unit tests
+        
         return $this->display_view('\User\auth\verification_code_form', $data);
     }
 
     public function verify_verification_code() {
+        // If verification code is not set, generate one and send it to user
+        if (!isset($_SESSION['verification_code']) || empty($_SESSION['verification_code'])){
+            return $this->generate_send_verification_code($_SESSION['form_email']);
+        }
 
+        // Get the verification code posted by the user
         $user_verification_code = $this->request->getPost('user_verification_code');
         
         if ($user_verification_code == $_SESSION['verification_code'] && time() < $_SESSION['timer_end']){
@@ -409,17 +411,11 @@ use User\Controllers\Profile;
                 // insert this new user
                 $this->user_model->insert($new_user);
 
-                // Force user to change password on next 'normal' login
-
                 $_SESSION['logged_in'] = (bool)true;
-
-                // TODO: Afficher formulaire creation user avec infos pré-remplies (save_user)
-                // TODO : Route differente, remplacer after_login_redirect
 
             } else {
 
                 // User already in DB => Update azure_mail in DB
-               
                 $ci_user = $this->user_model->where('email', $_SESSION['form_email'])->first();
                
                 // Verification code matches
@@ -432,8 +428,11 @@ use User\Controllers\Profile;
                 ];
                
                 $this->user_model->update($ci_user['id'], $data);
-
+                
                 $_SESSION['logged_in'] = (bool)true;
+
+                // Send the user to the redirection URL
+                return redirect()->to($_SESSION['after_login_redirect']);
             }
 
         } else { // Code is not valid for any reason (false and/or expired)
@@ -442,6 +441,7 @@ use User\Controllers\Profile;
   
             if ($_SESSION['verification_attempts'] <= 0) {
                 // No more attempts, keep default user access, reset some session variables and redirect to after_login_redirect
+                return $this->reset_session();
             } else {
                 $output = array(
                     'title' => lang('user_lang.title_validation_code'),
@@ -457,10 +457,6 @@ use User\Controllers\Profile;
                 );
             }
         }
-
-        // todo redirect to reset sessions method
-        return $this->reset_session();
-
     }
 
     public function register_user() {
@@ -512,11 +508,10 @@ use User\Controllers\Profile;
         $_SESSION['timer_end'] = null;
         $_SESSION['timer_limit'] = null;
         $_SESSION['test'] = null;
-        $_SESSION['reset_password'] = null; 
+        $_SESSION['reset_password'] = null;
 
         // Send the user to the redirection URL
         return redirect()->to($_SESSION['after_login_redirect']);
-        // return redirect()->to('/user/profile/test');
     }
 
     function errorhandler($data) {

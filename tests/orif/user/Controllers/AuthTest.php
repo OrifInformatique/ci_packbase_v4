@@ -608,9 +608,13 @@ class AuthTest extends CIUnitTestCase
     {
         $_POST['user_verification_code'] = null;
         $_SESSION['verification_code'] = null;
-        $form_email = 'fake@fake.fake';
-        $result = $this->controller(Auth::class)
-          ->execute('generate_send_verification_code', $form_email);
+        $_SESSION['verification_attempts'] = 3;
+        $_SESSION['timer_end'] = time() + 300;
+        $_SESSION['new_user'] = true;
+        $_SESSION['azure_mail'] = "fake@azurefake.fake";
+        $_SESSION['form_email'] = "fake@fake.fake";
+        $_SESSION['after_login_redirect'] = base_url();
+        $result = $this->controller(Auth::class)->execute('verify_verification_code');
         $result->assertSee(lang('user_lang.user_validation_code'));
     }
   
@@ -624,11 +628,13 @@ class AuthTest extends CIUnitTestCase
     {
         $_POST['user_verification_code'] = 'fake1';
         $_SESSION['verification_code'] = 'fake2';
-        $_SESSION['verification_attempts'] = 3; // 3 attempts left
-        $_SESSION['timer_end'] = time() + 300; // force timer_end to be greater than time()
-        $form_email = 'fake@fake.fake';
-        $result = $this->controller(Auth::class)
-          ->execute('verify_verification_code', $form_email);
+        $_SESSION['verification_attempts'] = 3;
+        $_SESSION['timer_end'] = time() + 300;
+        $_SESSION['new_user'] = true;
+        $_SESSION['azure_mail'] = "fake@azurefake.fake";
+        $_SESSION['form_email'] = "fake@fake.fake";
+        $_SESSION['after_login_redirect'] = base_url();
+        $result = $this->controller(Auth::class)->execute('verify_verification_code');
         $result->assertSee(lang('user_lang.msg_err_validation_code'));
     }
 
@@ -637,11 +643,12 @@ class AuthTest extends CIUnitTestCase
         $_POST['user_verification_code'] = 'fake1';
         $_SESSION['verification_code'] = 'fake2';
         $_SESSION['verification_attempts'] = 1;
-        $_SESSION['timer_end'] = time() - 300; // force timer_end to be expired
+        $_SESSION['timer_end'] = time() + 300;
+        $_SESSION['new_user'] = true;
+        $_SESSION['azure_mail'] = "fake@azurefake.fake";
+        $_SESSION['form_email'] = "fake@fake.fake";
         $_SESSION['after_login_redirect'] = base_url();
-        $form_email = 'fake@fake.fake';
-        $result = $this->controller(Auth::class)
-          ->execute('verify_verification_code', $form_email);
+        $result = $this->controller(Auth::class)->execute('verify_verification_code');
         $this->assert_redirect($result);
     }
 
@@ -711,15 +718,24 @@ class AuthTest extends CIUnitTestCase
         $_SESSION['timer_end'] = time() + 300; // force timer_end to be greater than time()
         $_SESSION['after_login_redirect'] = base_url();
         $_SESSION['new_user'] = false;
-        $_SESSION['azure_mail'] = "azure@azurefake.fake";
-        $_SESSION['form_email'] = "fake@azurefake.fake";
+        $_SESSION['azure_mail'] = "fake@azurefake.fake";
+        $_SESSION['form_email'] = "fake@fake.fake";
+        $redirect_url = $_SESSION['after_login_redirect'];
 
         $result = $this->controller(Auth::class)
           ->execute('verify_verification_code');
         
+        /* Check that user's azure_mail has been updated in the DB */
         $azureMailInDb = $userModel->select('azure_mail')
                                ->find($userId)['azure_mail'];
         $this->assertEquals($_SESSION['azure_mail'], $azureMailInDb);
+
+        /* Check that the user is logged in */
+        $result->assertSessionHas('logged_in', true);
+
+        /* Check if user has been redirected correctly */
+        $result->assertRedirect();
+        $result->assertRedirectTo($redirect_url);
     }
 
     /**

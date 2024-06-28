@@ -54,8 +54,12 @@ class Profile extends BaseController {
     public function change_password(): Response|string|RedirectResponse {
 
         // Get user from DB, redirect if user doesn't exist
-        $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
-        if (is_null($user)) return redirect()->to('/user/auth/login');
+        if(isset($_SESSION['user_id'])) {
+            $user = $this->user_model->withDeleted()->find($_SESSION['user_id']);
+            if (is_null($user)) return redirect()->to('/user/auth/login');
+        } else {
+            return redirect()->to('/user/auth/login');
+        }
 
         // Empty errors message in output
         $output['errors'] = [];
@@ -91,7 +95,6 @@ class Profile extends BaseController {
         $_SESSION['reset_password'] = $user['reset_password'];
         $output['title'] = lang('user_lang.page_my_password_change');
         return $this->display_view('\User\auth\change_password', $output);
-
     }
 }
 ?>
