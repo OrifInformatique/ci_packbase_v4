@@ -55,7 +55,7 @@ class AdminTest extends CIUnitTestCase
         $response = $this->get_response_and_assert($result);
         $this->assertInstanceOf(Response::class, $response);
         $this->assertNotEmpty($response->getBody());
-        
+
     }
 
     private function assert_redirect(TestResponse $result): void
@@ -69,7 +69,7 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the list_user page is loaded correctly with an
      * administrator session
      */
-    public function testlist_userWithAdministratorSession() 
+    public function testlist_userWithAdministratorSession()
     {
         $_SESSION = $this->get_session_data();
         // Execute list_user method of Admin class
@@ -93,7 +93,7 @@ class AdminTest extends CIUnitTestCase
     /**
      * Asserts that the list_user page is loaded correctly with disabled users
      */
-    public function testlist_userWithDisabledUsers() 
+    public function testlist_userWithDisabledUsers()
     {
         $_SESSION = $this->get_session_data();
         $userModel = model(User_model::class);
@@ -123,7 +123,7 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the list_user page is loaded correctly without disabled
      * users (after disabling user id 1)
      */
-    public function testlist_userWithoutDisabledUsers() 
+    public function testlist_userWithoutDisabledUsers()
     {
         $_SESSION = $this->get_session_data();
         $userModel = model(User_model::class);
@@ -151,7 +151,7 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the password_change_user page is loaded correctly for the
      * user id 1
      */
-    public function testpassword_change_user() 
+    public function testpassword_change_user()
     {
         $_SESSION = $this->get_session_data();
         // Execute password_change_user method of Admin class
@@ -174,7 +174,7 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the password_change_user page redirects to the list_user
      * view for a non existing user
      */
-    public function testpassword_change_userWithNonExistingUser() 
+    public function testpassword_change_userWithNonExistingUser()
     {
         $_SESSION = $this->get_session_data();
         // Execute password_change_user method of Admin class
@@ -189,7 +189,7 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the delete_user page displays a warning message for the
      * user id 1 (no session)
      */
-    public function testdelete_userWithoutSession() 
+    public function testdelete_userWithoutSession()
     {
         $_SESSION = $this->get_session_data();
         // Execute delete_user method of Admin class (no action parameter is
@@ -205,47 +205,73 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the delete_user page is loaded correctly for the user id 1
      * (with a session)
      */
-    public function testdelete_userWithSessionAndDefaultAction() 
+    public function testdelete_userWithSessionAndDefaultAction()
     {
-        // Initialize session 
+        // Initialize session
         $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 2;
+
         // Execute delete_user method of Admin class (no action parameter is
         // passed to avoid deleting)
         $result = $this->controller(Admin::class)
             ->execute('delete_user', 1);
+
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee(lang('user_lang.what_to_do'), 'h4');
+
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+
+        $result->assertSee(lang('common_lang.title_manage_entry'), 'h1');
+        $result->assertSee(lang('common_lang.manage_entry_confirmation'), 'p');
+
+        $result->assertSee(lang('user_lang.user'), 'strong');
+        $result->assertSee('admin', 'p');
+
+        $result->assertDontSee(lang('common_lang.entries_linked_to_entry_being_managed'),
+            'h2');
+        $result->assertDontSeeElement('.alert alert-secondary');
+
+        $result->assertSee(lang('user_lang.user_delete_explanation'));
+
         $result->assertSeeLink(lang('common_lang.btn_cancel'));
-        $result->assertSeeLink(lang('user_lang.btn_disable_user'));
-        $result->assertSeeLink(lang('user_lang.btn_hard_delete_user'));
+        $result->assertSeeLink(lang('common_lang.btn_disable'));
+        $result->assertSeeLink(lang('common_lang.btn_delete'));
     }
 
     /**
      * Asserts that the delete_user page is loaded correctly with a warning
      * message
      */
-    public function
-        testdelete_userWithSessionAndDefaultActionForADisabledUser()
+    public function testdelete_userWithSessionAndDefaultActionForUserHimself()
     {
         // Initialize the session
         $_SESSION = $this->get_session_data();
-        $_SESSION['user_id'] = 2;
-        // Instantiate a new user model
-        $userModel = model(User_model::class);
-        $user_id = 1;
-        // Disable user id 1
-        $userModel->update($user_id, ['archive' => '2023-04-25']);
-        // Execute delete_user method of Admin class (disable action parameter
-        // is passed)
+        $_SESSION['user_id'] = 1;
+
         $result = $this->controller(Admin::class)
-            ->execute('delete_user', $user_id);
-        // Enable user id 1
-        $userModel->update($user_id, ['archive' => NULL]);
+            ->execute('delete_user', 1);
+
         // Assertions
         $this->assert_reponse($result);
-        $result->assertSee(lang('user_lang.user_allready_disabled'), 'div');
+
+        $result->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+
+        $result->assertSee(lang('common_lang.title_manage_entry'), 'h1');
+        $result->assertSee(lang('common_lang.manage_entry_confirmation'), 'p');
+
+        $result->assertSee(lang('user_lang.user'), 'strong');
+        $result->assertSee('admin', 'p');
+
+        $result->assertDontSee(lang('common_lang.entries_linked_to_entry_being_managed'),
+            'h2');
+        $result->assertDontSeeElement('.alert alert-secondary');
+
+        $result->assertSee(lang('user_lang.user_delete_himself'),
+            '.alert alert-danger');
+
+        $result->assertSeeLink(lang('common_lang.btn_cancel'));
+        $result->assertDontSeeLink(lang('common_lang.btn_disable'));
+        $result->assertDontSeeLink(lang('common_lang.btn_delete'));
     }
 
     /**
@@ -380,12 +406,12 @@ class AdminTest extends CIUnitTestCase
     }
 
     /**
-     * Asserts that the form_user page is loaded correctly for the user id 1 
+     * Asserts that the form_user page is loaded correctly for the user id 1
      */
-    public function testsave_userWithUserId() 
+    public function testsave_userWithUserId()
     {
         $_SESSION = $this->get_session_data();
-        // Execute save_user method of Admin class 
+        // Execute save_user method of Admin class
         $userId = 1;
         $result = $this->controller(Admin::class)
                        ->execute('save_user', $userId);
@@ -427,10 +453,10 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the form_user page is loaded correctly for a new user (no
      * user id)
      */
-    public function testsave_userWithoutUserId() 
+    public function testsave_userWithoutUserId()
     {
         $_SESSION = $this->get_session_data();
-        // Execute save_user method of Admin class 
+        // Execute save_user method of Admin class
         $result = $this->controller(Admin::class)
             ->execute('save_user');
 
@@ -468,13 +494,13 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the form_user page is loaded correctly for the user id 1
      * with the session user id 1
      */
-    public function testsave_userWithUserIdWithSameSessionUserId() 
+    public function testsave_userWithUserIdWithSameSessionUserId()
     {
         // Initialize the session
         $_SESSION = $this->get_session_data();
         $_SESSION['user_id'] = 1;
 
-        // Execute save_user method of Admin class 
+        // Execute save_user method of Admin class
         $result = $this->controller(Admin::class)
             ->execute('save_user', 1);
 
@@ -528,7 +554,7 @@ class AdminTest extends CIUnitTestCase
         // Disable user id 1
         $userModel->update($user_id, ['archive' => '2023-03-30 10:32:00']);
 
-        // Execute save_user method of Admin class 
+        // Execute save_user method of Admin class
         $result = $this->controller(Admin::class)
             ->execute('save_user', 1);
 
@@ -691,7 +717,7 @@ class AdminTest extends CIUnitTestCase
         $_POST['user_password_again'] = 'UserUnitTestPassword';
         $_REQUEST['user_password_again'] = 'UserUnitTestPassword';
 
-        // Execute save_user method of Admin class 
+        // Execute save_user method of Admin class
         $result = $this->controller(Admin::class)
             ->execute('save_user');
 
@@ -738,7 +764,7 @@ class AdminTest extends CIUnitTestCase
         $_POST['user_password_again'] = 'UserUnitTestPasswordError';
         $_REQUEST['user_password_again'] = 'UserUnitTestPasswordError';
 
-        // Execute save_user method of Admin class 
+        // Execute save_user method of Admin class
         $result = $this->controller(Admin::class)
             ->execute('save_user');
 
@@ -769,10 +795,10 @@ class AdminTest extends CIUnitTestCase
         $userType = $this->get_guest_user_type();
         $username = 'SaveUserUnitTest';
         $userEmail = 'usersaveuserunittest@test.com';
-        $userPassword = 'UnitTestPassword';        
+        $userPassword = 'UnitTestPassword';
         $userId = self::insertUser($userType, $username, $userEmail,
             $userPassword);
-        
+
         // Prepare the POST request to update this user
         $_SERVER['REQUEST_METHOD'] = 'post';
         $_POST['id'] = $userId;
@@ -784,11 +810,11 @@ class AdminTest extends CIUnitTestCase
         $_POST['user_usertype'] = $this->get_registered_user_type();
         $_REQUEST['user_usertype'] = $this->get_registered_user_type();
 
-        // Execute save_user method of Admin class 
+        // Execute save_user method of Admin class
         $result = $this->controller(Admin::class)
             ->execute('save_user', $userId);
 
-        // Get user from database after update 
+        // Get user from database after update
         $userDbUpdate = $userModel->where("username", $username)->first();
 
         // Deletes inserted user

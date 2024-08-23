@@ -169,7 +169,7 @@ class Admin extends BaseController
                     'cancel_btn_url' => base_url('/user/admin/list_user')
                 );
 
-                if($_SESSION['user_id'] == $user['id'])
+                if($_SESSION['user_id'] == $user_id)
                 {
                     // Prevents altering the user himself
                     $output['entry']['message'] =
@@ -181,16 +181,16 @@ class Admin extends BaseController
 
                 else
                 {
-                    $output['primary_action'] =
-                    [
-                        'name' => lang('common_lang.btn_delete'),
-                        'url' => base_url(uri_string().'/2')
-                    ];
-
                     $output['entry']['message'] =
                     [
                         'type' => 'info',
                         'text' => lang('user_lang.user_delete_explanation')
+                    ];
+
+                    $output['primary_action'] =
+                    [
+                        'name' => lang('common_lang.btn_delete'),
+                        'url' => base_url(uri_string().'/2')
                     ];
 
                     if($user['archive'])
