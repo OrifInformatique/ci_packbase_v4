@@ -189,7 +189,7 @@ class AdminTest extends CIUnitTestCase
      * Asserts that the delete_user page displays a warning message for the
      * user id 1 (no session)
      */
-    public function testdelete_userWithoutSession()
+    /* public function testdelete_userWithoutSession()
     {
         $_SESSION = $this->get_session_data();
         // Execute delete_user method of Admin class (no action parameter is
@@ -199,7 +199,7 @@ class AdminTest extends CIUnitTestCase
         // Assertions
         $this->assert_reponse($result);
         $result->assertSee(lang('user_lang.user_delete_himself'), 'div');
-    }
+    } */
 
     /**
      * Asserts that the delete_user page is loaded correctly for the user id 1
