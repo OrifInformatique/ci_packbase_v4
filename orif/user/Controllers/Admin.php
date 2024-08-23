@@ -117,7 +117,7 @@ class Admin extends BaseController
         //usertiarray is an array that containes all usertype name and id
         $usertiarray=$this->db->table('user_type')->select(['id','name'],)->get()->getResultArray();
         $usertypes=[];
-         
+
         foreach ($usertiarray as $row){
             $usertypes[$row['id']]=$row['name'];
         }
@@ -139,41 +139,95 @@ class Admin extends BaseController
     /**
      * Delete or deactivate a user depending on $action
      *
-     * @param integer $user_id = ID of the user to affect
-     * @param integer $action = Action to apply on the user:
-     *  - 0 for displaying the confirmation
-     *  - 1 for deactivating (soft delete)
-     *  - 2 for deleting (hard delete)
+     * @param integer $user_id ID of the user to affect
+     * @param integer $action Action to apply on the user
+     *      - 0 for displaying the confirmation
+     *      - 1 for deactivating (soft delete)
+     *      - 2 for deleting (hard delete)
+     *
      * @return void
+     *
      */
     public function delete_user(int $user_id, ?int $action = 0): string|Response
     {
         $user = $this->user_model->withDeleted()->find($user_id);
-        if (is_null($user)) {
+
+        if(is_null($user))
             return redirect()->to('/user/admin/list_user');
+
+        switch($action)
+        {
+            // Display confirmation
+            case 0:
+                $output = array
+                (
+                    'entry' =>
+                    [
+                        'type' => lang('user_lang.user'),
+                        'name' => $user['username'],
+                    ],
+                    'cancel_btn_url' => base_url('/user/admin/list_user')
+                );
+
+                if($_SESSION['user_id'] == $user['id'])
+                {
+                    // Prevents altering the user himself
+                    $output['entry']['message'] =
+                    [
+                        'type' => 'danger',
+                        'text' => lang('user_lang.user_delete_himself')
+                    ];
+                }
+
+                else
+                {
+                    $output['primary_action'] =
+                    [
+                        'name' => lang('common_lang.btn_delete'),
+                        'url' => base_url(uri_string().'/2')
+                    ];
+
+                    $output['entry']['message'] =
+                    [
+                        'type' => 'info',
+                        'text' => lang('user_lang.user_delete_explanation')
+                    ];
+
+                    if($user['archive'])
+                    {
+                        $output['secondary_action'] =
+                        [
+                            'name' => lang('common_lang.btn_reactivate'),
+                            'url' => base_url('/user/admin/reactivate_user/'.$user_id)
+                        ];
+                    }
+
+                    else
+                    {
+                        $output['secondary_action'] =
+                        [
+                            'name' => lang('common_lang.btn_disable'),
+                            'url' => base_url(uri_string().'/1')
+                        ];
+                    }
+                }
+
+                return $this->display_view('\Common/manage_entry', $output);
+
+            // Deactivate (soft delete) user
+            case 1:
+                if($_SESSION['user_id'] != $user['id'])
+                    $this->user_model->delete($user_id, FALSE);
+                break;
+
+            // Delete user
+            case 2:
+                if ($_SESSION['user_id'] != $user['id'])
+                    $this->user_model->delete($user_id, TRUE);
+                break;
         }
 
-        switch($action) {
-            case 0: // Display confirmation
-                $output = array(
-                    'user' => $user,
-                    'title' => lang('user_lang.title_user_delete')
-                );
-                return $this->display_view('\User\admin\delete_user', $output);
-                break;
-            case 1: // Deactivate (soft delete) user
-                if ($_SESSION['user_id'] != $user['id']) {
-                    $this->user_model->delete($user_id, FALSE);
-                }
-                return redirect()->to('/user/admin/list_user');
-            case 2: // Delete user
-                if ($_SESSION['user_id'] != $user['id']) {
-                    $this->user_model->delete($user_id, TRUE);
-                }
-                return redirect()->to('/user/admin/list_user');
-            default: // Do nothing
-                return redirect()->to('/user/admin/list_user');
-        }
+        return redirect()->to('/user/admin/list_user');
     }
 
     /**
@@ -209,7 +263,7 @@ class Admin extends BaseController
             // Save new password
             $user['password'] = $this->request->getPost('password_new');
             $user['password_confirm'] = $this->request->getPost('password_confirm');
-            
+
             $force_password_change = $this->request->getPost('force_password_change');
             // if force_password_change not checked in the view, the value is null.
             if ($force_password_change){
