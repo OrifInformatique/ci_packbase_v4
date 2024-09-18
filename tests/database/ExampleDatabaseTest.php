@@ -12,8 +12,8 @@ final class ExampleDatabaseTest extends CIUnitTestCase
 {
     use DatabaseTestTrait;
 
-    // Execute migrations from all available namespaces
-    protected $namespace = null;
+    // Execute migrations from Tests\Support namespaces
+    protected $namespace   = 'Tests\Support';
 
     protected $seed = ExampleSeeder::class;
 
