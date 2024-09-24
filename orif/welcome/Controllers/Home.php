@@ -20,11 +20,22 @@ class Home extends BaseController
 
 	public function index(): string
 	{
+        unset($_SESSION["show_deleted"]);
         return view('Welcome\welcome_message');
 	}
 
-    public function display_items($with_deleted = false): string
+    public function display_items($with_deleted = null): string
     {
+        if($with_deleted == null){
+            if(isset($_SESSION["show_deleted"])){
+                $with_deleted = $_SESSION["show_deleted"];
+            }else{
+                $with_deleted = false;
+            }
+        }else{
+            $_SESSION["show_deleted"] = $with_deleted;
+        }
+
         $data['list_title'] = "Test de la liste items_list";
 
         $data['columns'] = ['name' => 'Nom',
@@ -53,6 +64,7 @@ class Home extends BaseController
         $data['with_deleted']       = $with_deleted;
         $data['deleted_field']      = 'deleted';
         $data['url_detail'] = "items_list/detail/";
+        $data['url_test'] = "welcome/home/test_memo_call"; //here url to specific view test for testing the memorizing deleted_items error to solve, can be and should probably removed after testing
         $data['url_update'] = "items_list/update/";
         $data['url_delete'] = "items_list/delete/";
         $data['url_create'] = "items_list/create/";
@@ -61,5 +73,10 @@ class Home extends BaseController
         $data['url_duplicate'] = "items_list/duplicate_item/";
         
         return $this->display_view('Common\items_list', $data);
+    }
+
+    public function test_memo_call()
+    {
+        return $this->display_view('Common\test_memo');
     }
 }

@@ -140,6 +140,10 @@
                 <a class="btn btn-primary" href="<?= site_url(esc($url_create)) ?>"><?= esc($btn_create_label) ?></a>
             <?php endif ?>
         </div>
+        <div class="col-sm-6 text-left">
+            <!-- Display the "test" button, should be erased at the end of the testing phase -->
+            <a class="btn btn-primary" href="<?= site_url(esc($url_test)) ?>"><?= esc("Test_nul") ?></a>
+        </div>
         <div class="col-sm-6 text-right">
             <!-- Display the "with_deleted" checkbox if with_deleted and url_getView variables are defined -->
             <?php if (isset($with_deleted) && isset($url_getView)): ?>
@@ -187,7 +191,7 @@
                     <td class="text-right">                        
                         <!-- Bootstrap details icon ("Card text"), redirect to url_detail, adding /primary_key as parameter -->
                         <?php if(isset($url_detail)): ?>
-                            <a href="<?= site_url(esc($url_detail.$itemEntity[$primary_key_field])) ?>"
+                            <a href="<?= site_url(esc($url_detail.$itemEntity[$primary_key_field])) ?>" 
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_details') ?>" >
                                 <i class="bi bi-card-text" style="font-size: 20px;"></i>
                             </a>
@@ -216,14 +220,15 @@
                                 <i class="bi bi-trash" style="font-size: 20px;"></i>
                             </a>
                         <?php endif ?>
-                        <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore,
-                                adding/primary_key as parameter -->
+
+                        <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore, adding/primary_key as parameter -->
                         <?php if ((isset($url_restore)) and (isset($itemEntity[$deleted_field]) &&  !empty($itemEntity[$deleted_field]))) : ?>
                             <a href="<?= site_url(esc($url_restore . $itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
                                 <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
                             </a>
                         <?php endif ?>
+
                         <?php if ((isset($url_delete)) and (isset($itemEntity[$deleted_field]) &&  !empty($itemEntity[$deleted_field]))) : ?>
                             <!-- Bootstrap delete icon ("Trash") with red color, redirect to url_delete, adding /primary_key as parameter -->
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
@@ -248,7 +253,7 @@ $(document).ready(function() {
     $('#toggle_deleted').change(e => {
         let checked = e.currentTarget.checked;
 
-        // Get view content corresponding to the new parameters and replace current displayed content
+        //Get view content corresponding to the new parameters and replace current displayed content
         $.post('<?= base_url($url_getView); ?>/'+(+checked), {}, data => {
             $('#itemsList').empty();
             $('#itemsList')[0].innerHTML = $(data).find('#itemsList')[0].innerHTML;
