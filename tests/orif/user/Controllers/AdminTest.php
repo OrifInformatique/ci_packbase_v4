@@ -391,6 +391,7 @@ class AdminTest extends CIUnitTestCase
                        ->execute('save_user', $userId);
         $userModel = model(User_model::class);
         $adminName = $userModel->select('username')->find($userId)['username'];
+        $adminEmail = $userModel->select('email')->find($userId)['email'];
         $userTypeModel = model(user_type_model::class);
         $adminTypeName = $userTypeModel->select('name')
                 ->where('access_level = ', 4)->first()['name'];
@@ -408,7 +409,7 @@ class AdminTest extends CIUnitTestCase
         $result->assertSee($guestTypeName, 'option');
         $result->assertSeeElement('#user_form');
         $result->assertSeeInField('user_name', $adminName);
-        $result->assertSeeInField('user_email', '');
+        $result->assertSeeInField('user_email', $adminEmail);
         $result->assertSeeElement('#user_usertype');
         $result->assertDontSee(lang('user_lang.field_password'), 'label');
         $result->assertDontSeeElement('#user_password');
@@ -485,7 +486,7 @@ class AdminTest extends CIUnitTestCase
         $result->assertSee(lang('user_lang.field_username'), 'label');
         $result->assertSeeInField('user_name', 'admin');
         $result->assertSee(lang('user_lang.field_email'), 'label');
-        $result->assertSeeInField('user_email', '');
+        $result->assertSeeInField('user_email', 'admin@test.com');
         $result->assertSee(lang('user_lang.user_update_usertype_himself'),
             'div');
         $result->assertSeeElement('#user_usertype');
@@ -543,7 +544,7 @@ class AdminTest extends CIUnitTestCase
         $result->assertSee(lang('user_lang.field_username'), 'label');
         $result->assertSeeInField('user_name', 'admin');
         $result->assertSee(lang('user_lang.field_email'), 'label');
-        $result->assertSeeInField('user_email', '');
+        $result->assertSeeInField('user_email', 'admin@test.com');
         $result->assertSee(lang('user_lang.field_usertype'), 'label');
         $result->assertSeeElement('#user_usertype');
         $userTypeModel = model(user_type_model::class);
