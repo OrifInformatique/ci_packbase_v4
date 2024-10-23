@@ -151,3 +151,14 @@
 # CLIENT_SECRET = 
 # GRAPH_USER_SCOPES = 
 # REDIRECT_URI = 
+
+#-------------------------------------------------------------------
+# SMTP
+#-------------------------------------------------------------------
+
+# PROTOCOL = smtp
+# SMTP_HOST = smtp-mail.outlook.com
+# SMTP_ID = 
+# SMTP_PASSWORD = 
+# SMTP_PORT = 587
+# SMTP_CRYPTO = tls
